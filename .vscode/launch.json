@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "SilentShard",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": ["-v"] // enables verbose flutter output into debug console
+    },
+    {
+      "name": "SilentShard Attach",
+      "request": "attach",
+      "type": "dart",
+      "toolArgs": [
+        "-v",
+        "--app-id",
+        "com.silencelaboratories.silentshard",
+        "--device-vmservice-port",
+        "666" // replace with actual port
+      ]
+    },
+    {
+      "name": "SilentShard (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "SilentShard (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
+}
