@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:app_settings/app_settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/third_party/analytics.dart';
@@ -34,7 +36,7 @@ enum SignScreenNotificationAlertState { showing, notShowing }
 class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   StreamSubscription<SignRequest>? _signRequestsSubscription;
   SignScreenNotificationAlertState _notificationAlertState = SignScreenNotificationAlertState.notShowing;
-  AuthorizationStatus _notificationStatus = AuthorizationStatus.authorized;
+  AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
 
   _updateNotificationAlertState(SignScreenNotificationAlertState value) {
     setState(() {
@@ -48,6 +50,19 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     });
   }
 
+  // FirebaseMessaging does not return correct Notification status, return denied for notDetermined case in Android.
+  // We are using Permission library to handle this particular case.
+  Future<AuthorizationStatus> _getNotificatioSettingsStatus() async {
+    final isPermanentlyDenied = await Permission.notification.isPermanentlyDenied;
+    if (isPermanentlyDenied) return AuthorizationStatus.denied;
+    final firebaseNotificationSettings = await FirebaseMessaging.instance.getNotificationSettings();
+    if (firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.authorized || firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.provisional) {
+      return AuthorizationStatus.authorized;
+    }
+    if (Platform.isIOS) return firebaseNotificationSettings.authorizationStatus;
+    return AuthorizationStatus.notDetermined;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,9 +72,10 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     final appRepository = Provider.of<AppRepository>(context, listen: false);
 
     _signRequestsSubscription = appRepository.signRequests().listen(_handleSignRequest);
-    FirebaseMessaging.instance.getNotificationSettings().then((settings) {
-      _updateNotificationStatus(settings.authorizationStatus);
-      if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
+
+    _getNotificatioSettingsStatus().then((value) {
+      _updateNotificationStatus(value);
+      if (value == AuthorizationStatus.notDetermined) {
         _updateNotificationAlertState(SignScreenNotificationAlertState.showing);
       }
     });
@@ -81,11 +97,8 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        FirebaseMessaging.instance.getNotificationSettings().then((settings) {
-          _updateNotificationStatus(settings.authorizationStatus);
-          if (settings.authorizationStatus == AuthorizationStatus.notDetermined) {
-            _updateNotificationAlertState(SignScreenNotificationAlertState.showing);
-          }
+        _getNotificatioSettingsStatus().then((value) {
+          _updateNotificationStatus(value);
         });
         break;
       case AppLifecycleState.inactive:
@@ -127,10 +140,20 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                   )
                 ]),
                 const Gap(defaultPadding * 3),
-                if (_notificationStatus == AuthorizationStatus.denied) ...[
+                if (_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined) ...[
                   GestureDetector(
-                    onTap: () {
-                      AppSettings.openAppSettings(type: AppSettingsType.notification);
+                    onTap: () async {
+                      await _getNotificatioSettingsStatus().then(
+                        (value) async {
+                          if (value == AuthorizationStatus.denied) {
+                            AppSettings.openAppSettings(type: AppSettingsType.notification);
+                          } else {
+                            await FirebaseMessaging.instance.requestPermission().then((permissions) {
+                              _updateNotificationStatus(permissions.authorizationStatus);
+                            });
+                          }
+                        },
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(defaultPadding),
@@ -183,19 +206,22 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
           Consumer<LocalAuth>(builder: (context, localAuth, _) {
             return NotificationAlertDialog(
               onDeny: () {
+                _updateNotificationStatus(AuthorizationStatus.notDetermined);
                 _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
               },
               onAllow: () async {
                 final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
-                await FirebaseMessaging.instance.requestPermission().then((permissions) => {
-                      if (permissions.authorizationStatus == AuthorizationStatus.authorized || permissions.authorizationStatus == AuthorizationStatus.provisional)
-                        analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage)
-                      else if (permissions.authorizationStatus == AuthorizationStatus.denied)
-                        analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request")
-                      else
-                        analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns")
-                    });
+                await FirebaseMessaging.instance.requestPermission().then((permissions) {
+                  _updateNotificationStatus(permissions.authorizationStatus);
+                  if (permissions.authorizationStatus == AuthorizationStatus.authorized || permissions.authorizationStatus == AuthorizationStatus.provisional) {
+                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
+                  } else if (permissions.authorizationStatus == AuthorizationStatus.denied) {
+                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
+                  } else {
+                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns");
+                  }
+                });
                 if (Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired() == false) {
                   bool res = await localAuth.authenticate();
                   if (res) {

@@ -1,12 +1,12 @@
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:silentshard/third_party/analytics.dart';
 
+import '../third_party/analytics.dart';
 import '../repository/app_repository.dart';
 import 'backup_service.dart';
 import '../types/file_name.dart';
+import '../utils.dart';
 
 abstract interface class UseCase<R> {
   Future<R> execute();
@@ -54,9 +54,7 @@ class ExportBackupUseCase extends UseCase {
       }
 
       final tempFile = await backupService.saveBackupToFile(appBackup);
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      IosDeviceInfo info = await deviceInfo.iosInfo;
-      final isIPad = info.model.toLowerCase().contains("ipad");
+      final isIPad = await PlatformUtils.isPad;
       if (context.mounted) {
         final obj = context.findRenderObject();
         if (obj == null) {

@@ -127,8 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
                 onTap: () async {
-                  final url = Uri.parse(
-                      'https://silence-laboratories.gitbook.io/silent-shard-phone-+-cloud-mpc-tss-sdk/~/changes/kKCywQovqWCTefwcckYV/silent-shard-mpc-tss-sl');
+                  final url = Uri.parse('https://silence-laboratories.gitbook.io/silent-shard-phone-+-cloud-mpc-tss-sdk/~/changes/kKCywQovqWCTefwcckYV/silent-shard-mpc-tss-sl');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }
@@ -188,7 +187,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
                   onTap: () async {
-                    final url = Uri.parse('https://twitter.com/silentauth');
+                    final url = Uri.parse('https://twitter.com/silencelabs_');
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
                     }

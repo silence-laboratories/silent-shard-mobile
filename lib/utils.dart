@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+
 String hexToAscii(String hexString) => List.generate(
       hexString.length ~/ 2,
       (i) => String.fromCharCode(int.parse(hexString.substring(i * 2, (i * 2) + 2), radix: 16)),
@@ -38,4 +42,15 @@ extension DateUtils on Duration {
   int get inYears => inMicroseconds ~/ (365 * Duration.microsecondsPerDay);
   int get inMonths => inMicroseconds ~/ (30 * Duration.microsecondsPerDay);
   int get inWeeks => inMicroseconds ~/ (7 * Duration.microsecondsPerDay);
+}
+
+extension PlatformUtils on Platform {
+  static Future<bool> get isPad async {
+    if (Platform.isIOS) {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      IosDeviceInfo info = await deviceInfo.iosInfo;
+      return info.model.toLowerCase().contains("ipad");
+    }
+    return false;
+  }
 }

@@ -137,9 +137,13 @@ class TransactionDetailsWidget extends StatelessWidget {
               if (requestModel.signType != SignType.ethTransaction)
                 Row(
                   children: [
-                    Text('Request at', style: textTheme.bodyMedium),
+                    Text('Requested at', style: textTheme.bodyMedium),
                     const Spacer(),
-                    Text(outputFormat.format(DateTime.now()).toLowerCase(), style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500)),
+                    Flexible(
+                      flex: 3,
+                      child: Text(outputFormat.format(DateTime.now()).toLowerCase(),
+                          style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500)),
+                    )
                   ],
                 ),
               if (requestModel.signType == SignType.ethTransaction)
@@ -180,10 +184,10 @@ class TransactionDetailsWidget extends StatelessWidget {
                                 height: 1.6,
                                 color: textSecondaryColor,
                               )),
-                          const Gap(defaultPadding),
+                          const Spacer(),
                           Flexible(
+                            flex: 3,
                             child: Text(
-                              textAlign: TextAlign.end,
                               outputFormat.format(DateTime.now()).toLowerCase(),
                               style: const TextStyle(
                                 color: textPrimaryColor,
@@ -192,7 +196,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                                 fontFamily: 'Epilogue',
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ],

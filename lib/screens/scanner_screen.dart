@@ -38,8 +38,11 @@ enum ScannerScreenPairingState { ready, inProgress, succeeded, failed }
 
 class _ScannerScreenState extends State<ScannerScreen> {
   ScannerState _scannerState = ScannerState.scanning;
-  bool torchEnabled = false;
-  late MobileScannerController scannerController;
+  MobileScannerController scannerController = MobileScannerController(
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+  );
   late AnalyticManager analyticManager;
 
   @override
@@ -61,6 +64,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
   void _updatePairingState(ScannerScreenPairingState newState) {
     setState(() {
       _pairingState = newState;
+    });
+  }
+
+  void _resetScannerController() {
+    setState(() {
+      scannerController = MobileScannerController(
+        detectionSpeed: DetectionSpeed.normal,
+        facing: CameraFacing.back,
+        torchEnabled: false,
+      );
     });
   }
 
@@ -90,6 +103,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         MaterialPageRoute(
           builder: (context) => WrongQRCodeScreen(onTap: () {
             _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
           }),
         ),
       );
@@ -105,7 +119,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (saveBackup) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => BackupWalletScreen(),
+          builder: (context) => const BackupWalletScreen(),
         ),
       );
     } else {
@@ -164,6 +178,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         MaterialPageRoute(
           builder: (context) => SomethingWentWrongScreen(onPress: () {
             _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
           }),
         ),
       );
@@ -247,11 +262,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         padding: const EdgeInsets.all(10),
                         child: _scannerState == ScannerState.scanning
                             ? Builder(builder: (BuildContext context) {
-                                scannerController = MobileScannerController(
-                                  detectionSpeed: DetectionSpeed.normal,
-                                  facing: CameraFacing.back,
-                                  torchEnabled: false,
-                                );
                                 return MobileScanner(
                                   controller: scannerController,
                                   onDetect: (object) => _handleDetect(appRepository, authState, object),
@@ -279,24 +289,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     GestureDetector(
                       onTap: () {
                         scannerController.toggleTorch();
-
-                        setState(() {
-                          torchEnabled = !torchEnabled;
-                        });
                       },
                       child: Container(
                         alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              torchEnabled ? Icons.flash_on : Icons.flash_off,
-                              color: primaryColor2,
-                            ),
-                            const Gap(defaultPadding),
-                            Text(torchEnabled ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500)),
-                          ],
-                        ),
+                        child: ValueListenableBuilder(
+                            valueListenable: scannerController.torchState,
+                            builder: (BuildContext context, value, Widget? child) {
+                              return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Icon(
+                                  value == TorchState.on ? Icons.flash_on : Icons.flash_off,
+                                  color: primaryColor2,
+                                ),
+                                const Gap(defaultPadding),
+                                Text((value == TorchState.on) ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
+                              ]);
+                            }),
                       ),
                     )
                   ]),
