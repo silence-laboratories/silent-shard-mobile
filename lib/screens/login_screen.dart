@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/error/error_handler.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Button.dart';
-import 'package:silentshard/screens/components/Loader.dart';
+import 'package:silentshard/screens/components/button.dart';
+import 'package:silentshard/screens/components/loader.dart';
 import '../services/sign_in_service.dart';
 import '../auth_state.dart' as auth;
 
@@ -60,8 +61,40 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (error) {
       if (mounted) {
         _updateState(AuthState.signedOut);
+        _showErrorScreen(context);
       }
     }
+  }
+
+  void _showErrorScreen(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ErrorHandler(
+          bottomWidget: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              'You can try the following to resolve this:',
+              style: textTheme.bodyMedium,
+            ),
+            const Gap(defaultPadding),
+            Text(
+              '1. Check your Date & Time Settings and restore it to your local timezone.',
+              style: textTheme.bodyMedium,
+            ),
+            const Gap(defaultPadding),
+            Text(
+              '2. Re-install the app and try again in some time.',
+              style: textTheme.bodyMedium,
+            ),
+            const Gap(defaultPadding * 4),
+          ]),
+          onPressBottomButton: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
   }
 
   @override

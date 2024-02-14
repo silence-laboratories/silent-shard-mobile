@@ -21,4 +21,7 @@ class DemoSignRequestViewModel implements SignRequestViewModel {
   @override
   // TODO: implement signRequest
   SignRequest get signRequest => throw UnimplementedError();
+
+  @override
+  Chain? get chain => Chain(id: 1, code: 'Eth', name: 'Ethereum Mainnet');
 }

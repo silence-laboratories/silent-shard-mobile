@@ -6,7 +6,7 @@ import 'package:silentshard/services/backup_service.dart';
 import 'package:silentshard/types/backup_info.dart';
 
 import '../../constants.dart';
-import '../components/Button.dart';
+import '../components/button.dart';
 import '../components/backup_status_dashboard.dart';
 
 class ConfirmUnpair extends StatefulWidget {
@@ -87,13 +87,14 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                   Expanded(
                     child: Button(
                       type: ButtonType.secondary,
+                      activeColor: const Color(0xFF25194D),
                       onPressed: () {
                         analyticManager.trackDeleteAccount(status: DeleteAccountStatus.cancelled);
                         Navigator.of(context).pop();
                       },
                       child: Text(
                         'Cancel',
-                        style: textTheme.displaySmall,
+                        style: textTheme.displaySmall?.copyWith(color: primaryColor2),
                       ),
                     ),
                   ),
@@ -103,6 +104,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       type: ButtonType.primary,
                       isDisabled: _checkboxState != CheckBoxState.checked,
                       buttonColor: const Color(0xFFF87171).withOpacity(_checkboxState == CheckBoxState.checked ? 1 : 0.5),
+                      activeColor: const Color(0xFFDB4E4E),
                       onPressed: () async {
                         if (_checkboxState == CheckBoxState.checked) {
                           await widget.onUnpair();

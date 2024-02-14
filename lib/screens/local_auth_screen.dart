@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Button.dart';
+import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/services/local_auth_service.dart';
 
 class LocalAuthScreen extends StatefulWidget {

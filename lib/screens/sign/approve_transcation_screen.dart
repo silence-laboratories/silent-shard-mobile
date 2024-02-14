@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../repository/app_repository.dart';
-import '../components/Loader.dart';
+import '../components/loader.dart';
 import '../components/cancel.dart';
 import '../components/check.dart';
 import '../sign/sign_request_view_model.dart';

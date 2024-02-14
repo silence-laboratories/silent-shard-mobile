@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:app_settings/app_settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -276,11 +277,20 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     await FirebaseAuth.instance.signOut();
   }
 
-  void _handleSignRequest(SignRequest requst) {
+  Future<Chain> loadChainInfo(int chainId) async {
+    var jsonString = await rootBundle.loadString("assets/json/chain.json");
+    List<dynamic> jsonList = json.decode(jsonString);
+    final Chain chainInfo = Chain.fromJson(jsonList.firstWhere((element) => element['chainId'] == chainId));
+    return chainInfo;
+  }
+
+  Future<void> _handleSignRequest(SignRequest requst) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
     _signRequestsSubscription?.pause();
-    final requestModel = SignRequestViewModel(requst);
+    Chain? chain = requst.chainId == null ? null : await loadChainInfo(requst.chainId!);
+
+    final requestModel = SignRequestViewModel(requst, chain);
     analyticManager.trackSignInitiated();
     _showConfirmationDialog(requestModel);
   }

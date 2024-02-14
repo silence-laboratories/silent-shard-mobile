@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-
+import 'package:silentshard/screens/components/copy_button.dart';
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
 
@@ -66,13 +66,10 @@ class WalletInfo extends StatelessWidget {
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Gap(defaultPadding),
-              GestureDetector(
-                onTap: widget.onCopy,
-                child: Image.asset(
-                  'assets/images/copyLight.png',
-                  height: 20,
-                ),
-              ),
+              CopyButton(onCopy: () {
+                widget.onCopy();
+              }),
+              const SizedBox(width: 24),
             ]),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

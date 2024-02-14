@@ -3,7 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/screens/components/custom_popup_menu_divider.dart';
 
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 
 enum WalletActions { repair, exportBackup, removeWallet }
 

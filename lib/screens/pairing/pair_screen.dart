@@ -6,8 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../../constants.dart';
-import '../components/Loader.dart';
-import '../components/PaddedContainer.dart';
+import '../components/loader.dart';
+import '../components/padded_container.dart';
 import '../error/error_handler.dart';
 import '../error/no_backup_found_screen.dart';
 import '../scanner_screen.dart';

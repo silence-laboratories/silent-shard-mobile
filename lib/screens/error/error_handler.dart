@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Button.dart';
+import 'package:silentshard/screens/components/button.dart';
 
 class ErrorHandler extends StatelessWidget {
   final Widget? image;

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 import '../../services/backup_service.dart';
 
 typedef BackupSourcePickerCallback = void Function(BackupSource);

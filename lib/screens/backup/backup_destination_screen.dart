@@ -2,15 +2,15 @@ import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
-
 import '../../constants.dart';
 import '../../services/backup_service.dart';
 import '../../services/backup_use_cases.dart';
 import '../../types/backup_info.dart';
 import '../../utils.dart';
-import '../components/Button.dart';
-import '../components/PaddedContainer.dart';
+import '../components/button.dart';
+import '../components/padded_container.dart';
 import '../components/message_widget.dart';
 import '../error/error_handler.dart';
 
@@ -129,14 +129,19 @@ class BackupDestinationWidget extends StatelessWidget {
       } else {
         analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: error.toString());
       }
-
       if (error is CredentialException && error.code == 301) {
         return; // Save cancelled, ignore
       }
-      if (context.mounted) {
+      if (error is CredentialException && error.code == 302) {
+        if (context.mounted) {
+          _showUnableToSaveBackupScreen(
+            context,
+            retryAction: () => _performBackup(context, destination),
+          );
+        }
+      } else if (context.mounted) {
         _showErrorScreen(
           context,
-          destination: destination,
           retryAction: () => _performBackup(context, destination),
         );
       }
@@ -145,7 +150,6 @@ class BackupDestinationWidget extends StatelessWidget {
 
   void _verifyBackup(BuildContext context) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-    ;
     try {
       final backupService = Provider.of<BackupService>(context, listen: false);
       await backupService.verifyBackup(address);
@@ -156,19 +160,31 @@ class BackupDestinationWidget extends StatelessWidget {
       );
     } catch (error) {
       print('Cannot verify backup: $error');
-      analyticManager.trackVerifyBackup(
-          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
+      analyticManager.trackVerifyBackup(success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
       if (context.mounted) {
         _showErrorScreen(
           context,
-          destination: destination,
           retryAction: () => _verifyBackup(context),
         );
       }
     }
   }
 
-  void _showErrorScreen(BuildContext context, {required BackupDestination destination, required VoidCallback retryAction}) {
+  void _showUnableToSaveBackupScreen(BuildContext context, {required VoidCallback retryAction}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UnableToSaveBackupScreen(
+          onPressBottomButton: () {
+            Navigator.pop(context);
+            retryAction();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showErrorScreen(BuildContext context, {required VoidCallback retryAction}) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -185,11 +201,10 @@ class BackupDestinationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return GestureDetector(
+    return InkWell(
       onTap: () => _performBackup(context, destination),
-      behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.zero,
+        padding: const EdgeInsets.all(defaultPadding),
         child: Column(children: [
           Row(children: [
             PaddedContainer(

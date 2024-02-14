@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Bullet.dart';
+import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/error/error_handler.dart';
 
 class NoBackupFoundScreen extends StatelessWidget {

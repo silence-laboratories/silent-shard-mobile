@@ -10,9 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
-import 'package:silentshard/screens/components/Bullet.dart';
-import 'package:silentshard/screens/components/Button.dart';
-import 'package:silentshard/screens/components/Loader.dart';
+import 'package:silentshard/screens/components/bullet.dart';
+import 'package:silentshard/screens/components/button.dart';
+import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
@@ -110,7 +110,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(bool saveBackup) async {
+  Future<void> _finish(bool saveBackup, bool isRePair) async {
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
     await Future.delayed(const Duration(seconds: 2), () {});
@@ -126,6 +126,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
       if (widget.backup != null && widget.source == BackupSource.fileSystem) {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToFileDidSave(widget.backup!); // update backup status
+      }
+      if (!isRePair && widget.backup != null && widget.source == BackupSource.secureStorage) {
+        final backupService = Provider.of<BackupService>(context, listen: false);
+        backupService.backupToStorageDidSave(widget.backup!);
       }
       Navigator.of(context).pop();
     }
@@ -150,18 +154,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
       analyticManager.trackPairingDevice(
         type: isRePair
             ? PairingDeviceType.repaired
-            : widget.backup?.walletBackup != null
+            : hasBackupAlready
                 ? PairingDeviceType.recovered
                 : PairingDeviceType.start,
         status: PairingDeviceStatus.success,
       );
 
-      _finish(shouldSaveBackup);
+      _finish(shouldSaveBackup, isRePair);
     }, onError: (error) {
       analyticManager.trackPairingDevice(
           type: isRePair
               ? PairingDeviceType.repaired
-              : widget.backup?.walletBackup != null
+              : hasBackupAlready
                   ? PairingDeviceType.recovered
                   : PairingDeviceType.start,
           status: PairingDeviceStatus.failed,
@@ -247,10 +251,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     Bullet(
                       child: RichText(
                         text: TextSpan(
-                          children: <TextSpan>[
+                          children: <InlineSpan>[
                             TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
-                            TextSpan(text: 'SL Logo', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                            TextSpan(text: ' and connect this device.', style: textTheme.displaySmall),
+                            WidgetSpan(
+                              child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                            ),
+                            TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                            TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
                           ],
                         ),
                       ),

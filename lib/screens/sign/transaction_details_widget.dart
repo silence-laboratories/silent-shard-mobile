@@ -71,14 +71,14 @@ class TransactionDetailsWidget extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           color: backgroundPrimaryColor.withOpacity(0.1),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (requestModel.signType == SignType.ethTransaction) ...[
+            if (requestModel.signType.isTransaction) ...[
               Text(
                 "Message",
                 style: textTheme.bodyMedium,
               ),
               const Gap(defaultPadding * 1.5),
               Text(
-                '${requestModel.amount ?? '0'} ETH',
+                '${requestModel.amount ?? '0'} ${requestModel.chain?.code ?? ''}',
                 style: textTheme.displayLarge,
               ),
             ] else ...[
@@ -134,19 +134,21 @@ class TransactionDetailsWidget extends StatelessWidget {
           child: Column(
             children: [
               const Gap(defaultPadding),
-              if (requestModel.signType != SignType.ethTransaction)
+              if (!requestModel.signType.isTransaction)
                 Row(
                   children: [
                     Text('Requested at', style: textTheme.bodyMedium),
                     const Spacer(),
                     Flexible(
                       flex: 3,
-                      child: Text(outputFormat.format(DateTime.now()).toLowerCase(),
-                          style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500)),
+                      child: Text(
+                        outputFormat.format(DateTime.now()).toLowerCase(),
+                        style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
+                      ),
                     )
                   ],
                 ),
-              if (requestModel.signType == SignType.ethTransaction)
+              if (requestModel.signType.isTransaction)
                 Container(
                   padding: const EdgeInsets.all(defaultPadding * 2),
                   decoration: BoxDecoration(
@@ -155,18 +157,18 @@ class TransactionDetailsWidget extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Text('Chain',
+                          const Text('Chain',
                               style: TextStyle(
                                 fontSize: 14,
                                 height: 1.6,
                                 color: textSecondaryColor,
                               )),
-                          Spacer(),
+                          const Spacer(),
                           Text(
-                            'Ethereum',
-                            style: TextStyle(
+                            requestModel.chain?.name ?? '',
+                            style: const TextStyle(
                               color: textPrimaryColor,
                               fontSize: 14,
                               height: 1.6,

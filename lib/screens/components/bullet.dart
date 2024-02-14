@@ -15,7 +15,7 @@ class Bullet extends StatelessWidget {
         const Gap(defaultPadding),
         Text(
           "•",
-          style: textTheme.displaySmall,
+          style: textTheme.displayMedium,
         ),
         const Gap(defaultPadding),
         Expanded(child: child),
