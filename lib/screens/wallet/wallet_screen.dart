@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:async';
 import 'package:app_settings/app_settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';

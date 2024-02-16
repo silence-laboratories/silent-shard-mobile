@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
 class SignRequestViewModel {

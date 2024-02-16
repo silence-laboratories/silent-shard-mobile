@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';

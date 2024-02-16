@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -127,8 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
                 onTap: () async {
-                  final url = Uri.parse(
-                      'https://silence-laboratories.gitbook.io/silent-shard-phone-+-cloud-mpc-tss-sdk/~/changes/kKCywQovqWCTefwcckYV/silent-shard-mpc-tss-sl');
+                  final url = Uri.parse('https://silence-laboratories.gitbook.io/silent-shard-phone-+-cloud-mpc-tss-sdk/~/changes/kKCywQovqWCTefwcckYV/silent-shard-mpc-tss-sl');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }

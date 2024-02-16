@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -156,8 +159,7 @@ class BackupDestinationWidget extends StatelessWidget {
       );
     } catch (error) {
       print('Cannot verify backup: $error');
-      analyticManager.trackVerifyBackup(
-          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
+      analyticManager.trackVerifyBackup(success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
       if (context.mounted) {
         _showErrorScreen(
           context,

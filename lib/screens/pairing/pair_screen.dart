@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:credential_manager/credential_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -301,9 +304,8 @@ class PairOption extends StatelessWidget {
               const Gap(defaultPadding * 1.5),
               Container(
                 padding: const EdgeInsets.all(defaultPadding),
-                decoration: BoxDecoration(
-                    border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1),
-                    borderRadius: BorderRadius.circular(50)),
+                decoration:
+                    BoxDecoration(border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1), borderRadius: BorderRadius.circular(50)),
                 child: Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
                   const Icon(
                     Icons.info_outline,

@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -32,8 +35,7 @@ extension BackupStatusUtils on BackupStatus {
       };
 }
 
-BackupCheck getBackupCheck(BackupInfo info, BackupSource source) =>
-    switch (source) { BackupSource.fileSystem => info.file, BackupSource.secureStorage => info.cloud };
+BackupCheck getBackupCheck(BackupInfo info, BackupSource source) => switch (source) { BackupSource.fileSystem => info.file, BackupSource.secureStorage => info.cloud };
 
 class StatusIndicator extends StatelessWidget {
   final BackupStatus status;

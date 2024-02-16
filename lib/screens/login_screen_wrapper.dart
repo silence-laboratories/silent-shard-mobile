@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/screens/login_screen.dart';

@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -88,9 +91,7 @@ class BackupWalletScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(defaultPadding * 2),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Expanded(
-                      child: Platform.isIOS
-                          ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66)
-                          : Lottie.asset('assets/lottie/GPMAnimation.json'),
+                      child: Platform.isIOS ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66) : Lottie.asset('assets/lottie/GPMAnimation.json'),
                     ),
                     Bullet(
                       child: RichText(
@@ -287,8 +288,7 @@ class BackupKnowMoreModal extends StatelessWidget {
             const Gap(defaultPadding * 2),
             const BackupKnowMoreFAQ(
               question: 'What happens if I click on “Never”?',
-              answer:
-                  "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
+              answer: "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
             ),
             const Gap(defaultPadding * 6),
           ]),
