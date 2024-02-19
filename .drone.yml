@@ -13,4 +13,4 @@ steps:
   - echo hello world
   - echo test
   - touch find_me
-  - flutter
+  - flutter --version
