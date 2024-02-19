@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -105,8 +108,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
       child: SafeArea(
         child: SingleChildScrollView(
           child: Stack(children: [
-            if (_transactionState == TransactionState.readyToSign)
-              TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
+            if (_transactionState == TransactionState.readyToSign) TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
             if (_transactionState == TransactionState.signing || _transactionState == TransactionState.signed) ...[
               AnimatedOpacity(
                 opacity: _transactionState == TransactionState.signing ? 1.0 : 0.0,

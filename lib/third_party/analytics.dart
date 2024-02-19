@@ -1,5 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
@@ -77,13 +80,7 @@ class AnalyticManager {
   }
 
   void trackPairingDevice({required PairingDeviceType type, required PairingDeviceStatus status, String? wallet, String? error}) {
-    mixpanel.track(EventName.pairing_device.name, properties: {
-      'type': type.name,
-      'status': status.name,
-      'error': error,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress()
-    });
+    mixpanel.track(EventName.pairing_device.name, properties: {'type': type.name, 'status': status.name, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress()});
   }
 
   void trackSaveBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
@@ -93,14 +90,8 @@ class AnalyticManager {
     } else if (Platform.isIOS) {
       backup = SaveBackupSystem.keychain.name;
     }
-    mixpanel.track(EventName.save_backup_system.name, properties: {
-      'backup': backup,
-      'success': success,
-      'error': error,
-      'source': source.name,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress()
-    });
+    mixpanel.track(EventName.save_backup_system.name,
+        properties: {'backup': backup, 'success': success, 'error': error, 'source': source.name, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress()});
   }
 
   void trackRecoverBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
@@ -110,35 +101,20 @@ class AnalyticManager {
     } else if (Platform.isIOS) {
       backup = SaveBackupSystem.keychain.name;
     }
-    mixpanel.track(EventName.save_backup_system.name, properties: {
-      'backup': backup,
-      'success': success,
-      'error': error,
-      'source': source.name,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress()
-    });
+    mixpanel.track(EventName.save_backup_system.name,
+        properties: {'backup': backup, 'success': success, 'error': error, 'source': source.name, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress()});
   }
 
-  void trackAllowPermissions(
-      {AllowPermissionsDeviceLock? deviceLock, AllowPermissionsNoti? notifications, required PageSource source, String? error}) {
-    mixpanel.track(EventName.allow_permissions.name,
-        properties: {'device_lock': deviceLock?.name, 'notifications': notifications?.name, 'source': source.name, 'error': error});
+  void trackAllowPermissions({AllowPermissionsDeviceLock? deviceLock, AllowPermissionsNoti? notifications, required PageSource source, String? error}) {
+    mixpanel.track(EventName.allow_permissions.name, properties: {'device_lock': deviceLock?.name, 'notifications': notifications?.name, 'source': source.name, 'error': error});
   }
 
   void trackSignInitiated({String? transactionId, String? wallet, String? error}) {
-    mixpanel.track(EventName.sign_initiated.name,
-        properties: {'transaction_id': transactionId, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
+    mixpanel.track(EventName.sign_initiated.name, properties: {'transaction_id': transactionId, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
   void trackSignPerform({required SignPerformStatus status, String? transactionId, String? wallet, String? error}) {
-    mixpanel.track(EventName.sign_perform.name, properties: {
-      'status': status.name,
-      'transaction_id': transactionId,
-      'from': _getWalletAddress(),
-      'wallet': wallet ?? WALLET_METAMASK,
-      'error': error
-    });
+    mixpanel.track(EventName.sign_perform.name, properties: {'status': status.name, 'transaction_id': transactionId, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
   void trackDeviceLockToggle(bool allowed) {
@@ -146,35 +122,18 @@ class AnalyticManager {
   }
 
   void trackSaveToFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel.track(EventName.save_to_file.name, properties: {
-      'backup': backup,
-      'success': success,
-      'error': error,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress(),
-      'source': source.name
-    });
+    mixpanel.track(EventName.save_to_file.name,
+        properties: {'backup': backup, 'success': success, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress(), 'source': source.name});
   }
 
   void trackRecoverFromFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel.track(EventName.save_to_file.name, properties: {
-      'backup': backup,
-      'success': success,
-      'error': error,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress(),
-      'source': source.name
-    });
+    mixpanel.track(EventName.save_to_file.name,
+        properties: {'backup': backup, 'success': success, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress(), 'source': source.name});
   }
 
   void trackDeleteAccount({required DeleteAccountStatus status, bool? backupSystem, bool? backupFile, String? wallet, String? publicKey}) {
-    mixpanel.track(EventName.delete_account.name, properties: {
-      'status': status.name,
-      'backup_system': backupSystem,
-      'backup_file': backupFile,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress()
-    });
+    mixpanel.track(EventName.delete_account.name,
+        properties: {'status': status.name, 'backup_system': backupSystem, 'backup_file': backupFile, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': _getWalletAddress()});
   }
 
   void trackLogOut() {

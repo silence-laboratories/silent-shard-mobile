@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'demo_decorator.dart';
 
 abstract class DemoDecoratorComposite with DemoDecorator {
