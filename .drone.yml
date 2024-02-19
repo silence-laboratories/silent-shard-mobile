@@ -21,6 +21,7 @@ steps:
     STOREFILE:
       from_secret: STOREFILE
   commands:
+    - export ANDROID_SDK_ROOT="/opt/Android/"
     - echo $MIX_PANEL_TOKEN > .env
     - echo $STOREPASSWORD >> android/key.properties
     - echo $KEYPASSWORD >> android/key.properties
