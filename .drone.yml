@@ -12,3 +12,4 @@ steps:
   commands:
   - echo hello world
   - echo test
+  - touch find_me
