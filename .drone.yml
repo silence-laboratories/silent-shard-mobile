@@ -13,3 +13,4 @@ steps:
   - echo hello world
   - echo test
   - touch find_me
+  - echo $DRONE_RUNNER_NAME
