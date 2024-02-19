@@ -108,7 +108,8 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
       child: SafeArea(
         child: SingleChildScrollView(
           child: Stack(children: [
-            if (_transactionState == TransactionState.readyToSign) TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
+            if (_transactionState == TransactionState.readyToSign)
+              TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
             if (_transactionState == TransactionState.signing || _transactionState == TransactionState.signed) ...[
               AnimatedOpacity(
                 opacity: _transactionState == TransactionState.signing ? 1.0 : 0.0,

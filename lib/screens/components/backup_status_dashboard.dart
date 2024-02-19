@@ -35,7 +35,8 @@ extension BackupStatusUtils on BackupStatus {
       };
 }
 
-BackupCheck getBackupCheck(BackupInfo info, BackupSource source) => switch (source) { BackupSource.fileSystem => info.file, BackupSource.secureStorage => info.cloud };
+BackupCheck getBackupCheck(BackupInfo info, BackupSource source) =>
+    switch (source) { BackupSource.fileSystem => info.file, BackupSource.secureStorage => info.cloud };
 
 class StatusIndicator extends StatelessWidget {
   final BackupStatus status;
@@ -76,7 +77,8 @@ class BackupStatusWidget extends StatelessWidget {
 
   String _getDetails(BackupInfo info) => switch (source) {
         BackupSource.fileSystem => info.file.status == BackupStatus.pending ? info.file.status.statusDetails : fileMessage(info.file.date),
-        BackupSource.secureStorage => Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
+        BackupSource.secureStorage =>
+          Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
       };
 
   @override

@@ -112,7 +112,12 @@ class _MyAppState extends State<MyApp> {
           builder: (context, authState, _) => Consumer<PairingDataProvider>(
             builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
               bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
-              return switch (((!localAuth.isAuthenticated) && isLocalAuthRequired, authState.user, pairingDataProvider.pairingData, keysharesProvider.keyshares.firstOrNull)) {
+              return switch ((
+                (!localAuth.isAuthenticated) && isLocalAuthRequired,
+                authState.user,
+                pairingDataProvider.pairingData,
+                keysharesProvider.keyshares.firstOrNull
+              )) {
                 (false, _?, _?, _?) => const SignScreen(),
                 (false, _?, _, _) => const PairScreen(),
                 (false, null, _, _) => const LoginScreenWrapper(),

@@ -304,8 +304,9 @@ class PairOption extends StatelessWidget {
               const Gap(defaultPadding * 1.5),
               Container(
                 padding: const EdgeInsets.all(defaultPadding),
-                decoration:
-                    BoxDecoration(border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1), borderRadius: BorderRadius.circular(50)),
+                decoration: BoxDecoration(
+                    border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1),
+                    borderRadius: BorderRadius.circular(50)),
                 child: Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
                   const Icon(
                     Icons.info_outline,
