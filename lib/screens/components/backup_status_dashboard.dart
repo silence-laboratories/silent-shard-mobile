@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -74,7 +77,8 @@ class BackupStatusWidget extends StatelessWidget {
 
   String _getDetails(BackupInfo info) => switch (source) {
         BackupSource.fileSystem => info.file.status == BackupStatus.pending ? info.file.status.statusDetails : fileMessage(info.file.date),
-        BackupSource.secureStorage => Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
+        BackupSource.secureStorage =>
+          Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
       };
 
   @override
