@@ -20,6 +20,8 @@ steps:
       from_secret: KEYALIAS
     STOREFILE:
       from_secret: STOREFILE
+    FIREBASE_TOKEN:
+      from_secret: FIREBASE_TOKEN
   commands:
     - export ANDROID_SDK_ROOT="/opt/Android/"
     - echo $MIX_PANEL_TOKEN > .env
@@ -27,5 +29,8 @@ steps:
     - echo $KEYPASSWORD >> android/key.properties
     - echo $KEYALIAS >> android/key.properties
     - echo $STOREFILE >> android/key.properties
+    - npm install -g firebase-tools
+    - dart pub global activate flutterfire_cli
+    - flutterfire configure -y -p mobile-wallet-mm-snap
     - flutter build apk --release
     - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
