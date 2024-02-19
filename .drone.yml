@@ -16,6 +16,6 @@ steps:
       from_secret: KEY_PROPERTIES
   commands:
     - echo $MIX_PANEL_TOKEN > .env
-    - echo $KEY_PROPERTIES  base64.txt && base64 -d base64.txt > ./bandroid/key.properties
+    - echo $KEY_PROPERTIES  base64.txt && base64 -d base64.txt > android/key.properties
     - flutter build apk --release
     - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
