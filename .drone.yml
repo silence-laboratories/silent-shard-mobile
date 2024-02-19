@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: exec
-name: default
+name: silent-shard-exec-runner
 
 platform:
   os: linux
