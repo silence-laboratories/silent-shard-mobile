@@ -8,9 +8,14 @@ platform:
   arch: amd64
 
 steps:
-- name: greeting
+- name: build apk
+  environment:
+    MIX_PANEL_TOKEN:
+      from_secret: MIX_PANEL_TOKEN
+    KEY_PROPERTIES:
+      from_secret: KEY_PROPERTIES
   commands:
-  - echo hello world
-  - echo test
-  - touch find_me
-  - flutter --version
+    - echo $MIX_PANEL_TOKEN > .env
+    - mv $KEY_PROPERTIES android/key.properties
+    - flutter build apk --release
+    - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
