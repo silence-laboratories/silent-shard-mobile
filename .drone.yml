@@ -24,14 +24,13 @@ steps:
       from_secret: FIREBASE_TOKEN
   commands:
     - export ANDROID_SDK_ROOT="/opt/Android/"
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
     - echo $MIX_PANEL_TOKEN > .env
     - echo $STOREPASSWORD >> android/key.properties
     - echo $KEYPASSWORD >> android/key.properties
     - echo $KEYALIAS >> android/key.properties
     - echo $STOREFILE >> android/key.properties
-    - flutter
     - dart pub global activate flutterfire_cli
-    - export PATH="$PATH":"$HOME/.pub-cache/bin"
     - flutterfire configure -y -p mobile-wallet-mm-snap
     - flutter build apk --release
     - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
