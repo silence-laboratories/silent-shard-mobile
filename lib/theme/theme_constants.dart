@@ -62,7 +62,7 @@ ThemeData darkTheme = ThemeData(
       fontSize: 10,
     ),
   ),
-  dividerColor: Colors.white,
+  dividerColor: Color(0xFF3A4252),
   // elevatedButtonTheme: ElevatedButtonThemeData(
   //   style: ButtonStyle(
   //     padding: MaterialStatePropertyAll(EdgeInsets.all(defaultPadding * 1.5)),

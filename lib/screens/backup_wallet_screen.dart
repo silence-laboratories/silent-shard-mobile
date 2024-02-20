@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/check.dart';
+import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -15,18 +17,38 @@ import 'package:silentshard/services/backup_use_cases.dart';
 
 import 'error/error_handler.dart';
 
-class BackupWalletScreen extends StatelessWidget {
+enum BackupWalletState { notBackedUp, backingUp, backedUp }
+
+class BackupWalletScreen extends StatefulWidget {
   const BackupWalletScreen({super.key});
 
+  @override
+  State<BackupWalletScreen> createState() => _BackupWalletScreenState();
+}
+
+class _BackupWalletScreenState extends State<BackupWalletScreen> {
+  BackupWalletState _backupWalletState = BackupWalletState.notBackedUp;
+
+  void _updateBackupWalletState(BackupWalletState newState) {
+    setState(() {
+      _backupWalletState = newState;
+    });
+  }
+
   Future<void> _performBackup(BuildContext context) async {
+    if (_backupWalletState != BackupWalletState.notBackedUp) return;
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
     try {
+      _updateBackupWalletState(BackupWalletState.backingUp);
       await SaveBackupToStorageUseCase(context).execute();
       analyticManager.trackSaveBackupSystem(
         success: true,
         source: PageSource.onboarding,
       );
+      _updateBackupWalletState(BackupWalletState.backedUp);
+      await Future.delayed(const Duration(seconds: 2), () {});
+      _updateBackupWalletState(BackupWalletState.notBackedUp);
       if (context.mounted) {
         Navigator.of(context).pop();
       }
@@ -89,118 +111,147 @@ class BackupWalletScreen extends StatelessWidget {
           automaticallyImplyLeading: false,
         ),
         backgroundColor: Colors.black,
-        body: Container(
-          padding: const EdgeInsets.all(defaultPadding * 1.5),
-          margin: const EdgeInsets.only(top: 0.5),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              "Backup wallet",
-              style: textTheme.displayLarge,
-            ),
-            const Gap(defaultPadding * 2),
-            Text(
-              "Secure your wallet by backing up in ${Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager'}",
-              style: textTheme.bodyMedium,
-            ),
-            const Gap(defaultPadding * 3),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 2, color: secondaryColor, style: BorderStyle.solid),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+        body: Stack(children: [
+          Container(
+            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            margin: const EdgeInsets.only(top: 0.5),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                "Backup wallet",
+                style: textTheme.displayLarge,
+              ),
+              const Gap(defaultPadding * 2),
+              Text(
+                "Secure your wallet by backing up in ${Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager'}",
+                style: textTheme.bodyMedium,
+              ),
+              const Gap(defaultPadding * 3),
+              Expanded(
                 child: Container(
-                  padding: const EdgeInsets.all(defaultPadding * 2),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                    Expanded(
-                      child: Platform.isIOS ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66) : Lottie.asset('assets/lottie/GPMAnimation.json'),
-                    ),
-                    Bullet(
-                      child: RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(text: 'Clicking ', style: textTheme.displaySmall),
-                            TextSpan(text: '“Backup Wallet”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                              text: ' triggers ${Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager as shown in image.'}',
-                              style: textTheme.displaySmall,
-                            ),
-                          ],
-                        ),
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 2, color: secondaryColor, style: BorderStyle.solid),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(defaultPadding * 2),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                      Expanded(
+                        child: Platform.isIOS
+                            ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66)
+                            : Lottie.asset('assets/lottie/GPMAnimation.json'),
                       ),
-                    ),
-                    if (Platform.isAndroid)
                       Bullet(
                         child: RichText(
                           text: TextSpan(
                             children: <TextSpan>[
-                              TextSpan(text: 'Just tap ', style: textTheme.displaySmall),
-                              TextSpan(text: '“Save Password”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                              TextSpan(text: ' to complete backup.', style: textTheme.displaySmall),
+                              TextSpan(text: 'Clicking ', style: textTheme.displaySmall),
+                              TextSpan(text: '“Backup Wallet”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                text: ' triggers ${Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager as shown in image.'}',
+                                style: textTheme.displaySmall,
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    if (Platform.isAndroid)
-                      Row(children: [
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () {
-                            analyticManager.trackInfoSheet(PageSource.onboarding_backup);
-                            showModalBottomSheet(
-                              isScrollControlled: true,
-                              backgroundColor: Colors.black,
-                              barrierColor: Colors.white.withOpacity(0.15),
-                              showDragHandle: true,
-                              context: context,
-                              builder: (context) => const BackupKnowMoreModal(),
-                            );
-                          },
-                          child: Text(
-                            'Know more',
-                            style: textTheme.headlineSmall,
+                      if (Platform.isAndroid)
+                        Bullet(
+                          child: RichText(
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(text: 'Just tap ', style: textTheme.displaySmall),
+                                TextSpan(text: '“Save Password”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                TextSpan(text: ' to complete backup.', style: textTheme.displaySmall),
+                              ],
+                            ),
                           ),
                         ),
-                      ])
-                  ]),
+                      if (Platform.isAndroid)
+                        Row(children: [
+                          const Spacer(),
+                          TextButton(
+                            onPressed: () {
+                              analyticManager.trackInfoSheet(PageSource.onboarding_backup);
+                              showModalBottomSheet(
+                                isScrollControlled: true,
+                                backgroundColor: Colors.black,
+                                barrierColor: Colors.white.withOpacity(0.15),
+                                showDragHandle: true,
+                                context: context,
+                                builder: (context) => const BackupKnowMoreModal(),
+                              );
+                            },
+                            child: Text(
+                              'Know more',
+                              style: textTheme.headlineSmall,
+                            ),
+                          ),
+                        ])
+                    ]),
+                  ),
                 ),
               ),
-            ),
-            const Gap(defaultPadding * 2),
-            Button(
-              onPressed: () => _performBackup(context),
-              child: Text('Backup wallet now', style: textTheme.displayMedium),
-            ),
-            const Gap(defaultPadding),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    isScrollControlled: true,
-                    backgroundColor: Colors.black,
-                    barrierColor: Colors.white.withOpacity(0.15),
-                    showDragHandle: true,
-                    context: context,
-                    builder: (context) => Wrap(
-                      children: [
-                        BackupSkipWarning(onContinue: () {
-                          int count = 0;
-                          analyticManager.trackSaveBackupSystem(
-                            success: false,
-                            source: PageSource.onboarding,
-                            error: "User skipped backup",
-                          );
-                          Navigator.of(context).popUntil((_) => count++ >= 2);
-                        }),
-                      ],
-                    ),
-                  );
-                },
-                child: Text('Skip for now (Not recommended)', style: textTheme.displayMedium?.copyWith(color: errorColor)),
+              const Gap(defaultPadding * 2),
+              Button(
+                onPressed: () => _performBackup(context),
+                child: Text('Backup wallet now', style: textTheme.displayMedium),
               ),
-            )
-          ]),
-        ),
+              const Gap(defaultPadding),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      isScrollControlled: true,
+                      backgroundColor: Colors.black,
+                      barrierColor: Colors.white.withOpacity(0.15),
+                      showDragHandle: true,
+                      context: context,
+                      builder: (context) => Wrap(
+                        children: [
+                          BackupSkipWarning(onContinue: () {
+                            int count = 0;
+                            analyticManager.trackSaveBackupSystem(
+                              success: false,
+                              source: PageSource.onboarding,
+                              error: "User skipped backup",
+                            );
+                            Navigator.of(context).popUntil((_) => count++ >= 2);
+                          }),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Text('Skip for now (Not recommended)', style: textTheme.displayMedium?.copyWith(color: errorColor)),
+                ),
+              )
+            ]),
+          ),
+          if (_backupWalletState != BackupWalletState.notBackedUp)
+            AlertDialog(
+              backgroundColor: secondaryColor,
+              elevation: 0,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              content: Stack(children: [
+                AnimatedOpacity(
+                  opacity: (_backupWalletState == BackupWalletState.backedUp) ? 1 : 0,
+                  duration: const Duration(milliseconds: 500),
+                  child: const Wrap(children: [
+                    Check(text: 'Backup successful!'),
+                  ]),
+                ),
+                AnimatedOpacity(
+                  opacity: (_backupWalletState == BackupWalletState.backingUp) ? 1 : 0,
+                  duration: const Duration(milliseconds: 500),
+                  child: const Wrap(children: [
+                    Loader(text: 'Backing up to iCloud Keychain...'),
+                  ]),
+                ),
+              ]),
+              insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+            ),
+        ]),
       ),
     );
   }
@@ -310,7 +361,8 @@ class BackupKnowMoreModal extends StatelessWidget {
             const Gap(defaultPadding * 2),
             const BackupKnowMoreFAQ(
               question: 'What happens if I click on “Never”?',
-              answer: "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
+              answer:
+                  "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
             ),
             const Gap(defaultPadding * 6),
           ]),
