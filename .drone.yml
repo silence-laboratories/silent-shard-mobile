@@ -27,10 +27,7 @@ steps:
     - export ANDROID_SDK_ROOT="/opt/Android/"
     - export PATH="$PATH":"$HOME/.pub-cache/bin"
     - echo $MIX_PANEL_TOKEN > .env
-    - echo $STOREPASSWORD >> android/key.properties
-    - echo $KEYPASSWORD >> android/key.properties
-    - echo $KEYALIAS >> android/key.properties
-    - echo $STOREFILE >> android/key.properties
+    - cp /opt/key.properties ./android/key.properties
     - flutter && flutter precache
     - dart pub global activate flutterfire_cli 
     - flutterfire configure -y -p mobile-wallet-mm-snap
