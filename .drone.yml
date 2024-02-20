@@ -1,11 +1,13 @@
 ---
 kind: pipeline
-type: exec
-name: silent-shard-exec-runner
+type: ssh
+name: default
 
-platform:
-  os: linux
-  arch: amd64
+server:
+  host: 10.1.0.2:22
+  user: droneio
+  ssh_key:
+    from_secret: rsa_key
 
 steps:
 - name: build apk
@@ -23,14 +25,15 @@ steps:
     FIREBASE_TOKEN:
       from_secret: FIREBASE_TOKEN
   commands:
-    - export FIREBASE_TOKEN=$FIREBASE_TOKEN
-    - export ANDROID_SDK_ROOT="/opt/Android/"
-    - export PATH="$PATH":"$HOME/.pub-cache/bin"
-    - export PATH="$PATH:/snap/bin/"
-    - echo $MIX_PANEL_TOKEN > .env
-    - cp /opt/key.properties ./android/key.properties
-    - /snap/bin/flutter && /snap/bin/flutter precache
-    - dart pub global activate flutterfire_cli 
-    - flutterfire configure -y -p mobile-wallet-mm-snap
-    - /snap/bin/flutter build apk --release
-    - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
+    - echo hello
+    # - export FIREBASE_TOKEN=$FIREBASE_TOKEN
+    # - export ANDROID_SDK_ROOT="/opt/Android/"
+    # - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    # - export PATH="$PATH:/snap/bin/"
+    # - echo $MIX_PANEL_TOKEN > .env
+    # - cp /opt/key.properties ./android/key.properties
+    # - /snap/bin/flutter && /snap/bin/flutter precache
+    # - dart pub global activate flutterfire_cli 
+    # - flutterfire configure -y -p mobile-wallet-mm-snap
+    # - /snap/bin/flutter build apk --release
+    # - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
