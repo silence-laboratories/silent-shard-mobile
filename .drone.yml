@@ -26,6 +26,7 @@ steps:
     - export FIREBASE_TOKEN=$FIREBASE_TOKEN
     - export ANDROID_SDK_ROOT="/opt/Android/"
     - export PATH="$PATH":"$HOME/.pub-cache/bin"
+    - export PATH="$PATH:/snap/bin/"
     - echo $MIX_PANEL_TOKEN > .env
     - cp /opt/key.properties ./android/key.properties
     - flutter && flutter precache
