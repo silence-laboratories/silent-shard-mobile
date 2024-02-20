@@ -14,20 +14,18 @@ on:
 jobs:
   build:
     runs-on: [self-hosted, builder]
+    env: 
+      MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
       - name: main
-        run: echo hello
-    # - export FIREBASE_TOKEN=$FIREBASE_TOKEN
-    # - export ANDROID_SDK_ROOT="/opt/Android/"
-    # - export PATH="$PATH":"$HOME/.pub-cache/bin"
-    # - export PATH="$PATH:/snap/bin/"
-    # - echo $MIX_PANEL_TOKEN > .env
-    # - cp /opt/key.properties ./android/key.properties
-    # - /snap/bin/flutter && /snap/bin/flutter precache
-    # - dart pub global activate flutterfire_cli 
-    # - flutterfire configure -y -p mobile-wallet-mm-snap
-    # - /snap/bin/flutter build apk --release
-    # - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
+        run: | 
+          echo $MIX_PANEL_TOKEN > .env \
+          cp /opt/key.properties ./android/key.properties \
+          dart pub global activate flutterfire_cli \
+          flutterfire configure -y -p mobile-wallet-mm-snap \
+          flutter build apk --release \
+          cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
 
