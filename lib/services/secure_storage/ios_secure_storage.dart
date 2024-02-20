@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'secure_storage_service.dart';

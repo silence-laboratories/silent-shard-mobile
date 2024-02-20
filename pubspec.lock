@@ -198,7 +198,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "54b3bbc36be85227f16255314be667e42118db54"
+      resolved-ref: abaeb94640d18fb9b3d0a6104640888e3ada3b4c
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
@@ -1002,18 +1002,18 @@ packages:
     dependency: transitive
     description:
       name: sodium
-      sha256: "46c9fef95da0d99f1b0c7981f306b1f9e02627b0513715e47d70177a310c1c22"
+      sha256: ad436bdd889ec5b0a86e1a0b49a1c714b94c87c08c759defab10717239f39879
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.0+2"
   sodium_libs:
     dependency: transitive
     description:
       name: sodium_libs
-      sha256: e478b264b6fd59cfa98e4d6fb7255e22fac9889e67fbd6b44274c0d46576a5d1
+      sha256: "7f5ae3442242dfb2945980306dd2d3eff365c9f65b3df32eadbd4b53eb7b7e75"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0+6"
+    version: "2.2.0+10"
   source_span:
     dependency: transitive
     description:
@@ -1066,10 +1066,10 @@ packages:
     dependency: transitive
     description:
       name: synchronized
-      sha256: "5fcbd27688af6082f5abd611af56ee575342c30e87541d0245f7ff99faa02c60"
+      sha256: "539ef412b170d65ecdafd780f924e5be3f60032a1128df156adad6c5b373d558"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.0+1"
   term_glyph:
     dependency: transitive
     description:

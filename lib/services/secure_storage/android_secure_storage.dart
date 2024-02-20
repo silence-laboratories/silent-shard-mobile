@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:credential_manager/credential_manager.dart';
 
 import 'secure_storage_service.dart';

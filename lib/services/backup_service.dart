@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:credential_manager/credential_manager.dart';
@@ -73,10 +76,10 @@ class BackupService extends ChangeNotifier {
     final entry = SecureStorageEntry(backup.walletBackup.accounts.first.address, backup.toString());
     return _secureStorage //
         .write(entry)
-        .then((_) => _backupToStorageDidSave(backup));
+        .then((_) => backupToStorageDidSave(backup));
   }
 
-  void _backupToStorageDidSave(AppBackup backup) {
+  void backupToStorageDidSave(AppBackup backup) {
     _updateBackupInfo(backup, (info) {
       info.cloud = BackupCheck(BackupStatus.done);
     });
@@ -131,7 +134,7 @@ class BackupService extends ChangeNotifier {
     try {
       final backup = await readBackupFromStorage(null);
       if (backup != null) {
-        _backupToStorageDidSave(backup);
+        backupToStorageDidSave(backup);
       } else if (info.passwordManager.status == BackupStatus.done) {
         info.passwordManager = BackupCheck(BackupStatus.missing);
         _setBackupInfo(info);

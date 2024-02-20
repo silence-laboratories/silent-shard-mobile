@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
@@ -15,7 +18,7 @@ class Bullet extends StatelessWidget {
         const Gap(defaultPadding),
         Text(
           "•",
-          style: textTheme.displaySmall,
+          style: textTheme.displayMedium,
         ),
         const Gap(defaultPadding),
         Expanded(child: child),

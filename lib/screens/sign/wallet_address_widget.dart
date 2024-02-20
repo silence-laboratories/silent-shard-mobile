@@ -1,5 +1,9 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:silentshard/screens/components/copy_button.dart';
 
 class WalletAddressWidget extends StatelessWidget {
   final String title;
@@ -33,14 +37,11 @@ class WalletAddressWidget extends StatelessWidget {
               style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
             ),
           ),
-          GestureDetector(
-            onTap: () async {
+          CopyButton(
+            followerAnchor: crossAxisAlignment == CrossAxisAlignment.end ? Alignment.topCenter : Alignment.topLeft,
+            onCopy: () async {
               await Clipboard.setData(ClipboardData(text: copyText));
             },
-            child: Image.asset(
-              'assets/images/copyLight.png',
-              height: 20,
-            ),
           ),
         ])
       ]),

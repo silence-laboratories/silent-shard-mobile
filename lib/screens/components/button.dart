@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
@@ -15,6 +18,7 @@ class Button extends StatelessWidget {
   final Widget? icon;
   final Text child;
   final Color? buttonColor;
+  final Color? activeColor;
   final double? fontSize;
   final bool isDisabled;
 
@@ -29,6 +33,7 @@ class Button extends StatelessWidget {
     this.rightIcon,
     this.fontSize,
     this.buttonColor,
+    this.activeColor,
     this.isDisabled = false,
   });
 
@@ -40,6 +45,7 @@ class Button extends StatelessWidget {
         padding: padding ?? EdgeInsets.all(defaultPadding * 1.5),
         disabledBackgroundColor: buttonColor ?? (type == ButtonType.secondary ? secondaryColor.withOpacity(0) : backgroundPrimaryColor),
         backgroundColor: buttonColor ?? (type == ButtonType.secondary ? secondaryColor.withOpacity(0) : backgroundPrimaryColor),
+        foregroundColor: activeColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           side: BorderSide(color: buttonColor ?? backgroundPrimaryColor, style: BorderStyle.solid),

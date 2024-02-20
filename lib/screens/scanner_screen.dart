@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +13,9 @@ import 'package:provider/provider.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
-import 'package:silentshard/screens/components/Bullet.dart';
-import 'package:silentshard/screens/components/Button.dart';
-import 'package:silentshard/screens/components/Loader.dart';
+import 'package:silentshard/screens/components/bullet.dart';
+import 'package:silentshard/screens/components/button.dart';
+import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
@@ -38,8 +41,11 @@ enum ScannerScreenPairingState { ready, inProgress, succeeded, failed }
 
 class _ScannerScreenState extends State<ScannerScreen> {
   ScannerState _scannerState = ScannerState.scanning;
-  bool torchEnabled = false;
-  late MobileScannerController scannerController;
+  MobileScannerController scannerController = MobileScannerController(
+    detectionSpeed: DetectionSpeed.normal,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+  );
   late AnalyticManager analyticManager;
 
   @override
@@ -61,6 +67,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
   void _updatePairingState(ScannerScreenPairingState newState) {
     setState(() {
       _pairingState = newState;
+    });
+  }
+
+  void _resetScannerController() {
+    setState(() {
+      scannerController = MobileScannerController(
+        detectionSpeed: DetectionSpeed.normal,
+        facing: CameraFacing.back,
+        torchEnabled: false,
+      );
     });
   }
 
@@ -90,13 +106,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
         MaterialPageRoute(
           builder: (context) => WrongQRCodeScreen(onTap: () {
             _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
           }),
         ),
       );
     }
   }
 
-  Future<void> _finish(bool saveBackup) async {
+  Future<void> _finish(bool saveBackup, bool isRePair) async {
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
     await Future.delayed(const Duration(seconds: 2), () {});
@@ -105,13 +122,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (saveBackup) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => BackupWalletScreen(),
+          builder: (context) => const BackupWalletScreen(),
         ),
       );
     } else {
       if (widget.backup != null && widget.source == BackupSource.fileSystem) {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToFileDidSave(widget.backup!); // update backup status
+      }
+      if (!isRePair && widget.backup != null && widget.source == BackupSource.secureStorage) {
+        final backupService = Provider.of<BackupService>(context, listen: false);
+        backupService.backupToStorageDidSave(widget.backup!);
       }
       Navigator.of(context).pop();
     }
@@ -136,18 +157,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
       analyticManager.trackPairingDevice(
         type: isRePair
             ? PairingDeviceType.repaired
-            : widget.backup?.walletBackup != null
+            : hasBackupAlready
                 ? PairingDeviceType.recovered
                 : PairingDeviceType.start,
         status: PairingDeviceStatus.success,
       );
 
-      _finish(shouldSaveBackup);
+      _finish(shouldSaveBackup, isRePair);
     }, onError: (error) {
       analyticManager.trackPairingDevice(
           type: isRePair
               ? PairingDeviceType.repaired
-              : widget.backup?.walletBackup != null
+              : hasBackupAlready
                   ? PairingDeviceType.recovered
                   : PairingDeviceType.start,
           status: PairingDeviceStatus.failed,
@@ -164,6 +185,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         MaterialPageRoute(
           builder: (context) => SomethingWentWrongScreen(onPress: () {
             _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
           }),
         ),
       );
@@ -232,10 +254,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     Bullet(
                       child: RichText(
                         text: TextSpan(
-                          children: <TextSpan>[
+                          children: <InlineSpan>[
                             TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
-                            TextSpan(text: 'SL Logo', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                            TextSpan(text: ' and connect this device.', style: textTheme.displaySmall),
+                            WidgetSpan(
+                              child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                            ),
+                            TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                            TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
                           ],
                         ),
                       ),
@@ -247,11 +272,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         padding: const EdgeInsets.all(10),
                         child: _scannerState == ScannerState.scanning
                             ? Builder(builder: (BuildContext context) {
-                                scannerController = MobileScannerController(
-                                  detectionSpeed: DetectionSpeed.normal,
-                                  facing: CameraFacing.back,
-                                  torchEnabled: false,
-                                );
                                 return MobileScanner(
                                   controller: scannerController,
                                   onDetect: (object) => _handleDetect(appRepository, authState, object),
@@ -279,24 +299,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     GestureDetector(
                       onTap: () {
                         scannerController.toggleTorch();
-
-                        setState(() {
-                          torchEnabled = !torchEnabled;
-                        });
                       },
                       child: Container(
                         alignment: Alignment.center,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              torchEnabled ? Icons.flash_on : Icons.flash_off,
-                              color: primaryColor2,
-                            ),
-                            const Gap(defaultPadding),
-                            Text(torchEnabled ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500)),
-                          ],
-                        ),
+                        child: ValueListenableBuilder(
+                            valueListenable: scannerController.torchState,
+                            builder: (BuildContext context, value, Widget? child) {
+                              return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Icon(
+                                  value == TorchState.on ? Icons.flash_on : Icons.flash_off,
+                                  color: primaryColor2,
+                                ),
+                                const Gap(defaultPadding),
+                                Text((value == TorchState.on) ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
+                              ]);
+                            }),
                       ),
                     )
                   ]),

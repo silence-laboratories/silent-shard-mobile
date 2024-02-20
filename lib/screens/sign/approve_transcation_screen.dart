@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -5,7 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../constants.dart';
 import '../../repository/app_repository.dart';
-import '../components/Loader.dart';
+import '../components/loader.dart';
 import '../components/cancel.dart';
 import '../components/check.dart';
 import '../sign/sign_request_view_model.dart';

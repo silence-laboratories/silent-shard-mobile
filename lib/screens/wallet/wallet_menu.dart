@@ -1,9 +1,12 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/screens/components/custom_popup_menu_divider.dart';
 
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 
 enum WalletActions { repair, exportBackup, removeWallet }
 

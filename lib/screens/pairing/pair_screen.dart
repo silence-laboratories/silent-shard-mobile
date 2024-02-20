@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:credential_manager/credential_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +9,8 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../../constants.dart';
-import '../components/Loader.dart';
-import '../components/PaddedContainer.dart';
+import '../components/loader.dart';
+import '../components/padded_container.dart';
 import '../error/error_handler.dart';
 import '../error/no_backup_found_screen.dart';
 import '../scanner_screen.dart';

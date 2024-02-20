@@ -1,9 +1,12 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/PaddedContainer.dart';
+import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/services/local_auth_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -188,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
                   onTap: () async {
-                    final url = Uri.parse('https://twitter.com/silentauth');
+                    final url = Uri.parse('https://twitter.com/silencelabs_sl');
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
                     }
@@ -228,7 +231,7 @@ class SettingOption extends StatelessWidget {
   final bool? isSwitchOn;
   final Future<void> Function()? onTap;
   final Function(bool value)? onChangeSwitch;
-  SettingOption({
+  const SettingOption({
     super.key,
     required this.icon,
     required this.title,
@@ -241,36 +244,51 @@ class SettingOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return GestureDetector(
-      onTap: () async {
-        if (onTap != null) {
-          await onTap!();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
-        child: Row(
-          children: [
-            PaddedContainer(child: icon),
-            const SizedBox(
-              width: defaultPadding,
-            ),
-            Flexible(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: textTheme.displaySmall),
-                if (subtitle != null) Text(subtitle!, style: textTheme.bodySmall),
-              ]),
-            ),
-            const Gap(defaultPadding),
-            if (isSwitchOn != null && onChangeSwitch != null)
-              Switch(
-                thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
-                value: isSwitchOn!,
-                activeColor: primaryColor,
-                onChanged: onChangeSwitch,
-              )
-          ],
-        ),
+    bool hasSwitch = isSwitchOn != null && onChangeSwitch != null;
+    return hasSwitch
+        ? GestureDetector(
+            onTap: () async {
+              if (onTap != null) {
+                await onTap!();
+              }
+            },
+            child: _buildContainer(textTheme, hasSwitch),
+          )
+        : InkWell(
+            onTap: () async {
+              if (onTap != null) {
+                await onTap!();
+              }
+            },
+            splashColor: const Color(0xFF151515),
+            child: _buildContainer(textTheme, hasSwitch),
+          );
+  }
+
+  Widget _buildContainer(TextTheme textTheme, bool hasSwitch) {
+    return Container(
+      padding: const EdgeInsets.only(top: defaultPadding * 2, bottom: defaultPadding * 2, left: defaultPadding),
+      child: Row(
+        children: [
+          PaddedContainer(child: icon),
+          const SizedBox(
+            width: defaultPadding,
+          ),
+          Flexible(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: textTheme.displaySmall),
+              if (subtitle != null) Text(subtitle!, style: textTheme.bodySmall),
+            ]),
+          ),
+          const Gap(defaultPadding),
+          if (hasSwitch)
+            Switch(
+              thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
+              value: isSwitchOn!,
+              activeColor: primaryColor,
+              onChanged: onChangeSwitch,
+            )
+        ],
       ),
     );
   }
