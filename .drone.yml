@@ -28,10 +28,9 @@ steps:
     - export PATH="$PATH":"$HOME/.pub-cache/bin"
     - export PATH="$PATH:/snap/bin/"
     - echo $MIX_PANEL_TOKEN > .env
-    - which flutter
-    # - cp /opt/key.properties ./android/key.properties
-    # - flutter && flutter precache
-    # - dart pub global activate flutterfire_cli 
-    # - flutterfire configure -y -p mobile-wallet-mm-snap
-    # - flutter build apk --release
-    # - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
+    - cp /opt/key.properties ./android/key.properties
+    - /snap/bin/flutter && /snap/bin/flutter precache
+    - dart pub global activate flutterfire_cli 
+    - flutterfire configure -y -p mobile-wallet-mm-snap
+    - /snap/bin/flutter build apk --release
+    - cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
