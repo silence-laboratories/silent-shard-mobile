@@ -68,9 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 "Settings",
                 style: textTheme.displayLarge,
               ),
-              const SizedBox(
-                height: defaultPadding * 2,
-              ),
+              const Gap(defaultPadding * 2),
               Consumer<LocalAuth>(builder: (context, localAuth, _) {
                 return SettingOption(
                     icon: const Icon(
@@ -159,9 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       "For any queries reach out to",
                       style: textTheme.displaySmall,
                     ),
-                    const SizedBox(
-                      height: defaultPadding * 1.5,
-                    ),
+                    const Gap(defaultPadding * 1.5),
                     GestureDetector(
                         onTap: () {
                           Uri emailLaunchUri = Uri(
@@ -257,7 +253,7 @@ class SettingOption extends StatelessWidget {
 
   Widget _buildContainer(TextTheme textTheme, bool hasSwitch) {
     return Container(
-      padding: const EdgeInsets.only(top: defaultPadding * 2, bottom: defaultPadding * 2, left: defaultPadding),
+      padding: const EdgeInsets.only(top: defaultPadding * 1.5, bottom: defaultPadding * 1.5, left: defaultPadding),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
