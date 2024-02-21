@@ -12,6 +12,7 @@ class ErrorHandler extends StatelessWidget {
   final Widget? errorSubtitle;
   final String? buttonTitle;
   final Widget? bottomWidget;
+  final Widget? bodyWidget;
   final VoidCallback? onPressBottomButton;
   final VoidCallback? onBack;
 
@@ -21,6 +22,7 @@ class ErrorHandler extends StatelessWidget {
     this.errorTitle,
     this.errorSubtitle,
     this.buttonTitle,
+    this.bodyWidget,
     this.bottomWidget,
     this.onPressBottomButton,
     this.onBack,
@@ -38,31 +40,35 @@ class ErrorHandler extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.black,
+            scrolledUnderElevation: 0,
           ),
           backgroundColor: Colors.black,
           body: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.only(left: defaultPadding * 1.5, right: defaultPadding * 1.5, bottom: defaultPadding * 1.5),
             width: MediaQuery.of(context).size.width,
             child: Column(children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    image ??
-                        Image.asset(
-                          'assets/images/spill.png',
-                          width: MediaQuery.of(context).size.width / 2,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        image ??
+                            Image.asset(
+                              'assets/images/spill.png',
+                              width: MediaQuery.of(context).size.width / 2,
+                            ),
+                        const Gap(defaultPadding * 2),
+                        Text(
+                          errorTitle ?? 'Something went wrong',
+                          style: textTheme.displayLarge,
+                          textAlign: TextAlign.center,
                         ),
-                    const Gap(defaultPadding * 2),
-                    Text(
-                      errorTitle ?? 'Something went wrong',
-                      style: textTheme.displayLarge,
-                      textAlign: TextAlign.center,
+                        if (errorSubtitle != null) errorSubtitle!,
+                        if (bodyWidget != null) bodyWidget!,
+                      ],
                     ),
-                    const Gap(defaultPadding),
-                    if (errorSubtitle != null) errorSubtitle!,
-                  ],
+                  ),
                 ),
               ),
               if (bottomWidget != null) bottomWidget!,
