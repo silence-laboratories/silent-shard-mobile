@@ -197,12 +197,6 @@ class _PairState extends State<PairScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-          ),
         ),
         backgroundColor: Colors.black,
         body: Stack(

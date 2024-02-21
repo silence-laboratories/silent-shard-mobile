@@ -57,6 +57,7 @@ Future<void> main() async {
   final backupService = BackupService(fileService, secureStorage, appPreferences);
   final themeManager = ThemeManager();
   final mixpanelManager = AnalyticManager(appRepository.keysharesProvider);
+  await signInService.signInAnonymous();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;

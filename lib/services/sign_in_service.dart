@@ -9,6 +9,11 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:hashlib/hashlib.dart';
 
 class SignInService {
+  Future<UserCredential> signInAnonymous() async {
+    final authResult = await FirebaseAuth.instance.signInAnonymously();
+    return authResult;
+  }
+
   Future<UserCredential> signInWithGoogle() async {
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
