@@ -7,7 +7,6 @@ import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/screens/components/check.dart';
-import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -17,38 +16,43 @@ import 'package:silentshard/services/backup_use_cases.dart';
 
 import 'error/error_handler.dart';
 
-enum BackupWalletState { notBackedUp, backingUp, backedUp }
-
-class BackupWalletScreen extends StatefulWidget {
+class BackupWalletScreen extends StatelessWidget {
   const BackupWalletScreen({super.key});
 
-  @override
-  State<BackupWalletScreen> createState() => _BackupWalletScreenState();
-}
-
-class _BackupWalletScreenState extends State<BackupWalletScreen> {
-  BackupWalletState _backupWalletState = BackupWalletState.notBackedUp;
-
-  void _updateBackupWalletState(BackupWalletState newState) {
-    setState(() {
-      _backupWalletState = newState;
-    });
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => const AlertDialog(
+        backgroundColor: secondaryColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        content: Wrap(children: [
+          Check(text: 'Backup successful!'),
+        ]),
+        insetPadding: EdgeInsets.all(defaultPadding * 1.5),
+      ),
+    );
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (_backupWalletState != BackupWalletState.notBackedUp) return;
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
     try {
-      _updateBackupWalletState(BackupWalletState.backingUp);
       await SaveBackupToStorageUseCase(context).execute();
       analyticManager.trackSaveBackupSystem(
         success: true,
         source: PageSource.onboarding,
       );
-      _updateBackupWalletState(BackupWalletState.backedUp);
-      await Future.delayed(const Duration(seconds: 2), () {});
-      _updateBackupWalletState(BackupWalletState.notBackedUp);
+      if (Platform.isIOS) {
+        // ignore: use_build_context_synchronously
+        _showDialog(context);
+        await Future.delayed(const Duration(seconds: 2), () {});
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      }
       if (context.mounted) {
         Navigator.of(context).pop();
       }
@@ -226,31 +230,6 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               )
             ]),
           ),
-          if (_backupWalletState != BackupWalletState.notBackedUp)
-            AlertDialog(
-              backgroundColor: secondaryColor,
-              elevation: 0,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              content: Stack(children: [
-                AnimatedOpacity(
-                  opacity: (_backupWalletState == BackupWalletState.backedUp) ? 1 : 0,
-                  duration: const Duration(milliseconds: 500),
-                  child: const Wrap(children: [
-                    Check(text: 'Backup successful!'),
-                  ]),
-                ),
-                AnimatedOpacity(
-                  opacity: (_backupWalletState == BackupWalletState.backingUp) ? 1 : 0,
-                  duration: const Duration(milliseconds: 500),
-                  child: const Wrap(children: [
-                    Loader(text: 'Backing up to iCloud Keychain...'),
-                  ]),
-                ),
-              ]),
-              insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
-            ),
         ]),
       ),
     );
