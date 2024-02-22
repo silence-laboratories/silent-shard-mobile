@@ -1,0 +1,31 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ "droneio-pipeline" ]
+  pull_request:
+    branches: [ "droneio-pipeline" ]
+
+jobs:
+  build:
+    runs-on: [self-hosted, builder]
+    env: 
+      MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: main
+        run: | 
+          echo $MIX_PANEL_TOKEN > .env
+          cp /opt/key.properties ./android/key.properties
+          dart pub global activate flutterfire_cli
+          sudo gem install xcodeproj
+          flutterfire configure  -y  -p mobile-wallet-mm-snap --apply-gradle-plugin
+          flutter build apk --release
+          cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
