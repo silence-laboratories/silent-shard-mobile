@@ -10,5 +10,5 @@ workflows:
       - echo $MIX_PANEL_TOKEN > .env
       - flutter && flutter precache
       - dart pub global activate flutterfire_cli 
-      - flutterfire configure -y -p mobile-wallet-mm-snap -platforms=android
+      - flutterfire configure -y -p mobile-wallet-mm-snap --platforms=android
       - flutter build apk --release
