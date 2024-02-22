@@ -4,7 +4,8 @@ workflows:
     instance_type: mac_mini_m1   # machine instance type
     max_build_duration: 60 
     environment:
-      groups: TOKEN
+      groups: 
+        - TOKEN
   hello-world:
     name: Hello world workflow
     scripts:
