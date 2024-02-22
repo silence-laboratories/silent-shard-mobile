@@ -26,6 +26,6 @@ jobs:
           cp /opt/key.properties ./android/key.properties
           dart pub global activate flutterfire_cli
           gem install xcodeproj
-          flutterfire configure   -p mobile-wallet-mm-snap 
+          flutterfire configure  -y -p mobile-wallet-mm-snap 
           flutter build apk --release
           cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
