@@ -12,5 +12,5 @@ workflows:
       - dart pub global activate flutterfire_cli 
       - sudo gem install xcodeproj
       - curl -sL firebase.tools | upgrade=true bash
-      - flutterfire configure   -p mobile-wallet-mm-snap --platforms=android
+      - flutterfire configure -y -p mobile-wallet-mm-snap
       - flutter build apk --release
