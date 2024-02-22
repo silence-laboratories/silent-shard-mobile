@@ -1,5 +1,13 @@
 workflows:
+  workflow:                   # workflow ID
+    name: silent shard mobile workflow       # workflow name displayed in Codemagic UI
+    instance_type: mac_mini_m1   # machine instance type
+    max_build_duration: 60 
+    environment:
+      groups: TOKEN
   hello-world:
     name: Hello world workflow
     scripts:
-        - echo "Hello World!"
+      - ls 
+      - echo $MIX_PANEL_TOKEN > .env
+      - cat .env
