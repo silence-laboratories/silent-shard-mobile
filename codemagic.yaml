@@ -6,7 +6,7 @@ workflows:
     environment:
       groups: 
         - TOKEN
-  hello-world:
-    name: Hello world workflow
     scripts:
+      - ls 
       - echo $MIX_PANEL_TOKEN > .env
+      - cat .env
