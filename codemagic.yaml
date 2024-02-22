@@ -7,6 +7,8 @@ workflows:
       groups: 
         - TOKEN
     scripts:
-      - ls 
       - echo $MIX_PANEL_TOKEN > .env
-      - cat .env
+      - flutter && flutter precache
+      - dart pub global activate flutterfire_cli 
+      - flutterfire configure -y -p mobile-wallet-mm-snap
+      - flutter build apk --release
