@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_settings/app_settings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -60,7 +59,8 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     final isPermanentlyDenied = await Permission.notification.isPermanentlyDenied;
     if (isPermanentlyDenied) return AuthorizationStatus.denied;
     final firebaseNotificationSettings = await FirebaseMessaging.instance.getNotificationSettings();
-    if (firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.authorized || firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.provisional) {
+    if (firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.authorized ||
+        firebaseNotificationSettings.authorizationStatus == AuthorizationStatus.provisional) {
       return AuthorizationStatus.authorized;
     }
     if (Platform.isIOS) return firebaseNotificationSettings.authorizationStatus;
@@ -218,12 +218,15 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
 
                 await FirebaseMessaging.instance.requestPermission().then((permissions) {
                   _updateNotificationStatus(permissions.authorizationStatus);
-                  if (permissions.authorizationStatus == AuthorizationStatus.authorized || permissions.authorizationStatus == AuthorizationStatus.provisional) {
+                  if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
+                      permissions.authorizationStatus == AuthorizationStatus.provisional) {
                     analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
                   } else if (permissions.authorizationStatus == AuthorizationStatus.denied) {
-                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
+                    analyticManager.trackAllowPermissions(
+                        notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
                   } else {
-                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns");
+                    analyticManager.trackAllowPermissions(
+                        notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns");
                   }
                 });
                 if (Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired() == false) {
@@ -234,7 +237,9 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                   bool isLocalAuthSupported = await localAuth.canAuthenticate();
                   if (isLocalAuthSupported) {
                     analyticManager.trackAllowPermissions(
-                        deviceLock: res ? AllowPermissionsDeviceLock.allowed : AllowPermissionsDeviceLock.denied, source: PageSource.homepage, error: res ? null : "User denied request");
+                        deviceLock: res ? AllowPermissionsDeviceLock.allowed : AllowPermissionsDeviceLock.denied,
+                        source: PageSource.homepage,
+                        error: res ? null : "User denied request");
                   } else {
                     analyticManager.trackAllowPermissions(deviceLock: AllowPermissionsDeviceLock.na, source: PageSource.homepage);
                   }
@@ -277,7 +282,6 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
 
   Future<void> _signOut() async {
     Provider.of<AppRepository>(context, listen: false).reset();
-    await FirebaseAuth.instance.signOut();
   }
 
   Future<Chain> loadChainInfo(int chainId) async {
