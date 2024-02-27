@@ -48,10 +48,14 @@ enum EventName {
 class AnalyticManager {
   late Mixpanel mixpanel;
   static const WALLET_METAMASK = 'MetaMask';
-  final KeysharesProvider keysharesProvider;
+  late KeysharesProvider _keysharesProvider;
 
-  AnalyticManager(this.keysharesProvider) {
+  AnalyticManager() {
     initMixpanel();
+  }
+
+  set keysharesProvider(KeysharesProvider keysharesProvider) {
+    _keysharesProvider = keysharesProvider;
   }
 
   void initMixpanel() async {
@@ -203,6 +207,6 @@ class AnalyticManager {
   }
 
   String? _getWalletAddress() {
-    return keysharesProvider.keyshares.firstOrNull?.ethAddress;
+    return _keysharesProvider.keyshares.firstOrNull?.ethAddress;
   }
 }

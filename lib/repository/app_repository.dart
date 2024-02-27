@@ -3,6 +3,7 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';
 import '../demo/types/demo_decorator_composite.dart';
@@ -11,8 +12,9 @@ import '../demo/state_decorators/keyshares_provider.dart';
 
 class AppRepository extends DemoDecoratorComposite {
   final Dart2PartySDK _sdk;
+  final AnalyticManager _analytics;
 
-  AppRepository(this._sdk) {
+  AppRepository(this._sdk, this._analytics) {
     addChild(pairingDataProvider);
     addChild(keysharesProvider);
   }
