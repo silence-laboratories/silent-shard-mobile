@@ -37,6 +37,7 @@ enum EventName {
   sign_in,
   connect_new_account,
   pairing_device,
+  distributed_keys_generated,
   account_created,
   save_backup_system,
   allow_permissions,
@@ -99,7 +100,7 @@ class AnalyticManager {
 
   void trackDistributedKeyGen(
       {required DistributedKeyGenType type, required DistributedKeyGenStatus status, String? publicKey, String? wallet, String? error}) {
-    mixpanel.track(EventName.pairing_device.name,
+    mixpanel.track(EventName.distributed_keys_generated.name,
         properties: {'type': type.name, 'status': status.name, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': publicKey});
   }
 
