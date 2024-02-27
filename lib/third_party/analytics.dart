@@ -17,6 +17,10 @@ enum PairingDeviceStatus { qr_scanned, success, failed }
 
 enum PairingDeviceType { repaired, recovered, new_account }
 
+enum DistributedKeyGenStatus { initiated, success, failed }
+
+enum DistributedKeyGenType { new_account, recovered }
+
 enum AllowPermissionsNoti { allowed, denied }
 
 enum AllowPermissionsDeviceLock { allowed, denied, na }
@@ -91,6 +95,12 @@ class AnalyticManager {
       'wallet': wallet ?? WALLET_METAMASK,
       'public_key': _getWalletAddress()
     });
+  }
+
+  void trackDistributedKeyGen(
+      {required DistributedKeyGenType type, required DistributedKeyGenStatus status, String? publicKey, String? wallet, String? error}) {
+    mixpanel.track(EventName.pairing_device.name,
+        properties: {'type': type.name, 'status': status.name, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': publicKey});
   }
 
   void trackSaveBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {

@@ -12,9 +12,9 @@ import '../demo/state_decorators/keyshares_provider.dart';
 
 class AppRepository extends DemoDecoratorComposite {
   final Dart2PartySDK _sdk;
-  final AnalyticManager _analytics;
+  final AnalyticManager _analyticManager;
 
-  AppRepository(this._sdk, this._analytics) {
+  AppRepository(this._sdk, this._analyticManager) {
     addChild(pairingDataProvider);
     addChild(keysharesProvider);
   }
@@ -34,9 +34,19 @@ class AppRepository extends DemoDecoratorComposite {
     if (backup != null) {
       return _pair(qrMessage, userId, backup);
     } else {
-      return _pair(qrMessage, userId) //
-          .then((_) => _sdk.startKeygen().value)
-          .then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
+      return _pair(qrMessage, userId).then((_) async {
+        try {
+          _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
+          final keyshare = await _sdk.startKeygen().value;
+          _analyticManager.trackDistributedKeyGen(
+              type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
+          return keyshare;
+        } catch (error) {
+          _analyticManager.trackDistributedKeyGen(
+              type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.failed, error: error.toString());
+          rethrow;
+        }
+      }).then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
     }
   }
 
