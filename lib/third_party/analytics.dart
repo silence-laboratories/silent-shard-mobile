@@ -15,7 +15,7 @@ enum SignInMethod { gmail, apple }
 
 enum PairingDeviceStatus { qr_scanned, success, failed }
 
-enum PairingDeviceType { repaired, recovered, start }
+enum PairingDeviceType { repaired, recovered, new_account }
 
 enum AllowPermissionsNoti { allowed, denied }
 
