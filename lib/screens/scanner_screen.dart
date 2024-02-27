@@ -166,7 +166,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
       _finish(shouldSaveBackup, isRePair);
     }, onError: (error) {
-      print('Pairing failed error: $error');
       analyticManager.trackPairingDevice(
           type: isRePair
               ? PairingDeviceType.repaired
