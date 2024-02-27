@@ -251,6 +251,24 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     Bullet(
                       child: Text("Connect Silent Shard Snap with your MetaMask extension.", style: textTheme.displaySmall),
                     ),
+                    if (widget.isRePairing == true)
+                      Bullet(
+                        child: RichText(
+                          text: TextSpan(
+                            children: <InlineSpan>[
+                              TextSpan(text: 'If account is already present:  press on the', style: textTheme.displaySmall),
+                              const WidgetSpan(
+                                child: Icon(
+                                  Icons.more_vert,
+                                  size: 20,
+                                ),
+                              ),
+                              TextSpan(
+                                  text: 'icon and click on ‘Recover account on phone’ and follow the instructions', style: textTheme.displaySmall),
+                            ],
+                          ),
+                        ),
+                      ),
                     Bullet(
                       child: RichText(
                         text: TextSpan(
@@ -311,7 +329,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                   color: primaryColor2,
                                 ),
                                 const Gap(defaultPadding),
-                                Text((value == TorchState.on) ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
+                                Text((value == TorchState.on) ? "Flash on" : 'Flash off',
+                                    style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
                               ]);
                             }),
                       ),
