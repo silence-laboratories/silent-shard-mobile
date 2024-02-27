@@ -10,6 +10,7 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
@@ -165,6 +166,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
       _finish(shouldSaveBackup, isRePair);
     }, onError: (error) {
+      print('Pairing failed error: $error');
       analyticManager.trackPairingDevice(
           type: isRePair
               ? PairingDeviceType.repaired
@@ -173,14 +175,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   : PairingDeviceType.start,
           status: PairingDeviceStatus.failed,
           error: error.toString());
-      _cancelPairing();
+      _cancelPairing(true, error);
     });
   }
 
-  void _cancelPairing([bool showTryAgain = true]) {
+  void _cancelPairing(bool showTryAgain, [dynamic error]) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
-    if (showTryAgain) {
+    if (error.toString().contains('INVALID_BACKUP_DATA')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => NoBackupFoundWhileRepairingScreen(onPress: () {
+            _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
+          }),
+        ),
+      );
+    } else if (showTryAgain) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SomethingWentWrongScreen(onPress: () {
