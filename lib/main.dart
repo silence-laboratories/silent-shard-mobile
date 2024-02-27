@@ -57,7 +57,9 @@ Future<void> main() async {
   final backupService = BackupService(fileService, secureStorage, appPreferences);
   final themeManager = ThemeManager();
   final mixpanelManager = AnalyticManager(appRepository.keysharesProvider);
-  await signInService.signInAnonymous();
+
+  // Initiate the anonymous sign in process
+  signInService.signInAnonymous();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
@@ -110,23 +112,21 @@ class _MyAppState extends State<MyApp> {
         backgroundColor: Colors.black,
         body: Consumer<AppPreferences>(
           builder: (context, appPreferences, _) => Consumer<LocalAuth>(
-            builder: (context, localAuth, _) => Consumer<AuthState>(
-              builder: (context, authState, _) => Consumer<PairingDataProvider>(
-                builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                  bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
-                  return switch ((
-                    (!localAuth.isAuthenticated) && isLocalAuthRequired,
-                    appPreferences.getIsOnboardingCompleted(),
-                    pairingDataProvider.pairingData,
-                    keysharesProvider.keyshares.firstOrNull
-                  )) {
-                    (false, true, _?, _?) => const SignScreen(),
-                    (false, true, _, _) => const PairScreen(),
-                    (false, false, _, _) => const OnboardingScreen(),
-                    (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
-                  };
-                }),
-              ),
+            builder: (context, localAuth, _) => Consumer<PairingDataProvider>(
+              builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
+                bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
+                return switch ((
+                  (!localAuth.isAuthenticated) && isLocalAuthRequired,
+                  appPreferences.getIsOnboardingCompleted(),
+                  pairingDataProvider.pairingData,
+                  keysharesProvider.keyshares.firstOrNull
+                )) {
+                  (false, true, _?, _?) => const SignScreen(),
+                  (false, true, _, _) => const PairScreen(),
+                  (false, false, _, _) => const OnboardingScreen(),
+                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
+                };
+              }),
             ),
           ),
         ));

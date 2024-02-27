@@ -30,7 +30,7 @@ class ErrorHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return PopScope(
-      canPop: true,
+      canPop: onBack != null,
       onPopInvoked: (didPop) {
         if (onBack != null && didPop) onBack!();
       },
@@ -38,6 +38,7 @@ class ErrorHandler extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.black,
+            automaticallyImplyLeading: onBack != null,
           ),
           backgroundColor: Colors.black,
           body: Container(
