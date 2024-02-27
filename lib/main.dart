@@ -10,9 +10,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:silentshard/screens/onboarding_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/screens/local_auth_screen.dart';
-import 'package:silentshard/screens/login_screen_wrapper.dart';
 import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/services/local_auth_service.dart';
 import 'package:silentshard/services/secure_storage/secure_storage_service.dart';
@@ -57,6 +57,9 @@ Future<void> main() async {
   final backupService = BackupService(fileService, secureStorage, appPreferences);
   final themeManager = ThemeManager();
   final mixpanelManager = AnalyticManager(appRepository.keysharesProvider);
+
+  // Initiate the anonymous sign in process
+  signInService.signInAnonymous();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
@@ -106,27 +109,26 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Consumer<LocalAuth>(
-        builder: (context, localAuth, _) => Consumer<AuthState>(
-          builder: (context, authState, _) => Consumer<PairingDataProvider>(
-            builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-              bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
-              return switch ((
-                (!localAuth.isAuthenticated) && isLocalAuthRequired,
-                authState.user,
-                pairingDataProvider.pairingData,
-                keysharesProvider.keyshares.firstOrNull
-              )) {
-                (false, _?, _?, _?) => const SignScreen(),
-                (false, _?, _, _) => const PairScreen(),
-                (false, null, _, _) => const LoginScreenWrapper(),
-                (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
-              };
-            }),
+        backgroundColor: Colors.black,
+        body: Consumer<AppPreferences>(
+          builder: (context, appPreferences, _) => Consumer<LocalAuth>(
+            builder: (context, localAuth, _) => Consumer<PairingDataProvider>(
+              builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
+                bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
+                return switch ((
+                  (!localAuth.isAuthenticated) && isLocalAuthRequired,
+                  appPreferences.getIsOnboardingCompleted(),
+                  pairingDataProvider.pairingData,
+                  keysharesProvider.keyshares.firstOrNull
+                )) {
+                  (false, true, _?, _?) => const SignScreen(),
+                  (false, true, _, _) => const PairScreen(),
+                  (false, false, _, _) => const OnboardingScreen(),
+                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
+                };
+              }),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

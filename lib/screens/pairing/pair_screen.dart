@@ -2,10 +2,11 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
+import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../../constants.dart';
@@ -33,10 +34,56 @@ class _PairState extends State<PairScreen> {
   PairingState _pairingState = PairingState.ready;
   late AnalyticManager analyticManager;
 
+  Future<void> checkAuth() async {
+    try {
+      SignInService signInService = Provider.of<SignInService>(context, listen: false);
+      await signInService.signInAnonymous();
+    } catch (e) {
+      if (e.toString().contains('firebase_auth/network-request-failed')) {
+        // ignore: use_build_context_synchronously
+        _showNoInternetError(context);
+      } else {
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ErrorHandler(
+              onPressBottomButton: () {
+                Navigator.pop(context);
+                checkAuth();
+              },
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  void _showNoInternetError(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ErrorHandler(
+          errorTitle: 'No internet connection',
+          errorSubtitle: Text(
+            'Please connect to internet and try again',
+            style: textTheme.bodyMedium,
+          ),
+          onPressBottomButton: () {
+            Navigator.pop(context);
+            checkAuth();
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+    checkAuth();
   }
 
   void _handleBackupFetch(BackupSource source, [String? key]) async {
@@ -195,61 +242,68 @@ class _PairState extends State<PairScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
+          appBar: AppBar(
+            backgroundColor: Colors.black,
           ),
-        ),
-        backgroundColor: Colors.black,
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(defaultPadding * 1.5),
-                margin: const EdgeInsets.only(top: defaultPadding * 0.5),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    "Let's get started",
-                    style: textTheme.displayLarge,
+          backgroundColor: Colors.black,
+          body: Consumer<AuthState>(builder: (context, authState, _) {
+            return Stack(
+              children: [
+                AbsorbPointer(
+                  absorbing: authState.user == null,
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.all(defaultPadding * 1.5),
+                      margin: const EdgeInsets.only(top: defaultPadding * 0.5),
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(
+                          "Let's get started",
+                          style: textTheme.displayLarge,
+                        ),
+                        const Gap(defaultPadding * 3),
+                        PairOption(
+                          type: OptionType.primary,
+                          icon: const Icon(Icons.add, color: Colors.white),
+                          title: 'Connect your account',
+                          subtitle: 'Scan QR and Connect your browser to create new account.',
+                          infoText: "For new users",
+                          onPress: _goToScannerScreen,
+                        ),
+                        const Gap(defaultPadding * 3),
+                        PairOption(
+                          type: OptionType.secondary,
+                          icon: const Icon(Icons.replay, color: Colors.white),
+                          title: 'Restore existing account',
+                          subtitle: 'Choose backup file to recover your existing wallet.',
+                          infoText: "For existing users",
+                          onPress: _showBackupSourcePicker,
+                        ),
+                      ]),
+                    ),
                   ),
-                  const Gap(defaultPadding * 3),
-                  PairOption(
-                    type: OptionType.primary,
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    title: 'Connect your account',
-                    subtitle: 'Scan QR and Connect your browser to create new account.',
-                    infoText: "For new users",
-                    onPress: _goToScannerScreen,
-                  ),
-                  const Gap(defaultPadding * 3),
-                  PairOption(
-                    type: OptionType.secondary,
-                    icon: const Icon(Icons.replay, color: Colors.white),
-                    title: 'Restore existing account',
-                    subtitle: 'Choose backup file to recover your existing wallet.',
-                    infoText: "For existing users",
-                    onPress: _showBackupSourcePicker,
-                  ),
-                ]),
-              ),
-            ),
-            if (_pairingState == PairingState.fetchingBackup) ...[
-              const AlertDialog(
-                backgroundColor: secondaryColor,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
-                content: Wrap(children: [Loader(text: 'Fetching backup...')]),
-              )
-            ],
-          ],
-        ),
-      ),
+                if (_pairingState == PairingState.fetchingBackup) ...[
+                  const AlertDialog(
+                    backgroundColor: secondaryColor,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Wrap(children: [Loader(text: 'Fetching backup...')]),
+                  )
+                ],
+                if (authState.user == null)
+                  const AlertDialog(
+                    backgroundColor: secondaryColor,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    content: Wrap(children: [Loader(text: 'Getting ready...')]),
+                  )
+              ],
+            );
+          })),
     );
   }
 }
