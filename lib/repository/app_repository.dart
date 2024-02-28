@@ -35,18 +35,22 @@ class AppRepository extends DemoDecoratorComposite {
       return _pair(qrMessage, userId, backup);
     } else {
       return _pair(qrMessage, userId).then((_) async {
-        try {
-          _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-          final keyshare = await _sdk.startKeygen().value;
-          _analyticManager.trackDistributedKeyGen(
-              type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
-          return keyshare;
-        } catch (error) {
-          _analyticManager.trackDistributedKeyGen(
-              type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.failed, error: error.toString());
-          rethrow;
-        }
+        return await _keygen();
       }).then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
+    }
+  }
+
+  Future<Keyshare2> _keygen() async {
+    try {
+      _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
+      final keyshare = await _sdk.startKeygen().value;
+      _analyticManager.trackDistributedKeyGen(
+          type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
+      return keyshare;
+    } catch (error) {
+      _analyticManager.trackDistributedKeyGen(
+          type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.failed, error: error.toString());
+      rethrow;
     }
   }
 
