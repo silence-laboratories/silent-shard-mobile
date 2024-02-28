@@ -15,7 +15,11 @@ enum SignInMethod { gmail, apple }
 
 enum PairingDeviceStatus { qr_scanned, success, failed }
 
-enum PairingDeviceType { repaired, recovered, start }
+enum PairingDeviceType { repaired, recovered, new_account }
+
+enum DistributedKeyGenStatus { initiated, success, failed }
+
+enum DistributedKeyGenType { new_account, recovered }
 
 enum AllowPermissionsNoti { allowed, denied }
 
@@ -33,6 +37,7 @@ enum EventName {
   sign_in,
   connect_new_account,
   pairing_device,
+  distributed_keys_generated,
   account_created,
   save_backup_system,
   allow_permissions,
@@ -48,10 +53,14 @@ enum EventName {
 class AnalyticManager {
   late Mixpanel mixpanel;
   static const WALLET_METAMASK = 'MetaMask';
-  final KeysharesProvider keysharesProvider;
+  late KeysharesProvider _keysharesProvider;
 
-  AnalyticManager(this.keysharesProvider) {
+  AnalyticManager() {
     initMixpanel();
+  }
+
+  set keysharesProvider(KeysharesProvider keysharesProvider) {
+    _keysharesProvider = keysharesProvider;
   }
 
   void initMixpanel() async {
@@ -87,6 +96,12 @@ class AnalyticManager {
       'wallet': wallet ?? WALLET_METAMASK,
       'public_key': _getWalletAddress()
     });
+  }
+
+  void trackDistributedKeyGen(
+      {required DistributedKeyGenType type, required DistributedKeyGenStatus status, String? publicKey, String? wallet, String? error}) {
+    mixpanel.track(EventName.distributed_keys_generated.name,
+        properties: {'type': type.name, 'status': status.name, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': publicKey});
   }
 
   void trackSaveBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
@@ -203,6 +218,6 @@ class AnalyticManager {
   }
 
   String? _getWalletAddress() {
-    return keysharesProvider.keyshares.firstOrNull?.ethAddress;
+    return _keysharesProvider.keyshares.firstOrNull?.ethAddress;
   }
 }

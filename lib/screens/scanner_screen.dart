@@ -96,7 +96,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ? PairingDeviceType.repaired
               : widget.backup?.walletBackup != null
                   ? PairingDeviceType.recovered
-                  : PairingDeviceType.start,
+                  : PairingDeviceType.new_account,
           status: PairingDeviceStatus.qr_scanned);
       _updateScannerState(ScannerState.scanned);
       _startPairing(context, sdk, authState, message, widget.isRePairing ?? false);
@@ -159,7 +159,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ? PairingDeviceType.repaired
             : hasBackupAlready
                 ? PairingDeviceType.recovered
-                : PairingDeviceType.start,
+                : PairingDeviceType.new_account,
         status: PairingDeviceStatus.success,
       );
 
@@ -170,7 +170,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ? PairingDeviceType.repaired
               : hasBackupAlready
                   ? PairingDeviceType.recovered
-                  : PairingDeviceType.start,
+                  : PairingDeviceType.new_account,
           status: PairingDeviceStatus.failed,
           error: error.toString());
       _cancelPairing();
@@ -311,7 +311,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                   color: primaryColor2,
                                 ),
                                 const Gap(defaultPadding),
-                                Text((value == TorchState.on) ? "Flash on" : 'Flash off', style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
+                                Text((value == TorchState.on) ? "Flash on" : 'Flash off',
+                                    style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
                               ]);
                             }),
                       ),

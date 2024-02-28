@@ -44,7 +44,9 @@ Future<void> main() async {
 
   final authState = AuthState();
   final localAuth = LocalAuth();
-  final appRepository = AppRepository(sdk);
+  final mixpanelManager = AnalyticManager();
+  final appRepository = AppRepository(sdk, mixpanelManager);
+  mixpanelManager.keysharesProvider = appRepository.keysharesProvider;
   final appPreferences = AppPreferences(sharedPreferences);
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();
@@ -56,7 +58,6 @@ Future<void> main() async {
   final fileService = FileService();
   final backupService = BackupService(fileService, secureStorage, appPreferences);
   final themeManager = ThemeManager();
-  final mixpanelManager = AnalyticManager(appRepository.keysharesProvider);
 
   // Initiate the anonymous sign in process
   signInService.signInAnonymous();
