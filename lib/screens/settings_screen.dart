@@ -68,9 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 "Settings",
                 style: textTheme.displayLarge,
               ),
-              const SizedBox(
-                height: defaultPadding * 2,
-              ),
+              const Gap(defaultPadding * 2),
               Consumer<LocalAuth>(builder: (context, localAuth, _) {
                 return SettingOption(
                     icon: const Icon(
@@ -89,9 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       }
                     });
               }),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.help_outline,
@@ -105,9 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "How Silent Shard works",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.shield_outlined,
@@ -121,9 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "Privacy Policy",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.file_copy_outlined,
@@ -138,9 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "SDK Documentation",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.description_outlined,
@@ -157,9 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "Licenses",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
                 child: Column(
@@ -169,9 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       "For any queries reach out to",
                       style: textTheme.displaySmall,
                     ),
-                    const SizedBox(
-                      height: defaultPadding * 1.5,
-                    ),
+                    const Gap(defaultPadding * 1.5),
                     GestureDetector(
                         onTap: () {
                           Uri emailLaunchUri = Uri(
@@ -267,25 +253,23 @@ class SettingOption extends StatelessWidget {
 
   Widget _buildContainer(TextTheme textTheme, bool hasSwitch) {
     return Container(
-      padding: const EdgeInsets.only(top: defaultPadding * 2, bottom: defaultPadding * 2, left: defaultPadding),
+      padding: const EdgeInsets.only(top: defaultPadding * 1.5, bottom: defaultPadding * 1.5, left: defaultPadding),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           PaddedContainer(child: icon),
-          const SizedBox(
-            width: defaultPadding,
-          ),
-          Flexible(
+          const Gap(defaultPadding),
+          Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: textTheme.displaySmall),
               if (subtitle != null) Text(subtitle!, style: textTheme.bodySmall),
             ]),
           ),
-          const Gap(defaultPadding),
           if (hasSwitch)
             Switch(
               thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
               value: isSwitchOn!,
-              activeColor: primaryColor,
+              activeColor: backgroundPrimaryColor,
               onChanged: onChangeSwitch,
             )
         ],

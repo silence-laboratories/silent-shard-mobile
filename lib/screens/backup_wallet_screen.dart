@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -18,6 +19,23 @@ import 'error/error_handler.dart';
 class BackupWalletScreen extends StatelessWidget {
   const BackupWalletScreen({super.key});
 
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => const AlertDialog(
+        backgroundColor: secondaryColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        content: Wrap(children: [
+          Check(text: 'Backup successful!'),
+        ]),
+        insetPadding: EdgeInsets.all(defaultPadding * 1.5),
+      ),
+    );
+  }
+
   Future<void> _performBackup(BuildContext context) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
@@ -27,6 +45,14 @@ class BackupWalletScreen extends StatelessWidget {
         success: true,
         source: PageSource.onboarding,
       );
+      if (Platform.isIOS) {
+        // ignore: use_build_context_synchronously
+        _showDialog(context);
+        await Future.delayed(const Duration(seconds: 2), () {});
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      }
       if (context.mounted) {
         Navigator.of(context).pop();
       }
@@ -113,7 +139,9 @@ class BackupWalletScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(defaultPadding * 2),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Expanded(
-                      child: Platform.isIOS ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66) : Lottie.asset('assets/lottie/GPMAnimation.json'),
+                      child: Platform.isIOS
+                          ? Image.asset('assets/images/iCloudKeychain.png', width: MediaQuery.of(context).size.width * 0.66)
+                          : Lottie.asset('assets/lottie/GPMAnimation.json'),
                     ),
                     Bullet(
                       child: RichText(
@@ -310,7 +338,8 @@ class BackupKnowMoreModal extends StatelessWidget {
             const Gap(defaultPadding * 2),
             const BackupKnowMoreFAQ(
               question: 'What happens if I click on “Never”?',
-              answer: "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
+              answer:
+                  "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
             ),
             const Gap(defaultPadding * 6),
           ]),
