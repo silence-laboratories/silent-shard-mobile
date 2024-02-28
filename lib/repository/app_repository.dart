@@ -34,9 +34,9 @@ class AppRepository extends DemoDecoratorComposite {
     if (backup != null) {
       return _pair(qrMessage, userId, backup);
     } else {
-      return _pair(qrMessage, userId).then((_) async {
-        return await _keygen();
-      }).then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
+      return _pair(qrMessage, userId) //
+          .then((_) => _keygen())
+          .then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
     }
   }
 
