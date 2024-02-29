@@ -10,6 +10,7 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
@@ -173,14 +174,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   : PairingDeviceType.new_account,
           status: PairingDeviceStatus.failed,
           error: error.toString());
-      _cancelPairing();
+      _cancelPairing(true, error);
     });
   }
 
-  void _cancelPairing([bool showTryAgain = true]) {
+  void _cancelPairing(bool showTryAgain, [dynamic error]) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
-    if (showTryAgain) {
+    if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => NoBackupFoundWhileRepairingScreen(onPress: () {
+            _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
+          }),
+        ),
+      );
+    } else if (showTryAgain) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SomethingWentWrongScreen(onPress: () {
@@ -251,6 +261,24 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     Bullet(
                       child: Text("Connect Silent Shard Snap with your MetaMask extension.", style: textTheme.displaySmall),
                     ),
+                    if (widget.isRePairing == true)
+                      Bullet(
+                        child: RichText(
+                          text: TextSpan(
+                            children: <InlineSpan>[
+                              TextSpan(text: 'If account is already present:  press on the', style: textTheme.displaySmall),
+                              const WidgetSpan(
+                                child: Icon(
+                                  Icons.more_vert,
+                                  size: 20,
+                                ),
+                              ),
+                              TextSpan(
+                                  text: 'icon and click on ‘Recover account on phone’ and follow the instructions', style: textTheme.displaySmall),
+                            ],
+                          ),
+                        ),
+                      ),
                     Bullet(
                       child: RichText(
                         text: TextSpan(
