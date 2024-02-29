@@ -181,7 +181,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   void _cancelPairing(bool showTryAgain, [dynamic error]) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
-    if (error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
+    if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => NoBackupFoundWhileRepairingScreen(onPress: () {
