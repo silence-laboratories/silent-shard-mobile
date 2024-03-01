@@ -99,11 +99,6 @@ class _PairState extends State<PairScreen> {
     } catch (error) {
       _showError(error, source);
       print('Error recovering from credentionals: $error');
-      if (source == BackupSource.secureStorage) {
-        analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.toString());
-      } else {
-        analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, error: error.toString());
-      }
     } finally {
       setState(() => _pairingState = PairingState.ready);
     }
@@ -161,11 +156,6 @@ class _PairState extends State<PairScreen> {
   }
 
   void _recoverFromBackup(AppBackup backup, BackupSource source) {
-    if (source == BackupSource.secureStorage) {
-      analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
-    } else {
-      analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started);
-    }
     Navigator.push(
       context,
       MaterialPageRoute(

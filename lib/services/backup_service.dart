@@ -37,17 +37,35 @@ class BackupService extends ChangeNotifier {
     };
   }
 
-  Future<AppBackup?> readBackupFromFile() {
-    return _fileService //
-        .selectFile()
-        .then((file) => file?.readAsString() ?? Future(() => null))
-        .then((value) => (value != null) ? AppBackup.fromString(value) : null);
+  Future<AppBackup?> readBackupFromFile() async {
+    late String? backupDestination;
+    try {
+      final (file, filePickerId) = await _fileService.selectFile();
+      backupDestination = filePickerId;
+      if (file != null) {
+        final fileContent = await file.readAsString();
+        _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
+        return AppBackup.fromString(fileContent);
+      }
+    } catch (error) {
+      _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
+      rethrow;
+    }
+    return null;
   }
 
-  Future<AppBackup?> readBackupFromStorage(String? key) {
-    return _secureStorage //
-        .read(key)
-        .then((entry) => (entry != null) ? AppBackup.fromString(entry.value) : null);
+  Future<AppBackup?> readBackupFromStorage(String? key) async {
+    try {
+      final entry = await _secureStorage.read(key);
+      if (entry != null) {
+        _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
+        return AppBackup.fromString(entry.value);
+      }
+    } catch (error) {
+      _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.toString());
+      rethrow;
+    }
+    return null;
   }
 
   // -------------------- Save --------------------
