@@ -75,12 +75,11 @@ class ExportBackupUseCase extends UseCase {
           subject: tempFile.filename,
           sharePositionOrigin: isIPad ? box.localToGlobal(Offset.zero) & box.size : null,
         );
-        ;
         if (result.status != ShareResultStatus.dismissed) {
-          analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page);
+          analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page, backup: result.raw);
           backupService.backupToFileDidSave(appBackup);
         } else {
-          analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: "Save to file is dismissed.");
+          analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, backup: result.raw, error: "Save to file is dismissed.");
         }
       }
     } catch (e) {
