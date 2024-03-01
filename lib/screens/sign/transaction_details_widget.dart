@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
-import '../../third_party/analytics.dart';
 import '../../constants.dart';
 import '../../demo/state_decorators/keyshares_provider.dart';
 import '../../utils.dart';
@@ -30,7 +29,6 @@ class TransactionDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     var outputFormat = DateFormat('hh:mm a, dd/MM/yyyy ');
-    final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -219,18 +217,13 @@ class TransactionDetailsWidget extends StatelessWidget {
                 textStyle: textTheme.displaySmall,
                 sliderButtonIconSize: 20,
                 onSubmit: () {
-                  analyticManager.trackSignPerform(status: SignPerformStatus.approved);
-                  handleSignResponse(true, requestModel, onErrorCb: (error) {
-                    analyticManager.trackSignPerform(status: SignPerformStatus.failed, error: error.toString());
-                  });
-                  analyticManager.trackSignPerform(status: SignPerformStatus.success);
+                  handleSignResponse(true, requestModel);
                   return null;
                 },
               ),
               TextButton(
                   onPressed: () {
                     handleSignResponse(false, requestModel);
-                    analyticManager.trackSignPerform(status: SignPerformStatus.rejected);
                   },
                   child: const Text(
                     'Reject',

@@ -5,6 +5,7 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import '../../constants.dart';
 import '../../repository/app_repository.dart';
@@ -34,6 +35,7 @@ class ApproveTransactionScreen extends StatefulWidget {
 class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   CancelableOperation<String>? _signingOperation;
   TransactionState _transactionState = TransactionState.readyToSign;
+  late AnalyticManager analyticManager;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
         _close();
       }
     });
+    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
   }
 
   _updateTransactionState(TransactionState value) {
@@ -67,12 +70,14 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
     print("Successfully generated signature: $signature");
     _updateTransactionState(TransactionState.signed);
     _close();
+    analyticManager.trackSignPerform(status: SignPerformStatus.success);
   }
 
   void _onError(Object error) {
     print("Error generating signature: $error");
     _updateTransactionState(TransactionState.failed);
     _close();
+    analyticManager.trackSignPerform(status: SignPerformStatus.failed, error: error.toString());
   }
 
   void _handleSignResponse(bool approved, SignRequestViewModel requestModel, {Function? onErrorCb, bool shouldDismiss = true}) {
@@ -81,6 +86,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
 
     if (approved) {
       print('Approved');
+      analyticManager.trackSignPerform(status: SignPerformStatus.approved);
       _updateTransactionState(TransactionState.signing);
       _signingOperation = appRepository.approve(requestModel.signRequest);
       _signingOperation?.value.then(_onSignature, onError: (error) {
@@ -89,6 +95,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
       });
     } else {
       print('Declined');
+      analyticManager.trackSignPerform(status: SignPerformStatus.rejected);
       _updateTransactionState(TransactionState.canceled);
       appRepository.decline(requestModel.signRequest);
       _close(shouldDismiss);
