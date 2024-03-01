@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import 'app_preferences.dart';
 import '../types/backup_info.dart';
@@ -20,11 +21,12 @@ class BackupService extends ChangeNotifier {
   final FileService _fileService;
   final SecureStorageService _secureStorage;
   final AppPreferences _preferences;
+  final AnalyticManager _analyticManager;
 
   // Optimization to fetch backup from keychain only once per launch
   final Map<String, bool> _hasCheckedKeychain = {};
 
-  BackupService(this._fileService, this._secureStorage, this._preferences);
+  BackupService(this._fileService, this._secureStorage, this._preferences, this._analyticManager);
 
   // -------------------- Read --------------------
 

@@ -44,9 +44,9 @@ Future<void> main() async {
 
   final authState = AuthState();
   final localAuth = LocalAuth();
-  final mixpanelManager = AnalyticManager();
-  final appRepository = AppRepository(sdk, mixpanelManager);
-  mixpanelManager.keysharesProvider = appRepository.keysharesProvider;
+  final analyticManager = AnalyticManager();
+  final appRepository = AppRepository(sdk, analyticManager);
+  analyticManager.keysharesProvider = appRepository.keysharesProvider;
   final appPreferences = AppPreferences(sharedPreferences);
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();
@@ -56,7 +56,7 @@ Future<void> main() async {
   await secureStorage.init();
 
   final fileService = FileService();
-  final backupService = BackupService(fileService, secureStorage, appPreferences);
+  final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();
 
   // Initiate the anonymous sign in process
@@ -77,7 +77,7 @@ Future<void> main() async {
         Provider(create: (_) => appRepository),
         Provider(create: (_) => signInService),
         Provider(create: (_) => secureStorage as SecureStorageService), // ignore: unnecessary_cast
-        Provider(create: (_) => mixpanelManager),
+        Provider(create: (_) => analyticManager),
         ChangeNotifierProvider(create: (_) => backupService), // ignore: unnecessary_cast
         ChangeNotifierProvider(create: (_) => appPreferences),
         ChangeNotifierProvider(create: (_) => appRepository.pairingDataProvider),
