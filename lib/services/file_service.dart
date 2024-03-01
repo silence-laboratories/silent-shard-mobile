@@ -7,10 +7,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileService {
-  Future<File?> selectFile() {
+  Future<(File?, String?)> selectFile() {
     return FilePicker.platform.pickFiles().then((value) {
       final path = value?.files.single.path;
-      return (path != null) ? File(path) : null;
+      final filePickerId = value?.files.single.identifier;
+      return (path != null) ? (File(path), filePickerId) : (null, null);
     });
   }
 
