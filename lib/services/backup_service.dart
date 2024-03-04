@@ -60,8 +60,9 @@ class BackupService extends ChangeNotifier {
     try {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
+        final appBackup = AppBackup.fromString(entry.value);
         _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
-        return AppBackup.fromString(entry.value);
+        return appBackup;
       }
     } on PlatformException catch (error) {
       _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.details);
