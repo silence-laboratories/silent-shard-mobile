@@ -40,11 +40,13 @@ enum EventName {
   distributed_keys_generated,
   account_created,
   save_backup_system,
+  recover_backup_system,
   allow_permissions,
   sign_initiated,
   sign_perform,
   device_lock_toggle,
   save_to_file,
+  recover_from_file,
   delete_account,
   log_out,
   verify_backup
@@ -105,12 +107,7 @@ class AnalyticManager {
   }
 
   void trackSaveBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
-    String backup = 'na';
-    if (Platform.isAndroid) {
-      backup = SaveBackupSystem.google_password.name;
-    } else if (Platform.isIOS) {
-      backup = SaveBackupSystem.keychain.name;
-    }
+    String backup = _getBackupSystem();
     mixpanel.track(EventName.save_backup_system.name, properties: {
       'backup': backup,
       'success': success,
@@ -122,13 +119,8 @@ class AnalyticManager {
   }
 
   void trackRecoverBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
-    String backup = 'na';
-    if (Platform.isAndroid) {
-      backup = SaveBackupSystem.google_password.name;
-    } else if (Platform.isIOS) {
-      backup = SaveBackupSystem.keychain.name;
-    }
-    mixpanel.track(EventName.save_backup_system.name, properties: {
+    String backup = _getBackupSystem();
+    mixpanel.track(EventName.recover_backup_system.name, properties: {
       'backup': backup,
       'success': success,
       'error': error,
@@ -175,7 +167,7 @@ class AnalyticManager {
   }
 
   void trackRecoverFromFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel.track(EventName.save_to_file.name, properties: {
+    mixpanel.track(EventName.recover_from_file.name, properties: {
       'backup': backup,
       'success': success,
       'error': error,
@@ -200,12 +192,7 @@ class AnalyticManager {
   }
 
   void trackVerifyBackup({required bool success, required String timeSinceVerify, PageSource? source, String? wallet, String? error}) {
-    String backup = 'na';
-    if (Platform.isAndroid) {
-      backup = SaveBackupSystem.google_password.name;
-    } else if (Platform.isIOS) {
-      backup = SaveBackupSystem.keychain.name;
-    }
+    String backup = _getBackupSystem();
     mixpanel.track(EventName.verify_backup.name, properties: {
       'backup': backup,
       'success': success,
@@ -219,5 +206,14 @@ class AnalyticManager {
 
   String? _getWalletAddress() {
     return _keysharesProvider.keyshares.firstOrNull?.ethAddress;
+  }
+
+  String _getBackupSystem() {
+    if (Platform.isAndroid) {
+      return SaveBackupSystem.google_password.name;
+    } else if (Platform.isIOS) {
+      return SaveBackupSystem.keychain.name;
+    }
+    return 'na';
   }
 }

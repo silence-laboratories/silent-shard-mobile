@@ -5,6 +5,8 @@ import 'dart:io';
 
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import 'app_preferences.dart';
 import '../types/backup_info.dart';
@@ -20,11 +22,12 @@ class BackupService extends ChangeNotifier {
   final FileService _fileService;
   final SecureStorageService _secureStorage;
   final AppPreferences _preferences;
+  final AnalyticManager _analyticManager;
 
   // Optimization to fetch backup from keychain only once per launch
   final Map<String, bool> _hasCheckedKeychain = {};
 
-  BackupService(this._fileService, this._secureStorage, this._preferences);
+  BackupService(this._fileService, this._secureStorage, this._preferences, this._analyticManager);
 
   // -------------------- Read --------------------
 
@@ -35,17 +38,39 @@ class BackupService extends ChangeNotifier {
     };
   }
 
-  Future<AppBackup?> readBackupFromFile() {
-    return _fileService //
-        .selectFile()
-        .then((file) => file?.readAsString() ?? Future(() => null))
-        .then((value) => (value != null) ? AppBackup.fromString(value) : null);
+  Future<AppBackup?> readBackupFromFile() async {
+    late String? backupDestination;
+    try {
+      final (file, filePickerId) = await _fileService.selectFile();
+      backupDestination = filePickerId;
+      if (file != null) {
+        final fileContent = await file.readAsString();
+        final appBackup = AppBackup.fromString(fileContent);
+        _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
+        return appBackup;
+      }
+    } catch (error) {
+      _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
+      rethrow;
+    }
+    return null;
   }
 
-  Future<AppBackup?> readBackupFromStorage(String? key) {
-    return _secureStorage //
-        .read(key)
-        .then((entry) => (entry != null) ? AppBackup.fromString(entry.value) : null);
+  Future<AppBackup?> readBackupFromStorage(String? key) async {
+    try {
+      final entry = await _secureStorage.read(key);
+      if (entry != null) {
+        final appBackup = AppBackup.fromString(entry.value);
+        _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
+        return appBackup;
+      }
+    } on PlatformException catch (error) {
+      _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.details);
+    } catch (error) {
+      _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.toString());
+      rethrow;
+    }
+    return null;
   }
 
   // -------------------- Save --------------------
