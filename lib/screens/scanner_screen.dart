@@ -107,8 +107,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => WrongQRCodeScreen(onTap: () {
-            _updateScannerState(ScannerState.scanning);
-            _resetScannerController();
+            _resetPairing();
           }),
         ),
       );
