@@ -45,8 +45,9 @@ class BackupService extends ChangeNotifier {
       backupDestination = filePickerId;
       if (file != null) {
         final fileContent = await file.readAsString();
+        final appBackup = AppBackup.fromString(fileContent);
         _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
-        return AppBackup.fromString(fileContent);
+        return appBackup;
       }
     } catch (error) {
       _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
