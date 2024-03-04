@@ -10,7 +10,8 @@ class FileService {
   Future<(File?, String?)> selectFile() {
     return FilePicker.platform.pickFiles().then((value) {
       final path = value?.files.single.path;
-      final filePickerId = value?.files.single.identifier;
+      final filePickerId = _removeEmailFrom(value?.files.single.identifier ?? '');
+
       return (path != null) ? (File(path), filePickerId) : (null, null);
     });
   }
@@ -19,4 +20,14 @@ class FileService {
     return getTemporaryDirectory() //
         .then((tempDirectory) => File('${tempDirectory.path}/$filename.txt'));
   }
+}
+
+String _removeEmailFrom(String identifier) {
+  RegExp emailRegex = RegExp(
+    r'\b[A-Za-z0-9._%+-]+%40[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  return identifier.replaceAll(emailRegex, '');
 }
