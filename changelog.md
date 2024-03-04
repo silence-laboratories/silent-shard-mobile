@@ -6,6 +6,7 @@
 - `New` - MM-324, Better error handling for pairing
 - `New` - MM-355, UX improvements
 - `New` - MM-366, Add distributed_keys_generated MixPanel event
+- `New` - MM-370, Add error message on phone when the user tries to backup to a wrong MetaMask wallet
 - `Fix` - MM-334, Incorrect backup status after recovery
 - `Fix` - MM-302, Handle the case of denying creating a backup
 
