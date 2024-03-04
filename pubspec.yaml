@@ -50,8 +50,8 @@ dependencies:
   file_picker: ^5.5.0
   dart_2_party_ecdsa:
     git:
-      url: https://github.com/silence-laboratories/silent-shard-flutter-sdk.git
-      ref: task/repairing-flow
+      url: git@github.com:silence-laboratories/silent-shard-flutter-sdk.git
+      ref: main
   sign_in_with_apple: ^5.0.0
   url_launcher: ^6.2.1
   hashlib: ^1.12.0
