@@ -179,6 +179,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
     });
   }
 
+  void _resetPairing() {
+    _updateScannerState(ScannerState.scanning);
+    _resetScannerController();
+  }
+
   void _cancelPairing(bool showTryAgain, [dynamic error]) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
@@ -186,8 +191,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => NoBackupFoundWhileRepairingScreen(onPress: () {
-            _updateScannerState(ScannerState.scanning);
-            _resetScannerController();
+            _resetPairing();
           }),
         ),
       );
@@ -195,8 +199,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => WrongMetaMaskWalletForRecoveryScreen(onPress: () {
-            _updateScannerState(ScannerState.scanning);
-            _resetScannerController();
+            _resetPairing();
           }),
         ),
       );
@@ -204,8 +207,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => SomethingWentWrongScreen(onPress: () {
-            _updateScannerState(ScannerState.scanning);
-            _resetScannerController();
+            _resetPairing();
           }),
         ),
       );
