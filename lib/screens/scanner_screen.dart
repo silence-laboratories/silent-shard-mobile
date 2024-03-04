@@ -11,6 +11,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
+import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
@@ -185,6 +186,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => NoBackupFoundWhileRepairingScreen(onPress: () {
+            _updateScannerState(ScannerState.scanning);
+            _resetScannerController();
+          }),
+        ),
+      );
+    } else if (error is StateError && error.toString().contains('INVALID_BACKUP_DATA')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => WrongMetaMaskWalletForRecoveryScreen(onPress: () {
             _updateScannerState(ScannerState.scanning);
             _resetScannerController();
           }),
