@@ -9,6 +9,7 @@
 - `New` - MM-370, Add error message on phone when the user tries to backup to a wrong MetaMask wallet
 - `Fix` - MM-334, Incorrect backup status after recovery
 - `Fix` - MM-302, Handle the case of denying creating a backup
+- `Fix` - MM-371, Fix wrong Mixpanel events tracking on mobile
 
 ### MetaMask release 1.2.2 on Android, 1.2.1 on iOS
 
