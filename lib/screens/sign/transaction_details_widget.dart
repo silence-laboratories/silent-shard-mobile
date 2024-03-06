@@ -79,7 +79,7 @@ class TransactionDetailsWidget extends StatelessWidget {
               ),
               const Gap(defaultPadding * 1.5),
               Text(
-                '${requestModel.amount ?? '0'} ${requestModel.chain?.code ?? ''}',
+                '${requestModel.amount ?? '0'} ${requestModel.chain?.code ?? 'Unknown'}',
                 style: textTheme.displayLarge,
               ),
             ] else ...[
@@ -168,7 +168,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                               )),
                           const Spacer(),
                           Text(
-                            requestModel.chain?.name ?? '',
+                            requestModel.chain?.name ?? 'Unknown',
                             style: const TextStyle(
                               color: textPrimaryColor,
                               fontSize: 14,
