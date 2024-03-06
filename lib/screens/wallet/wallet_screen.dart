@@ -284,11 +284,23 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     Provider.of<AppRepository>(context, listen: false).reset();
   }
 
-  Future<Chain> loadChainInfo(int chainId) async {
-    var jsonString = await rootBundle.loadString("assets/json/chain.json");
-    List<dynamic> jsonList = json.decode(jsonString);
-    final Chain chainInfo = Chain.fromJson(jsonList.firstWhere((element) => element['chainId'] == chainId));
-    return chainInfo;
+  Future<Chain?> loadChainInfo(int chainId) async {
+    try {
+      var jsonString = await rootBundle.loadString("assets/json/chain.json");
+      List<dynamic> jsonList = json.decode(jsonString);
+      Map<String, dynamic>? chainObj = jsonList.firstWhere(
+        (element) => element is Map<String, dynamic> && element['chainId'] == chainId,
+        orElse: () => null,
+      );
+      if (chainObj == null) {
+        return null;
+      }
+      final Chain chainInfo = Chain.fromJson(chainObj);
+      return chainInfo;
+    } catch (e) {
+      print('Error: $e');
+      return null;
+    }
   }
 
   Future<void> _handleSignRequest(SignRequest requst) async {
