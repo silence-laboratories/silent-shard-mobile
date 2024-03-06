@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/screens/onboarding_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/screens/local_auth_screen.dart';
@@ -58,6 +59,7 @@ Future<void> main() async {
   final fileService = FileService();
   final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();
+  final chainLoader = ChainLoader();
 
   // Initiate the anonymous sign in process
   signInService.signInAnonymous();
@@ -78,6 +80,7 @@ Future<void> main() async {
         Provider(create: (_) => signInService),
         Provider(create: (_) => secureStorage as SecureStorageService), // ignore: unnecessary_cast
         Provider(create: (_) => analyticManager),
+        Provider(create: (_) => chainLoader),
         ChangeNotifierProvider(create: (_) => backupService), // ignore: unnecessary_cast
         ChangeNotifierProvider(create: (_) => appPreferences),
         ChangeNotifierProvider(create: (_) => appRepository.pairingDataProvider),

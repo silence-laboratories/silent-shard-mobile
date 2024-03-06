@@ -2,7 +2,6 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:app_settings/app_settings.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -12,6 +11,7 @@ import 'package:gap/gap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
@@ -284,30 +284,11 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     Provider.of<AppRepository>(context, listen: false).reset();
   }
 
-  Future<Chain?> loadChainInfo(int chainId) async {
-    try {
-      var jsonString = await rootBundle.loadString("assets/json/chain.json");
-      List<dynamic> jsonList = json.decode(jsonString);
-      Map<String, dynamic>? chainObj = jsonList.firstWhere(
-        (element) => element is Map<String, dynamic> && element['chainId'] == chainId,
-        orElse: () => null,
-      );
-      if (chainObj == null) {
-        return null;
-      }
-      final Chain chainInfo = Chain.fromJson(chainObj);
-      return chainInfo;
-    } catch (e) {
-      print('Error: $e');
-      return null;
-    }
-  }
-
   Future<void> _handleSignRequest(SignRequest requst) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-
+    final chainLoader = Provider.of<ChainLoader>(context, listen: false);
     _signRequestsSubscription?.pause();
-    Chain? chain = requst.chainId == null ? null : await loadChainInfo(requst.chainId!);
+    Chain? chain = requst.chainId == null ? null : chainLoader.getChainInfo(requst.chainId!);
 
     final requestModel = SignRequestViewModel(requst, chain);
     analyticManager.trackSignInitiated();
