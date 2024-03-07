@@ -3,22 +3,27 @@ import 'package:flutter/services.dart';
 import 'package:silentshard/screens/sign/sign_request_view_model.dart';
 
 class ChainLoader {
-  late List<dynamic> _chains;
+  final Map<int, Chain> _chainMap = {};
 
-  ChainLoader() {
-    loadChains();
-  }
-
-  Future<void> loadChains() async {
-    var jsonString = await rootBundle.loadString("assets/json/chain.json");
-    _chains = json.decode(jsonString);
-  }
+  ChainLoader();
 
   Chain? getChainInfo(int chainId) {
-    Map<String, dynamic>? chainObj = _chains.firstWhere(
-      (element) => element is Map<String, dynamic> && element['chainId'] == chainId,
-      orElse: () => null,
-    );
-    return chainObj != null ? Chain.fromJson(chainObj) : null;
+    if (_chainMap.isEmpty) {
+      _loadChainsAndGenerate();
+      return _chainMap[chainId];
+    }
+    return _chainMap[chainId];
+  }
+
+  void _loadChainsAndGenerate() async {
+    var jsonString = await rootBundle.loadString("assets/json/chain.json");
+    List<dynamic> chainListJson = json.decode(jsonString);
+
+    for (var chainJson in chainListJson) {
+      if (chainJson is Map<String, dynamic>) {
+        final chain = Chain.fromJson(chainJson);
+        _chainMap[chainJson['chainId']] = chain;
+      }
+    }
   }
 }
