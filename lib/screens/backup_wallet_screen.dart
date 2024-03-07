@@ -22,6 +22,7 @@ class BackupWalletScreen extends StatelessWidget {
   void _showDialog(BuildContext context) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => const AlertDialog(
         backgroundColor: secondaryColor,
         elevation: 0,
@@ -45,13 +46,12 @@ class BackupWalletScreen extends StatelessWidget {
         success: true,
         source: PageSource.onboarding,
       );
-      if (Platform.isIOS) {
-        // ignore: use_build_context_synchronously
-        _showDialog(context);
-        await Future.delayed(const Duration(seconds: 2), () {});
-        if (context.mounted) {
-          Navigator.of(context).pop();
-        }
+
+      // ignore: use_build_context_synchronously
+      _showDialog(context);
+      await Future.delayed(const Duration(seconds: 2), () {});
+      if (context.mounted) {
+        Navigator.of(context).pop();
       }
       if (context.mounted) {
         Navigator.of(context).pop();

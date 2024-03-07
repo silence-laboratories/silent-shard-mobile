@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'dart:convert';
+import 'package:app_settings/app_settings.dart';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -12,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
+import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
@@ -200,6 +202,20 @@ class _ScannerScreenState extends State<ScannerScreen> {
           builder: (context) => WrongMetaMaskWalletForRecoveryScreen(onPress: () {
             _resetPairing();
           }),
+        ),
+      );
+    } else if (error is StateError && error.toString().contains('RESOURCE_EXHAUSTED')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => WrongTimezoneScreen(
+            onPress: () {
+              _resetPairing();
+              AppSettings.openAppSettings(type: AppSettingsType.date);
+            },
+            onBack: () {
+              _resetPairing();
+            },
+          ),
         ),
       );
     } else if (showTryAgain) {
