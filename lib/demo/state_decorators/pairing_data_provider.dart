@@ -41,5 +41,6 @@ class DemoPairingData extends PairingData {
           "DemoPairingId",
           Uint8List(0),
           sodium.crypto.box.keyPair(),
+          null,
         );
 }

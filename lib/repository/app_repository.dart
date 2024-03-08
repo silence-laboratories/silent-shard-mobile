@@ -25,7 +25,7 @@ class AppRepository extends DemoDecoratorComposite {
 
   late final keysharesProvider = KeysharesProvider(_sdk.keygenState);
 
-  CancelableOperation<void> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
+  CancelableOperation<dynamic> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
     if (qrMessage.isDemo) {
       startDemoMode();
       return CancelableOperation.fromValue(()); // ignore:void_checks
@@ -54,12 +54,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  CancelableOperation<void> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
+  CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
     _sdk.reset();
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
-  CancelableOperation<void> repair(QRMessage qrMessage, String userId) {
+  CancelableOperation<dynamic> repair(QRMessage qrMessage, String userId) {
     if (isDemoActive) {
       return CancelableOperation.fromValue(()); // ignore:void_checks
     }
