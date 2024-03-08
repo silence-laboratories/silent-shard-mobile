@@ -11,7 +11,7 @@ import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
 
 enum PageSource { sign_in, onboarding_backup, onboarding, homepage, get_started, backup_page }
 
-enum SignInMethod { gmail, apple }
+enum SignInStatus { success, failed }
 
 enum PairingDeviceStatus { qr_scanned, success, failed }
 
@@ -82,8 +82,8 @@ class AnalyticManager {
     });
   }
 
-  void trackSignIn({required String emailId, required SignInMethod authMethod, String? error}) {
-    mixpanel.track(EventName.sign_in.name, properties: {'email_id': emailId, 'auth': authMethod.name, 'error': error});
+  void trackSignIn({required String userId, required SignInStatus status, String? error}) {
+    mixpanel.track(EventName.sign_in.name, properties: {'user_id': userId, 'status': status.name, 'error': error});
   }
 
   void trackConnectNewAccount() {
