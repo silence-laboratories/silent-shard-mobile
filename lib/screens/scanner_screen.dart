@@ -172,7 +172,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           MaterialPageRoute(
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
-                _finish(false, isRePair);
+                _finish(shouldSaveBackup, isRePair);
               },
               onBack: () {
                 _pairingOperation?.cancel();
