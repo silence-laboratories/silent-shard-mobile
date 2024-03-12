@@ -11,6 +11,7 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/error/wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
@@ -60,7 +61,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   ScannerScreenPairingState _pairingState = ScannerScreenPairingState.ready;
 
-  CancelableOperation<void>? _pairingOperation;
+  CancelableOperation<dynamic>? _pairingOperation;
 
   void _updateScannerState(ScannerState newState) {
     setState(() {
@@ -156,7 +157,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     final hasBackupAlready = widget.backup != null;
     final shouldSaveBackup = !hasBackupAlready && !isRePair;
-    _pairingOperation?.value.then((_) {
+    _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
         type: isRePair
             ? PairingDeviceType.repaired
@@ -166,7 +167,24 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.success,
       );
 
-      _finish(shouldSaveBackup, isRePair);
+      if (pairingResponse is PairingData && pairingResponse.remark == 'WALLET_MISMATCH') {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => WalletMismatchScreen(
+              onContinue: () {
+                _finish(shouldSaveBackup, isRePair);
+              },
+              onBack: () {
+                _pairingOperation?.cancel();
+                _updatePairingState(ScannerScreenPairingState.ready);
+                _resetPairing();
+              },
+            ),
+          ),
+        );
+      } else {
+        _finish(shouldSaveBackup, isRePair);
+      }
     }, onError: (error) {
       analyticManager.trackPairingDevice(
           type: isRePair

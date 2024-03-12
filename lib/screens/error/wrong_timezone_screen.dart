@@ -22,7 +22,10 @@ class WrongTimezoneScreen extends StatelessWidget {
       ),
       buttonTitle: 'Go to settings',
       onBack: onBack,
-      onPressBottomButton: onPress,
+      onPressBottomButton: () {
+        Navigator.of(context).pop();
+        onPress();
+      },
     );
   }
 }
