@@ -25,18 +25,24 @@ class AppRepository extends DemoDecoratorComposite {
 
   late final keysharesProvider = KeysharesProvider(_sdk.keygenState);
 
-  CancelableOperation<dynamic> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
+  CancelableOperation<PairingData?> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
     if (qrMessage.isDemo) {
       startDemoMode();
-      return CancelableOperation.fromValue(()); // ignore:void_checks
+      return CancelableOperation.fromValue((null));
     }
 
     if (backup != null) {
       return _pair(qrMessage, userId, backup);
     } else {
-      return _pair(qrMessage, userId) //
-          .then((_) => _keygen())
-          .then((keyshare) => _sdk.fetchRemoteBackup(keyshare.ethAddress).value);
+      return _pair(qrMessage, userId).then((pairingData) async {
+        final keyshare = await _keygen();
+        return (keyshare, pairingData);
+      }).then((_) {
+        Keyshare2 keyshare = _.$1;
+        PairingData pairingData = _.$2;
+        _sdk.fetchRemoteBackup(keyshare.ethAddress).value;
+        return pairingData;
+      });
     }
   }
 
@@ -59,9 +65,9 @@ class AppRepository extends DemoDecoratorComposite {
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
-  CancelableOperation<dynamic> repair(QRMessage qrMessage, String userId) {
+  CancelableOperation<PairingData?> repair(QRMessage qrMessage, String userId) {
     if (isDemoActive) {
-      return CancelableOperation.fromValue(()); // ignore:void_checks
+      return CancelableOperation.fromValue((null));
     }
 
     return _sdk.startRePairing(qrMessage, userId);
