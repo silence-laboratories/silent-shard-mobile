@@ -37,8 +37,10 @@ class _PairState extends State<PairScreen> {
   Future<void> checkAuth() async {
     try {
       SignInService signInService = Provider.of<SignInService>(context, listen: false);
-      await signInService.signInAnonymous();
+      final userAuth = await signInService.signInAnonymous();
+      analyticManager.trackSignIn(userId: userAuth.user?.uid ?? '', status: SignInStatus.success);
     } catch (e) {
+      analyticManager.trackSignIn(userId: '', status: SignInStatus.failed, error: e.toString());
       if (e.toString().contains('firebase_auth/network-request-failed')) {
         // ignore: use_build_context_synchronously
         _showNoInternetError(context);

@@ -208,14 +208,15 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
         ),
         if (_notificationAlertState == SignScreenNotificationAlertState.showing)
           Consumer<LocalAuth>(builder: (context, localAuth, _) {
+            final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
             return NotificationAlertDialog(
               onDeny: () {
+                analyticManager.trackAllowPermissions(
+                    notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
                 _updateNotificationStatus(AuthorizationStatus.notDetermined);
                 _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
               },
               onAllow: () async {
-                final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-
                 await FirebaseMessaging.instance.requestPermission().then((permissions) {
                   _updateNotificationStatus(permissions.authorizationStatus);
                   if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
@@ -241,7 +242,8 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                         source: PageSource.homepage,
                         error: res ? null : "User denied request");
                   } else {
-                    analyticManager.trackAllowPermissions(deviceLock: AllowPermissionsDeviceLock.na, source: PageSource.homepage);
+                    analyticManager.trackAllowPermissions(
+                        notifications: AllowPermissionsNoti.allowed, deviceLock: AllowPermissionsDeviceLock.na, source: PageSource.homepage);
                   }
                 }
                 _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
