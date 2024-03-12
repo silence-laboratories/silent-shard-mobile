@@ -110,7 +110,6 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       activeColor: const Color(0xFFDB4E4E),
                       onPressed: () async {
                         if (_checkboxState == CheckBoxState.checked) {
-                          await widget.onUnpair();
                           final backupService = context.read<BackupService>();
                           final backupSystemStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.secureStorage).status;
                           final backupFileStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.fileSystem).status;
@@ -119,6 +118,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                             backupFile: backupFileStatus == BackupStatus.done,
                             backupSystem: backupSystemStatus == BackupStatus.done,
                           );
+                          await widget.onUnpair();
                           analyticManager.trackLogOut();
                           if (mounted) Navigator.of(context).pop();
                         }
