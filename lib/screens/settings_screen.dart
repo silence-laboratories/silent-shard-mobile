@@ -1,6 +1,7 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -84,6 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Provider.of<AppPreferences>(context, listen: false).setIsLocalAuthRequired(value);
                         final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
                         analyticManager.trackDeviceLockToggle(value);
+                        FirebaseCrashlytics.instance.log('Local auth ${value ? 'enabled' : 'disabled'}');
                       }
                     });
               }),

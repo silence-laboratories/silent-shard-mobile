@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -112,6 +113,7 @@ class BackupDestinationWidget extends StatelessWidget {
 
   void _performBackup(BuildContext context, BackupDestination destination) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+    FirebaseCrashlytics.instance.log('Peforming backup destination: $destination');
     try {
       final useCase = switch (destination) {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
@@ -126,6 +128,7 @@ class BackupDestinationWidget extends StatelessWidget {
       }
     } catch (error) {
       print('Cannot backup: $error');
+      FirebaseCrashlytics.instance.log('Cannot backup: $error');
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: error.toString());
@@ -163,7 +166,9 @@ class BackupDestinationWidget extends StatelessWidget {
       );
     } catch (error) {
       print('Cannot verify backup: $error');
-      analyticManager.trackVerifyBackup(success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
+      FirebaseCrashlytics.instance.log('Cannot verify backup: $error');
+      analyticManager.trackVerifyBackup(
+          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
       if (context.mounted) {
         _showErrorScreen(
           context,

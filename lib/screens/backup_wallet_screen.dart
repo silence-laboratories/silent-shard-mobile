@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
@@ -39,9 +40,10 @@ class BackupWalletScreen extends StatelessWidget {
 
   Future<void> _performBackup(BuildContext context) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-
+    FirebaseCrashlytics.instance.log('Saving backup');
     try {
       await SaveBackupToStorageUseCase(context).execute();
+      FirebaseCrashlytics.instance.log('Backup saved');
       analyticManager.trackSaveBackupSystem(
         success: true,
         source: PageSource.onboarding,
@@ -57,6 +59,7 @@ class BackupWalletScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } catch (error) {
+      FirebaseCrashlytics.instance.log('Error in saving backup: $error');
       if (error is CredentialException && error.code == 301) {
         return;
       }

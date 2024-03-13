@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:async/async.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -68,6 +69,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
 
   Future<void> _onSignature(String signature) async {
     print("Successfully generated signature: $signature");
+    FirebaseCrashlytics.instance.log('Successfully generated signature');
     _updateTransactionState(TransactionState.signed);
     _close();
     analyticManager.trackSignPerform(status: SignPerformStatus.success);
@@ -75,6 +77,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
 
   void _onError(Object error) {
     print("Error generating signature: $error");
+    FirebaseCrashlytics.instance.log('Error generating signature: $error');
     _updateTransactionState(TransactionState.failed);
     _close();
     analyticManager.trackSignPerform(status: SignPerformStatus.failed, error: error.toString());
@@ -86,6 +89,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
 
     if (approved) {
       print('Approved');
+      FirebaseCrashlytics.instance.log('Transaction approved');
       analyticManager.trackSignPerform(status: SignPerformStatus.approved);
       _updateTransactionState(TransactionState.signing);
       _signingOperation = appRepository.approve(requestModel.signRequest);
@@ -95,6 +99,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
       });
     } else {
       print('Declined');
+      FirebaseCrashlytics.instance.log('Transaction declined');
       analyticManager.trackSignPerform(status: SignPerformStatus.rejected);
       _updateTransactionState(TransactionState.canceled);
       appRepository.decline(requestModel.signRequest);

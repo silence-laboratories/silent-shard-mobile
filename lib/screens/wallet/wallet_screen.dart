@@ -4,6 +4,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:app_settings/app_settings.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -75,10 +76,12 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);
 
+    FirebaseCrashlytics.instance.log('Listening to sign requests');
     _signRequestsSubscription = appRepository.signRequests().listen(_handleSignRequest);
 
     _getNotificatioSettingsStatus().then((value) {
       _updateNotificationStatus(value);
+      FirebaseCrashlytics.instance.log('Notification permission status: ${value}');
       if (value == AuthorizationStatus.notDetermined) {
         _updateNotificationAlertState(SignScreenNotificationAlertState.showing);
       }
@@ -133,6 +136,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                   const Spacer(),
                   IconButton(
                     onPressed: () {
+                      FirebaseCrashlytics.instance.log('Open settings screen');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -219,6 +223,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
               onAllow: () async {
                 await FirebaseMessaging.instance.requestPermission().then((permissions) {
                   _updateNotificationStatus(permissions.authorizationStatus);
+                  FirebaseCrashlytics.instance.log('Notification permission status allow: ${permissions}');
                   if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
                       permissions.authorizationStatus == AuthorizationStatus.provisional) {
                     analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
@@ -232,6 +237,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                 });
                 if (Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired() == false) {
                   bool res = await localAuth.authenticate();
+                  FirebaseCrashlytics.instance.log('Local auth setup: $res');
                   if (res) {
                     Provider.of<AppPreferences>(context, listen: false).setIsLocalAuthRequired(true);
                   }
@@ -255,6 +261,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   }
 
   void _repair() async {
+    FirebaseCrashlytics.instance.log('Initiated repair');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -264,6 +271,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   }
 
   void _confirmSignOut(String address) {
+    FirebaseCrashlytics.instance.log('Initiated sign out');
     showModalBottomSheet(
         isScrollControlled: true,
         backgroundColor: sheetBackgroundColor,
@@ -274,6 +282,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   }
 
   void _exportBackup(String address) async {
+    FirebaseCrashlytics.instance.log('Open export backup');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -283,10 +292,12 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _signOut() async {
+    FirebaseCrashlytics.instance.log('Signing out');
     Provider.of<AppRepository>(context, listen: false).reset();
   }
 
   Future<void> _handleSignRequest(SignRequest requst) async {
+    FirebaseCrashlytics.instance.log('New sign request, chainId: ${requst.chainId}');
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
     final chainLoader = Provider.of<ChainLoader>(context, listen: false);
     _signRequestsSubscription?.pause();
