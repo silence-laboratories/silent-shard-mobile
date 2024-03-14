@@ -281,16 +281,6 @@ class _PairState extends State<PairScreen> {
                           infoText: "For existing users",
                           onPress: _showBackupSourcePicker,
                         ),
-                        Gap(defaultPadding * 6),
-                        GestureDetector(
-                          child: Text(
-                            'Crash',
-                            style: textTheme.bodyMedium,
-                          ),
-                          onTap: () {
-                            FirebaseCrashlytics.instance.crash();
-                          },
-                        )
                       ]),
                     ),
                   ),
