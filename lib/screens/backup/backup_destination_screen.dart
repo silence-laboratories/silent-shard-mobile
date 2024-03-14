@@ -113,7 +113,7 @@ class BackupDestinationWidget extends StatelessWidget {
 
   void _performBackup(BuildContext context, BackupDestination destination) async {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-    FirebaseCrashlytics.instance.log('Peforming backup destination: $destination');
+    FirebaseCrashlytics.instance.log('Peforming backup, destination: $destination');
     try {
       final useCase = switch (destination) {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
@@ -128,7 +128,8 @@ class BackupDestinationWidget extends StatelessWidget {
       }
     } catch (error) {
       print('Cannot backup: $error');
-      FirebaseCrashlytics.instance.log('Cannot backup: $error');
+      FirebaseCrashlytics.instance.log(
+          'Cannot backup: $error ${error is CredentialException ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}' : ''}');
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: error.toString());

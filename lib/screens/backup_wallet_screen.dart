@@ -59,7 +59,8 @@ class BackupWalletScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } catch (error) {
-      FirebaseCrashlytics.instance.log('Error in saving backup: $error');
+      FirebaseCrashlytics.instance.log(
+          'Error in saving backup: $error ${error is CredentialException ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}' : ''}');
       if (error is CredentialException && error.code == 301) {
         return;
       }

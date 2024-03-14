@@ -108,13 +108,15 @@ class _PairState extends State<PairScreen> {
     } catch (error) {
       _showError(error, source);
       print('Error recovering from credentionals: $error');
-      FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error');
     } finally {
       setState(() => _pairingState = PairingState.ready);
     }
   }
 
   void _showError(Object error, BackupSource source) {
+    FirebaseCrashlytics.instance.log(
+        'Error recovering from credentionals: $error ${error is CredentialException ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}' : ''}');
+
     if (error is CredentialException && error.code == 201) {
       // User cancelled, ignore
     } else if (error is CredentialException && error.code == 202) {
