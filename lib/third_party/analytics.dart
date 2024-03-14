@@ -126,7 +126,6 @@ class AnalyticManager {
       'error': error,
       'source': source.name,
       'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress()
     });
   }
 
@@ -167,14 +166,8 @@ class AnalyticManager {
   }
 
   void trackRecoverFromFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel.track(EventName.recover_from_file.name, properties: {
-      'backup': backup,
-      'success': success,
-      'error': error,
-      'wallet': wallet ?? WALLET_METAMASK,
-      'public_key': _getWalletAddress(),
-      'source': source.name
-    });
+    mixpanel.track(EventName.recover_from_file.name,
+        properties: {'backup': backup, 'success': success, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'source': source.name});
   }
 
   void trackDeleteAccount({required DeleteAccountStatus status, bool? backupSystem, bool? backupFile, String? wallet, String? publicKey}) {
