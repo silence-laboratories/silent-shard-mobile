@@ -62,6 +62,7 @@ Future<void> main() async {
   final chainLoader = ChainLoader();
 
   // Initiate the anonymous sign in process
+  FirebaseCrashlytics.instance.log("Initiate anonymous login");
   signInService.signInAnonymous();
 
   // Pass all uncaught "fatal" errors from the framework to Crashlytics
@@ -119,6 +120,7 @@ class _MyAppState extends State<MyApp> {
             builder: (context, localAuth, _) => Consumer<PairingDataProvider>(
               builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
+                FirebaseCrashlytics.instance.setCustomKey("ethAddress", keysharesProvider.keyshares.firstOrNull?.ethAddress ?? '');
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),

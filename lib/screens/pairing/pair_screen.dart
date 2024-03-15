@@ -2,12 +2,14 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
+import 'package:silentshard/utils.dart';
 
 import '../../constants.dart';
 import '../components/loader.dart';
@@ -36,10 +38,13 @@ class _PairState extends State<PairScreen> {
 
   Future<void> checkAuth() async {
     try {
+      FirebaseCrashlytics.instance.log("Initiated anonymous login");
       SignInService signInService = Provider.of<SignInService>(context, listen: false);
       final userAuth = await signInService.signInAnonymous();
       analyticManager.trackSignIn(userId: userAuth.user?.uid ?? '', status: SignInStatus.success);
+      FirebaseCrashlytics.instance.setUserIdentifier(userAuth.user?.uid ?? '');
     } catch (e) {
+      FirebaseCrashlytics.instance.log('Sign in failed $e');
       analyticManager.trackSignIn(userId: '', status: SignInStatus.failed, error: e.toString());
       if (e.toString().contains('firebase_auth/network-request-failed')) {
         // ignore: use_build_context_synchronously
@@ -90,23 +95,27 @@ class _PairState extends State<PairScreen> {
 
   void _handleBackupFetch(BackupSource source, [String? key]) async {
     try {
+      FirebaseCrashlytics.instance.log('Fetching backup, soure: $source');
       setState(() => _pairingState = PairingState.fetchingBackup);
       final backupService = Provider.of<BackupService>(context, listen: false);
       final backup = await backupService.fetchBackup(source, key);
       if (backup != null) {
+        FirebaseCrashlytics.instance.log('Backup fetched');
         _recoverFromBackup(backup, source);
       } else {
+        FirebaseCrashlytics.instance.log('No backup found');
         _showNoBackupFound(source);
       }
     } catch (error) {
       _showError(error, source);
-      print('Error recovering from credentionals: $error');
     } finally {
       setState(() => _pairingState = PairingState.ready);
     }
   }
 
   void _showError(Object error, BackupSource source) {
+    FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error, ${getErrorMessageIfCredentialException(error)}');
+
     if (error is CredentialException && error.code == 201) {
       // User cancelled, ignore
     } else if (error is CredentialException && error.code == 202) {
@@ -167,6 +176,7 @@ class _PairState extends State<PairScreen> {
   }
 
   void _goToScannerScreen() {
+    FirebaseCrashlytics.instance.log('Create new account');
     analyticManager.trackConnectNewAccount();
     Navigator.push(
       context,

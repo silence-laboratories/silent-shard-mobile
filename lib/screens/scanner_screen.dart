@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'package:app_settings/app_settings.dart';
 import 'package:async/async.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:gap/gap.dart';
@@ -96,6 +97,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final barcode = capture.barcodes.firstOrNull;
     final message = _parse(barcode?.rawValue);
     if (message != null) {
+      FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message.pairingId}');
       analyticManager.trackPairingDevice(
           type: widget.isRePairing ?? false
               ? PairingDeviceType.repaired
@@ -118,6 +120,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   Future<void> _finish(bool saveBackup, bool isRePair) async {
+    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: $saveBackup');
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
     await Future.delayed(const Duration(seconds: 2), () {});
@@ -145,7 +148,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Future<void> _startPairing(BuildContext context, AppRepository appRepository, AuthState authState, QRMessage qrMessage, bool isRePair) async {
     final userId = authState.user?.uid;
     if (userId == null) throw StateError('Attempt to pair when anauthenticated');
-
     if (_pairingState != ScannerScreenPairingState.ready) return;
     _updatePairingState(ScannerScreenPairingState.inProgress);
 
@@ -157,6 +159,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     final hasBackupAlready = widget.backup != null;
     final shouldSaveBackup = !hasBackupAlready && !isRePair;
+    FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
     _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
         type: isRePair
@@ -166,15 +169,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 : PairingDeviceType.new_account,
         status: PairingDeviceStatus.success,
       );
-
+      FirebaseCrashlytics.instance.log('Pairing done');
       if (pairingResponse is PairingData && pairingResponse.remark == 'WALLET_MISMATCH') {
+        FirebaseCrashlytics.instance.log('Wallet mismatch');
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
+                FirebaseCrashlytics.instance.log('Continue with new account');
                 _finish(shouldSaveBackup, isRePair);
               },
               onBack: () {
+                FirebaseCrashlytics.instance.log('Cancel pairing');
                 _pairingOperation?.cancel();
                 _updatePairingState(ScannerScreenPairingState.ready);
                 _resetPairing();
@@ -186,6 +192,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         _finish(shouldSaveBackup, isRePair);
       }
     }, onError: (error) {
+      FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
           type: isRePair
               ? PairingDeviceType.repaired

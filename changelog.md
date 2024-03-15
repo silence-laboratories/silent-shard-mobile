@@ -7,6 +7,7 @@
 - `New` - MM-355, UX improvements
 - `New` - MM-366, Add distributed_keys_generated MixPanel event
 - `New` - MM-370, Add error message on phone when the user tries to backup to a wrong MetaMask wallet
+- `New` - MM-372, Add logs for firebase crashlytics
 - `Fix` - MM-334, Incorrect backup status after recovery
 - `Fix` - MM-302, Handle the case of denying creating a backup
 - `Fix` - MM-371, Fix wrong Mixpanel events tracking on mobile

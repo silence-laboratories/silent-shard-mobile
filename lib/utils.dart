@@ -3,6 +3,7 @@
 
 import 'dart:io';
 
+import 'package:credential_manager/credential_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 String hexToAscii(String hexString) => List.generate(
@@ -56,4 +57,10 @@ extension PlatformUtils on Platform {
     }
     return false;
   }
+}
+
+String getErrorMessageIfCredentialException(Object error) {
+  return error is CredentialException
+      ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}'
+      : '';
 }
