@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
+import 'package:silentshard/utils.dart';
 
 import '../../constants.dart';
 import '../components/loader.dart';
@@ -107,15 +108,13 @@ class _PairState extends State<PairScreen> {
       }
     } catch (error) {
       _showError(error, source);
-      print('Error recovering from credentionals: $error');
     } finally {
       setState(() => _pairingState = PairingState.ready);
     }
   }
 
   void _showError(Object error, BackupSource source) {
-    FirebaseCrashlytics.instance.log(
-        'Error recovering from credentionals: $error ${error is CredentialException ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}' : ''}');
+    FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error, ${getErrorMessageIfCredentialException(error)}');
 
     if (error is CredentialException && error.code == 201) {
       // User cancelled, ignore

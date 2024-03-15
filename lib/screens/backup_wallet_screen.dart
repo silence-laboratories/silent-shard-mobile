@@ -14,6 +14,7 @@ import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/services/backup_use_cases.dart';
+import 'package:silentshard/utils.dart';
 
 import 'error/error_handler.dart';
 
@@ -59,8 +60,7 @@ class BackupWalletScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } catch (error) {
-      FirebaseCrashlytics.instance.log(
-          'Error in saving backup: $error ${error is CredentialException ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}' : ''}');
+      FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${getErrorMessageIfCredentialException(error)}');
       if (error is CredentialException && error.code == 301) {
         return;
       }

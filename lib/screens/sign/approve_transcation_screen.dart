@@ -68,7 +68,6 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   }
 
   Future<void> _onSignature(String signature) async {
-    print("Successfully generated signature: $signature");
     FirebaseCrashlytics.instance.log('Successfully generated signature');
     _updateTransactionState(TransactionState.signed);
     _close();
@@ -76,7 +75,6 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   }
 
   void _onError(Object error) {
-    print("Error generating signature: $error");
     FirebaseCrashlytics.instance.log('Error generating signature: $error');
     _updateTransactionState(TransactionState.failed);
     _close();
@@ -88,7 +86,6 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
     final appRepository = Provider.of<AppRepository>(context, listen: false);
 
     if (approved) {
-      print('Approved');
       FirebaseCrashlytics.instance.log('Transaction approved');
       analyticManager.trackSignPerform(status: SignPerformStatus.approved);
       _updateTransactionState(TransactionState.signing);
@@ -98,7 +95,6 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
         _onError(error);
       });
     } else {
-      print('Declined');
       FirebaseCrashlytics.instance.log('Transaction declined');
       analyticManager.trackSignPerform(status: SignPerformStatus.rejected);
       _updateTransactionState(TransactionState.canceled);

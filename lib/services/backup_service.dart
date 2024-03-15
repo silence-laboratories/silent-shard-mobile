@@ -139,7 +139,6 @@ class BackupService extends ChangeNotifier {
           _setBackupInfo(info);
         }
       }, onError: (e) {
-        print("Error verifying keychain: $e");
         if (info.keychain.status == BackupStatus.done) {
           // TODO: auto-save backup on iOS
           info.keychain = BackupCheck(BackupStatus.missing);
@@ -165,7 +164,6 @@ class BackupService extends ChangeNotifier {
         _setBackupInfo(info);
       }
     } catch (error) {
-      print('BackupService: could not verify backup $error');
       if (error is CredentialException && error.code == 201) return; // ingore user cancellation
 
       if (info.passwordManager.status == BackupStatus.done) {
