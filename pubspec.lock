@@ -157,10 +157,10 @@ packages:
     dependency: "direct main"
     description:
       name: credential_manager
-      sha256: "2ed9d01103f43a54614c26f3e65cdcba21c40f512425a420ffe16905368378c1"
+      sha256: "5c556f3cb8be2561e13979dbbb32f548045206908f885241b425f182951cfd0e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   cross_file:
     dependency: transitive
     description:

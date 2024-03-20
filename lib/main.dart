@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -54,8 +55,9 @@ Future<void> main() async {
 
   final signInService = SignInService();
   final secureStorage = SecureStorage();
-  await secureStorage.init();
-
+  await secureStorage.init().catchError((e) {
+    FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+  });
   final fileService = FileService();
   final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();
