@@ -2,7 +2,6 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
