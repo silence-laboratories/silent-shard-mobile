@@ -7,15 +7,15 @@ class ChainLoader {
 
   ChainLoader();
 
-  Chain? getChainInfo(int chainId) {
+  Future<Chain?> getChainInfo(int chainId) async {
     if (_chainMap.isEmpty) {
-      _loadChainsAndGenerate();
+      await _loadChainsAndGenerate();
       return _chainMap[chainId];
     }
     return _chainMap[chainId];
   }
 
-  void _loadChainsAndGenerate() async {
+  Future<void> _loadChainsAndGenerate() async {
     var jsonString = await rootBundle.loadString("assets/json/chain.json");
     List<dynamic> chainListJson = json.decode(jsonString);
 
