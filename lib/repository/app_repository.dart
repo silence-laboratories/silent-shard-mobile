@@ -36,11 +36,13 @@ class AppRepository extends DemoDecoratorComposite {
     } else {
       return _pair(qrMessage, userId).then((pairingData) async {
         final keyshare = await _keygen();
-        return (keyshare, pairingData);
+        final ethAddress = keyshare.ethAddress;
+        _analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
+        return (ethAddress, pairingData);
       }).then((_) {
-        Keyshare2 keyshare = _.$1;
+        String ethAddress = _.$1;
         PairingData pairingData = _.$2;
-        _sdk.fetchRemoteBackup(keyshare.ethAddress).value;
+        _sdk.fetchRemoteBackup(ethAddress).value;
         return pairingData;
       });
     }
