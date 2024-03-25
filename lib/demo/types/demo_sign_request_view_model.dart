@@ -26,5 +26,5 @@ class DemoSignRequestViewModel implements SignRequestViewModel {
   SignRequest get signRequest => throw UnimplementedError();
 
   @override
-  Future<Chain>? get chain => Future.value(Chain(id: 1, code: 'Eth', name: 'Ethereum Mainnet'));
+  Future<Chain> get chain => Future.value(Chain(id: 1, code: 'Eth', name: 'Ethereum Mainnet'));
 }

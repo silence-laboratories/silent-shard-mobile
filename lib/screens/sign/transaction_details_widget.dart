@@ -41,13 +41,6 @@ class TransactionDetailsWidget extends StatelessWidget {
               child: Lottie.asset('assets/lottie/MobileLoader.json'),
             );
           }
-          if (snapshot.hasError) {
-            return Center(
-                child: Text(
-              'Error loading chain info',
-              style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-            ));
-          }
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
               padding: const EdgeInsets.only(left: defaultPadding * 1.5, right: defaultPadding * 1.5, top: defaultPadding * 3),
