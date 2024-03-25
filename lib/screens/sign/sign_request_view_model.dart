@@ -24,9 +24,9 @@ class SignRequestViewModel {
 
   final SignRequest signRequest;
 
-  late final Chain? _chain;
+  late final Future<Chain>? _chain;
 
-  Chain? get chain => _chain;
+  Future<Chain>? get chain => _chain;
 
   SignRequestViewModel(this.signRequest, this._chain);
 

@@ -301,7 +301,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
     final chainLoader = Provider.of<ChainLoader>(context, listen: false);
     _signRequestsSubscription?.pause();
-    Chain? chain = requst.chainId == null ? null : await chainLoader.getChainInfo(requst.chainId!);
+    Future<Chain>? chain = chainLoader.getChainInfo(requst.chainId);
 
     final requestModel = SignRequestViewModel(requst, chain);
     analyticManager.trackSignInitiated();
