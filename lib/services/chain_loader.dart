@@ -10,7 +10,9 @@ class ChainLoader {
   Future<Chain> getChainInfo(int? chainId) async {
     if (_chainMap.isEmpty) {
       await _loadChainsAndGenerate();
-      return Future.value(_chainMap[chainId]);
+    }
+    if (_chainMap[chainId] == null) {
+      return Future.value(Chain(id: chainId ?? -1, name: 'Unknown', code: 'Unknown'));
     }
     return Future.value(_chainMap[chainId]);
   }
