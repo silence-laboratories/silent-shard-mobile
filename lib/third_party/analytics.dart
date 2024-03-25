@@ -82,6 +82,14 @@ class AnalyticManager {
     });
   }
 
+  void identifyUserProfile(String id) {
+    mixpanel.identify(id);
+  }
+
+  void setUserProfileProps({required String prop, required String value}) {
+    mixpanel.getPeople().set(prop, value);
+  }
+
   void trackSignIn({required String userId, required SignInStatus status, String? error}) {
     mixpanel.track(EventName.sign_in.name, properties: {'user_id': userId, 'status': status.name, 'error': error});
   }
