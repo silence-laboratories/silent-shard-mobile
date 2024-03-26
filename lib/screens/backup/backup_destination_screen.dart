@@ -130,7 +130,7 @@ class BackupDestinationWidget extends StatelessWidget {
       FirebaseCrashlytics.instance.log('Cannot backup: $error, ${getErrorMessageIfCredentialException(error)}');
 
       if (destination == BackupDestination.secureStorage) {
-        analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: error.toString());
+        analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: getErrorMessageIfCredentialException(error));
       } else {
         analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: error.toString());
       }
@@ -166,7 +166,10 @@ class BackupDestinationWidget extends StatelessWidget {
     } catch (error) {
       FirebaseCrashlytics.instance.log('Cannot verify backup: $error, ${getErrorMessageIfCredentialException(error)}');
       analyticManager.trackVerifyBackup(
-          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
+          success: false,
+          timeSinceVerify: cloudMessage(check.date),
+          source: PageSource.get_started,
+          error: getErrorMessageIfCredentialException(error));
       if (context.mounted) {
         _showErrorScreen(
           context,

@@ -60,7 +60,5 @@ extension PlatformUtils on Platform {
 }
 
 String getErrorMessageIfCredentialException(Object error) {
-  return error is CredentialException
-      ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}'
-      : '';
+  return error is CredentialException ? 'Code: ${error.code}, Messsage: ${error.message}\n ${error.details}' : error.toString();
 }

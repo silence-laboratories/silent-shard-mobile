@@ -71,11 +71,10 @@ class BackupWalletScreen extends StatelessWidget {
       } else if (context.mounted) {
         _showErrorScreen(context);
       }
-      debugPrint('error $error');
       analyticManager.trackSaveBackupSystem(
         success: false,
         source: PageSource.onboarding,
-        error: error.toString(),
+        error: getErrorMessageIfCredentialException(error),
       );
     }
   }
