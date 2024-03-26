@@ -13,7 +13,7 @@ class AndroidSecureStorage implements SecureStorageService {
     if (credentialManager.isSupportedPlatform) {
       return credentialManager.init(preferImmediatelyAvailableCredentials: false);
     } else {
-      return Future.error(UnsupportedError("AndroidSecureStorage: CredentialManager is not supported on this platform"));
+      throw Future.error(UnsupportedError("AndroidSecureStorage: CredentialManager is not supported on this platform"));
     }
   }
 

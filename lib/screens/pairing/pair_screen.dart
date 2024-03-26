@@ -133,7 +133,7 @@ class _PairState extends State<PairScreen> {
         builder: (context) => ErrorHandler(
           errorSubtitle: Text(
             textAlign: TextAlign.center,
-            'The backup up file might be wrong or else corrupted.',
+            'The backup file might be wrong or else corrupted.',
             style: textTheme.bodyMedium,
           ),
           onPressBottomButton: () {

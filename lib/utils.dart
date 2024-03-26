@@ -58,5 +58,5 @@ extension PlatformUtils on Platform {
 }
 
 String parseCredentialExceptionMessage(Object error) {
-  return error is CredentialException ? 'Code: ${error.code}, Messsage: ${error.message}\n ${error.details}' : error.toString();
+  return error is CredentialException ? 'Code: ${error.code}, Message: ${error.message}\n ${error.details}' : error.toString();
 }
