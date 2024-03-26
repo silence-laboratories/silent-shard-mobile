@@ -60,7 +60,7 @@ class BackupWalletScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
     } catch (error) {
-      FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${getErrorMessageIfCredentialException(error)}');
+      FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
       if (error is CredentialException && error.code == 301) {
         return;
       }
@@ -74,7 +74,7 @@ class BackupWalletScreen extends StatelessWidget {
       analyticManager.trackSaveBackupSystem(
         success: false,
         source: PageSource.onboarding,
-        error: getErrorMessageIfCredentialException(error),
+        error: parseCredentialExceptionMessage(error),
       );
     }
   }
