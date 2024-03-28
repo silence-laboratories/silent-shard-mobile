@@ -54,8 +54,9 @@ Future<void> main() async {
 
   final signInService = SignInService();
   final secureStorage = SecureStorage();
-  await secureStorage.init();
-
+  await secureStorage.init().catchError((e) {
+    FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+  });
   final fileService = FileService();
   final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();

@@ -114,7 +114,7 @@ class _PairState extends State<PairScreen> {
   }
 
   void _showError(Object error, BackupSource source) {
-    FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error, ${getErrorMessageIfCredentialException(error)}');
+    FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error, ${parseCredentialExceptionMessage(error)}');
 
     if (error is CredentialException && error.code == 201) {
       // User cancelled, ignore
@@ -133,7 +133,7 @@ class _PairState extends State<PairScreen> {
         builder: (context) => ErrorHandler(
           errorSubtitle: Text(
             textAlign: TextAlign.center,
-            'The backup up file might be wrong or else corrupted.',
+            'The backup file might be wrong or else corrupted.',
             style: textTheme.bodyMedium,
           ),
           onPressBottomButton: () {

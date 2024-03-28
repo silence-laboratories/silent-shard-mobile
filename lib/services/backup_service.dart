@@ -5,8 +5,8 @@ import 'dart:io';
 
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:silentshard/third_party/analytics.dart';
+import 'package:silentshard/utils.dart';
 
 import 'app_preferences.dart';
 import '../types/backup_info.dart';
@@ -64,10 +64,11 @@ class BackupService extends ChangeNotifier {
         _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
         return appBackup;
       }
-    } on PlatformException catch (error) {
-      _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.details);
     } catch (error) {
-      _analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: error.toString());
+      _analyticManager.trackRecoverBackupSystem(
+          success: false, //
+          source: PageSource.get_started,
+          error: parseCredentialExceptionMessage(error));
       rethrow;
     }
     return null;

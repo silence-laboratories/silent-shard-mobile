@@ -1,8 +1,6 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
-import 'dart:io';
-
 import 'package:credential_manager/credential_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -59,8 +57,6 @@ extension PlatformUtils on Platform {
   }
 }
 
-String getErrorMessageIfCredentialException(Object error) {
-  return error is CredentialException
-      ? 'CredentialException Code : ${error.code}, CredentialException Messsage: ${error.message}, ${error.details}'
-      : '';
+String parseCredentialExceptionMessage(Object error) {
+  return error is CredentialException ? 'Code: ${error.code}, Message: ${error.message}\n ${error.details}' : error.toString();
 }

@@ -12,7 +12,7 @@ class CorruptedBackupFileErrorScreen extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     return ErrorHandler(
       errorSubtitle: Text(
-        'The backup up file might be wrong or else corrupted.',
+        'The backup file might be wrong or else corrupted.',
         style: textTheme.bodyMedium,
         textAlign: TextAlign.center,
       ),

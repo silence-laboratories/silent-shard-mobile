@@ -127,10 +127,10 @@ class BackupDestinationWidget extends StatelessWidget {
         analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page);
       }
     } catch (error) {
-      FirebaseCrashlytics.instance.log('Cannot backup: $error, ${getErrorMessageIfCredentialException(error)}');
+      FirebaseCrashlytics.instance.log('Cannot backup: $error, ${parseCredentialExceptionMessage(error)}');
 
       if (destination == BackupDestination.secureStorage) {
-        analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: error.toString());
+        analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: parseCredentialExceptionMessage(error));
       } else {
         analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: error.toString());
       }
@@ -164,9 +164,9 @@ class BackupDestinationWidget extends StatelessWidget {
         source: PageSource.get_started,
       );
     } catch (error) {
-      FirebaseCrashlytics.instance.log('Cannot verify backup: $error, ${getErrorMessageIfCredentialException(error)}');
+      FirebaseCrashlytics.instance.log('Cannot verify backup: $error, ${parseCredentialExceptionMessage(error)}');
       analyticManager.trackVerifyBackup(
-          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: error.toString());
+          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: parseCredentialExceptionMessage(error));
       if (context.mounted) {
         _showErrorScreen(
           context,
