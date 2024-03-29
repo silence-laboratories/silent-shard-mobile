@@ -38,9 +38,9 @@ class SignRequestViewModel {
 
   String? get amount {
     if (signRequest.value == null) return null;
-
-    final whole = signRequest.value! ~/ oneEth;
-    final remainder = signRequest.value!.remainder(oneEth);
+    final value = signRequest.value!;
+    final whole = value ~/ oneEth;
+    final remainder = value.remainder(oneEth);
     final fraction = remainder / oneEth;
 
     return whole.toString() + fraction.toString().substring(1);

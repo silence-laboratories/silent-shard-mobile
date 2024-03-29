@@ -71,9 +71,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _updatePairingState(ScannerScreenPairingState newState) {
-    setState(() {
-      _pairingState = newState;
-    });
+    if (mounted) {
+      setState(() {
+        _pairingState = newState;
+      });
+    }
   }
 
   void _resetScannerController() {

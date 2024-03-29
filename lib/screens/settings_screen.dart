@@ -269,7 +269,7 @@ class SettingOption extends StatelessWidget {
           if (hasSwitch)
             Switch(
               thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
-              value: isSwitchOn!,
+              value: isSwitchOn ?? false,
               activeColor: backgroundPrimaryColor,
               onChanged: onChangeSwitch,
             )

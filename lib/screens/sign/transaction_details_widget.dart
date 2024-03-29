@@ -59,7 +59,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                     return WalletAddressWidget(
                       title: 'From wallet',
                       displayText: address ?? "Unknown address",
-                      copyText: address!,
+                      copyText: address ?? "Unknown address",
                       crossAxisAlignment: CrossAxisAlignment.start,
                     );
                   }),
