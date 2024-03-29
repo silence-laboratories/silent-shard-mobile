@@ -43,7 +43,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
     super.initState();
     Future.delayed(const Duration(seconds: 30)) //
         .then((value) {
-      if (mounted && _transactionState == TransactionState.readyToSign) {
+      if (_transactionState == TransactionState.readyToSign) {
         _updateTransactionState(TransactionState.failed);
         _close();
       }
@@ -52,9 +52,11 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   }
 
   _updateTransactionState(TransactionState value) {
-    setState(() {
-      _transactionState = value;
-    });
+    if (mounted) {
+      setState(() {
+        _transactionState = value;
+      });
+    }
   }
 
   Future<void> _close([bool shouldDismiss = true]) async {
