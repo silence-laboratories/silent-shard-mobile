@@ -41,7 +41,6 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   StreamSubscription<SignRequest>? _signRequestsSubscription;
   SignScreenNotificationAlertState _notificationAlertState = SignScreenNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
-  late AnalyticManager analyticManager;
   _updateNotificationAlertState(SignScreenNotificationAlertState value) {
     setState(() {
       _notificationAlertState = value;
@@ -86,9 +85,9 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
         _updateNotificationAlertState(SignScreenNotificationAlertState.showing);
       }
     });
-    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-    final keyshareProvider = Provider.of<KeysharesProvider>(context, listen: false);
-    analyticManager.setUserProfileProps(prop: "public_key", value: keyshareProvider.keyshares.firstOrNull?.ethAddress ?? "");
+    // analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+    // final keyshareProvider = Provider.of<KeysharesProvider>(context, listen: false);
+    // analyticManager.setUserProfileProps(prop: "public_key", value: keyshareProvider.keyshares.firstOrNull?.ethAddress ?? "");
   }
 
   @override
@@ -215,6 +214,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
         ),
         if (_notificationAlertState == SignScreenNotificationAlertState.showing)
           Consumer<LocalAuth>(builder: (context, localAuth, _) {
+            final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
             return NotificationAlertDialog(
               onDeny: () {
                 analyticManager.trackAllowPermissions(

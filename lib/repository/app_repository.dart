@@ -37,7 +37,6 @@ class AppRepository extends DemoDecoratorComposite {
       return _pair(qrMessage, userId).then((pairingData) async {
         final keyshare = await _keygen();
         final ethAddress = keyshare.ethAddress;
-        _analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
         return (ethAddress, pairingData);
       }).then((_) {
         String ethAddress = _.$1;

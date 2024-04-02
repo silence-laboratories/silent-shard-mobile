@@ -121,7 +121,10 @@ class _MyAppState extends State<MyApp> {
             builder: (context, localAuth, _) => Consumer<PairingDataProvider>(
               builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
-                FirebaseCrashlytics.instance.setCustomKey("ethAddress", keysharesProvider.keyshares.firstOrNull?.ethAddress ?? '');
+                final ethAddress = keysharesProvider.keyshares.firstOrNull?.ethAddress ?? '';
+                FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
+                final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+                analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),
