@@ -42,6 +42,7 @@ class _PairState extends State<PairScreen> {
       SignInService signInService = Provider.of<SignInService>(context, listen: false);
       final userAuth = await signInService.signInAnonymous();
       analyticManager.trackSignIn(userId: userAuth.user?.uid ?? '', status: SignInStatus.success);
+      analyticManager.identifyUserProfile(userAuth.user?.uid ?? '');
       FirebaseCrashlytics.instance.setUserIdentifier(userAuth.user?.uid ?? '');
     } catch (e) {
       FirebaseCrashlytics.instance.log('Sign in failed $e');

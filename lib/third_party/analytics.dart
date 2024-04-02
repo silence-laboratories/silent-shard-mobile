@@ -82,6 +82,14 @@ class AnalyticManager {
     });
   }
 
+  void identifyUserProfile(String id) {
+    mixpanel.identify(id);
+  }
+
+  void setUserProfileProps({required String prop, required String value}) {
+    mixpanel.getPeople().set(prop, value);
+  }
+
   void trackSignIn({required String userId, required SignInStatus status, String? error}) {
     mixpanel.track(EventName.sign_in.name, properties: {'user_id': userId, 'status': status.name, 'error': error});
   }
@@ -135,19 +143,13 @@ class AnalyticManager {
         properties: {'device_lock': deviceLock?.name, 'notifications': notifications?.name, 'source': source.name, 'error': error});
   }
 
-  void trackSignInitiated({String? transactionId, String? wallet, String? error}) {
-    mixpanel.track(EventName.sign_initiated.name,
-        properties: {'transaction_id': transactionId, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
+  void trackSignInitiated({String? wallet, String? error}) {
+    mixpanel.track(EventName.sign_initiated.name, properties: {'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
-  void trackSignPerform({required SignPerformStatus status, String? transactionId, String? wallet, String? error}) {
-    mixpanel.track(EventName.sign_perform.name, properties: {
-      'status': status.name,
-      'transaction_id': transactionId,
-      'from': _getWalletAddress(),
-      'wallet': wallet ?? WALLET_METAMASK,
-      'error': error
-    });
+  void trackSignPerform({required SignPerformStatus status, String? wallet, String? error}) {
+    mixpanel.track(EventName.sign_perform.name,
+        properties: {'status': status.name, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
   void trackDeviceLockToggle(bool allowed) {
