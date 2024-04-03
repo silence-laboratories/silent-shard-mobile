@@ -95,15 +95,15 @@ Future<void> main() async {
         debugShowCheckedModeBanner: false,
         theme: darkTheme,
         // themeMode: themeManager.themeMode, TODO
-        home: const MyApp(),
+        home: MyApp(analyticManager: analyticManager),
       ),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
+  const MyApp({required this.analyticManager, super.key});
+  final AnalyticManager analyticManager;
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -111,7 +111,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final secureStorage = SecureStorage();
   bool showOnboardingScreen = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,8 +122,7 @@ class _MyAppState extends State<MyApp> {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
                 final ethAddress = keysharesProvider.keyshares.firstOrNull?.ethAddress ?? '';
                 FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
-                final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-                analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
+                widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),
