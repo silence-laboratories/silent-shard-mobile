@@ -57,15 +57,13 @@ class AnalyticManager {
   static const WALLET_METAMASK = 'MetaMask';
   late KeysharesProvider _keysharesProvider;
 
-  AnalyticManager() {
-    initMixpanel();
-  }
+  AnalyticManager();
 
   set keysharesProvider(KeysharesProvider keysharesProvider) {
     _keysharesProvider = keysharesProvider;
   }
 
-  void initMixpanel() async {
+  Future<void> initMixpanel() async {
     final token = dotenv.get('MIX_PANEL_TOKEN');
     mixpanel = await Mixpanel.init(token, optOutTrackingDefault: false, trackAutomaticEvents: true);
     mixpanel?.setLoggingEnabled(true);
