@@ -12,6 +12,7 @@ import 'package:gap/gap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -74,9 +75,16 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);
+    final authState = Provider.of<AuthState>(context, listen: false);
 
-    FirebaseCrashlytics.instance.log('Listening to sign requests');
-    _signRequestsSubscription = appRepository.signRequests().listen(_handleSignRequest);
+    final userId = authState.user?.uid;
+    if (userId != null) {
+      FirebaseCrashlytics.instance.log('Listening to sign requests');
+      _signRequestsSubscription = appRepository.signRequests(userId).listen(_handleSignRequest);
+    } else {
+      FirebaseCrashlytics.instance.log('No userId found');
+      FirebaseCrashlytics.instance.crash();
+    }
 
     _getNotificatioSettingsStatus().then((value) {
       _updateNotificationStatus(value);

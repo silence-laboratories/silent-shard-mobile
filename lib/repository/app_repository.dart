@@ -35,22 +35,22 @@ class AppRepository extends DemoDecoratorComposite {
       return _pair(qrMessage, userId, backup);
     } else {
       return _pair(qrMessage, userId).then((pairingData) async {
-        final keyshare = await _keygen();
+        final keyshare = await _keygen(userId);
         final ethAddress = keyshare.ethAddress;
         return (ethAddress, pairingData);
       }).then((_) {
         String ethAddress = _.$1;
         PairingData pairingData = _.$2;
-        _sdk.fetchRemoteBackup(ethAddress).value;
+        _sdk.fetchRemoteBackup(ethAddress, userId).value;
         return pairingData;
       });
     }
   }
 
-  Future<Keyshare2> _keygen() async {
+  Future<Keyshare2> _keygen(String userId) async {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-      final keyshare = await _sdk.startKeygen().value;
+      final keyshare = await _sdk.startKeygen(userId).value;
       _analyticManager.trackDistributedKeyGen(
           type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
       return keyshare;
@@ -85,12 +85,12 @@ class AppRepository extends DemoDecoratorComposite {
         .then((walletBackup) => AppBackup(walletBackup));
   }
 
-  Stream<SignRequest> signRequests() {
+  Stream<SignRequest> signRequests(String userId) {
     if (isDemoActive) {
       return CancelableCompleter<SignRequest>().operation.asStream();
     }
 
-    return _sdk.signRequests();
+    return _sdk.signRequests(userId);
   }
 
   CancelableOperation<String> approve(SignRequest request) {
