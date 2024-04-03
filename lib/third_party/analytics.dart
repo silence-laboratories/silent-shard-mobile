@@ -53,7 +53,7 @@ enum EventName {
 }
 
 class AnalyticManager {
-  Mixpanel? mixpanel;
+  late Mixpanel mixpanel;
   static const WALLET_METAMASK = 'MetaMask';
   late KeysharesProvider _keysharesProvider;
 
@@ -66,38 +66,38 @@ class AnalyticManager {
   Future<void> init() async {
     final token = dotenv.get('MIX_PANEL_TOKEN');
     mixpanel = await Mixpanel.init(token, optOutTrackingDefault: false, trackAutomaticEvents: true);
-    mixpanel?.setLoggingEnabled(true);
+    mixpanel.setLoggingEnabled(true);
   }
 
   void trackAppStart() {
-    mixpanel?.track(EventName.app_start.name);
+    mixpanel.track(EventName.app_start.name);
   }
 
   void trackInfoSheet(PageSource source) {
-    mixpanel?.track(EventName.info_sheet.name, properties: {
+    mixpanel.track(EventName.info_sheet.name, properties: {
       "source": source.name,
       "type": "bottom_sheet",
     });
   }
 
   void identifyUserProfile(String id) {
-    mixpanel?.identify(id);
+    mixpanel.identify(id);
   }
 
   void setUserProfileProps({required String prop, required String value}) {
-    mixpanel?.getPeople().set(prop, value);
+    mixpanel.getPeople().set(prop, value);
   }
 
   void trackSignIn({required String userId, required SignInStatus status, String? error}) {
-    mixpanel?.track(EventName.sign_in.name, properties: {'user_id': userId, 'status': status.name, 'error': error});
+    mixpanel.track(EventName.sign_in.name, properties: {'user_id': userId, 'status': status.name, 'error': error});
   }
 
   void trackConnectNewAccount() {
-    mixpanel?.track(EventName.connect_new_account.name);
+    mixpanel.track(EventName.connect_new_account.name);
   }
 
   void trackPairingDevice({required PairingDeviceType type, required PairingDeviceStatus status, String? wallet, String? error}) {
-    mixpanel?.track(EventName.pairing_device.name, properties: {
+    mixpanel.track(EventName.pairing_device.name, properties: {
       'type': type.name,
       'status': status.name,
       'error': error,
@@ -108,13 +108,13 @@ class AnalyticManager {
 
   void trackDistributedKeyGen(
       {required DistributedKeyGenType type, required DistributedKeyGenStatus status, String? publicKey, String? wallet, String? error}) {
-    mixpanel?.track(EventName.distributed_keys_generated.name,
+    mixpanel.track(EventName.distributed_keys_generated.name,
         properties: {'type': type.name, 'status': status.name, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'public_key': publicKey});
   }
 
   void trackSaveBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
     String backup = _getBackupSystem();
-    mixpanel?.track(EventName.save_backup_system.name, properties: {
+    mixpanel.track(EventName.save_backup_system.name, properties: {
       'backup': backup,
       'success': success,
       'error': error,
@@ -126,7 +126,7 @@ class AnalyticManager {
 
   void trackRecoverBackupSystem({required bool success, required PageSource source, String? wallet, String? error}) {
     String backup = _getBackupSystem();
-    mixpanel?.track(EventName.recover_backup_system.name, properties: {
+    mixpanel.track(EventName.recover_backup_system.name, properties: {
       'backup': backup,
       'success': success,
       'error': error,
@@ -137,25 +137,25 @@ class AnalyticManager {
 
   void trackAllowPermissions(
       {AllowPermissionsDeviceLock? deviceLock, AllowPermissionsNoti? notifications, required PageSource source, String? error}) {
-    mixpanel?.track(EventName.allow_permissions.name,
+    mixpanel.track(EventName.allow_permissions.name,
         properties: {'device_lock': deviceLock?.name, 'notifications': notifications?.name, 'source': source.name, 'error': error});
   }
 
   void trackSignInitiated({String? wallet, String? error}) {
-    mixpanel?.track(EventName.sign_initiated.name, properties: {'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
+    mixpanel.track(EventName.sign_initiated.name, properties: {'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
   void trackSignPerform({required SignPerformStatus status, String? wallet, String? error}) {
-    mixpanel?.track(EventName.sign_perform.name,
+    mixpanel.track(EventName.sign_perform.name,
         properties: {'status': status.name, 'from': _getWalletAddress(), 'wallet': wallet ?? WALLET_METAMASK, 'error': error});
   }
 
   void trackDeviceLockToggle(bool allowed) {
-    mixpanel?.track(EventName.device_lock_toggle.name, properties: {'allowed': allowed});
+    mixpanel.track(EventName.device_lock_toggle.name, properties: {'allowed': allowed});
   }
 
   void trackSaveToFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel?.track(EventName.save_to_file.name, properties: {
+    mixpanel.track(EventName.save_to_file.name, properties: {
       'backup': backup,
       'success': success,
       'error': error,
@@ -166,12 +166,12 @@ class AnalyticManager {
   }
 
   void trackRecoverFromFile({required bool success, String? backup, String? wallet, required PageSource source, String? error}) {
-    mixpanel?.track(EventName.recover_from_file.name,
+    mixpanel.track(EventName.recover_from_file.name,
         properties: {'backup': backup, 'success': success, 'error': error, 'wallet': wallet ?? WALLET_METAMASK, 'source': source.name});
   }
 
   void trackDeleteAccount({required DeleteAccountStatus status, bool? backupSystem, bool? backupFile, String? wallet, String? publicKey}) {
-    mixpanel?.track(EventName.delete_account.name, properties: {
+    mixpanel.track(EventName.delete_account.name, properties: {
       'status': status.name,
       'backup_system': backupSystem,
       'backup_file': backupFile,
@@ -181,12 +181,12 @@ class AnalyticManager {
   }
 
   void trackLogOut() {
-    mixpanel?.track(EventName.log_out.name);
+    mixpanel.track(EventName.log_out.name);
   }
 
   void trackVerifyBackup({required bool success, required String timeSinceVerify, PageSource? source, String? wallet, String? error}) {
     String backup = _getBackupSystem();
-    mixpanel?.track(EventName.verify_backup.name, properties: {
+    mixpanel.track(EventName.verify_backup.name, properties: {
       'backup': backup,
       'success': success,
       'time_since_verify': timeSinceVerify,
