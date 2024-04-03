@@ -63,7 +63,7 @@ class AnalyticManager {
     _keysharesProvider = keysharesProvider;
   }
 
-  Future<void> initMixpanel() async {
+  Future<void> init() async {
     final token = dotenv.get('MIX_PANEL_TOKEN');
     mixpanel = await Mixpanel.init(token, optOutTrackingDefault: false, trackAutomaticEvents: true);
     mixpanel?.setLoggingEnabled(true);

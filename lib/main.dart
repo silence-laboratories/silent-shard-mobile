@@ -46,7 +46,7 @@ Future<void> main() async {
   final authState = AuthState();
   final localAuth = LocalAuth();
   final analyticManager = AnalyticManager();
-  await analyticManager.initMixpanel();
+  await analyticManager.init();
   final appRepository = AppRepository(sdk, analyticManager);
   analyticManager.keysharesProvider = appRepository.keysharesProvider;
   final appPreferences = AppPreferences(sharedPreferences);
