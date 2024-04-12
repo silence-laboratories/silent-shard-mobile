@@ -22,7 +22,7 @@ import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup/backup_destination_screen.dart';
 import 'package:silentshard/screens/settings_screen.dart';
 import 'package:silentshard/screens/sign/approve_transcation_screen.dart';
-import 'package:silentshard/screens/scanner_screen.dart';
+import 'package:silentshard/screens/scanner/scanner_screen.dart';
 import 'package:silentshard/screens/sign/confirm_unpair.dart';
 import 'package:silentshard/screens/sign/notification_alert.dart';
 import 'package:silentshard/services/app_preferences.dart';

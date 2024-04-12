@@ -17,7 +17,7 @@ import '../components/loader.dart';
 import '../components/padded_container.dart';
 import '../error/error_handler.dart';
 import '../error/no_backup_found_screen.dart';
-import '../scanner_screen.dart';
+import '../scanner/scanner_screen.dart';
 import '../../types/app_backup.dart';
 import '../../services/backup_service.dart';
 import '../../services/secure_storage/secure_storage_service.dart';
