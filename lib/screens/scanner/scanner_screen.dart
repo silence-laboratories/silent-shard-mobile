@@ -16,19 +16,19 @@ import 'package:silentshard/screens/error/wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
+import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet_screen.dart';
-import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
-import '../auth_state.dart';
-import '../services/backup_service.dart';
-import '../types/app_backup.dart';
-import '../repository/app_repository.dart';
+import '../../auth_state.dart';
+import '../../services/backup_service.dart';
+import '../../types/app_backup.dart';
+import '../../repository/app_repository.dart';
 
 class ScannerScreen extends StatefulWidget {
   final AppBackup? backup;
@@ -297,53 +297,48 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   margin: const EdgeInsets.only(top: defaultPadding * 0.5),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(
-                      "Scan the QR code",
+                      "Pair with desktop",
                       style: textTheme.displayLarge,
                     ),
                     const Gap(defaultPadding),
-                    Bullet(
-                      child: RichText(
-                        text: TextSpan(
-                          children: <TextSpan>[
-                            TextSpan(text: 'Open ', style: textTheme.displaySmall),
-                            TextSpan(text: 'snap.silencelaboratories.com', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                            TextSpan(text: ' in your desktop.', style: textTheme.displaySmall),
-                          ],
-                        ),
-                      ),
+                    Text(
+                      "Point your camera at the QR code generated on your wallet on desktop to pair.",
+                      style: textTheme.displaySmall,
                     ),
-                    Bullet(
-                      child: Text("Connect Silent Shard Snap with your MetaMask extension.", style: textTheme.displaySmall),
-                    ),
-                    if (widget.isRePairing == true)
-                      Bullet(
-                        child: RichText(
-                          text: TextSpan(
-                            children: <InlineSpan>[
-                              TextSpan(text: 'If account is already present:  press on the', style: textTheme.displaySmall),
-                              const WidgetSpan(
-                                child: Icon(
-                                  Icons.more_vert,
-                                  size: 20,
-                                ),
-                              ),
-                              TextSpan(
-                                  text: 'icon and click on ‘Recover account on phone’ and follow the instructions', style: textTheme.displaySmall),
-                            ],
+                    const Gap(defaultPadding),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: primaryColor2, width: 1),
+                          padding: const EdgeInsets.symmetric(vertical: defaultPadding * 1.5, horizontal: defaultPadding * 3),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ),
-                    Bullet(
-                      child: RichText(
-                        text: TextSpan(
-                          children: <InlineSpan>[
-                            TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
-                            WidgetSpan(
-                              child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            barrierColor: Colors.white.withOpacity(0.15),
+                            showDragHandle: true,
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                             ),
-                            TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                            TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
-                          ],
+                            isScrollControlled: true,
+                            backgroundColor: sheetBackgroundColor,
+                            context: context,
+                            builder: (context) {
+                              return GuideMeTabController(isRePairing: widget.isRePairing);
+                            },
+                          );
+                        },
+                        // Icon from assets
+                        icon: const Icon(Icons.import_contacts_outlined),
+                        label: const Text(
+                          'Guide me',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
