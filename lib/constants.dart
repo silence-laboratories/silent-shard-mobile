@@ -26,6 +26,7 @@ const criticalBackgroundColor = Color(0x26EF4444);
 const textColor1 = Color(0xFFFFFFFF);
 const textPrimaryColor = Color(0xFFF7F8F8); //textColor2
 const textSecondaryColor = Color(0xFFD8DBDF); //textColor3
+const textGrey = Color(0xFF8E95A2);
 
 const pendingColor = Color(0xFFEAB308);
 const doneColor = Color(0xFF4ADE80);
