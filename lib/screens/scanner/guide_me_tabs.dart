@@ -1,167 +1,203 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/button.dart';
+import 'package:silentshard/screens/scanner/support_wallets_list.dart';
+import 'package:silentshard/types/support_wallet.dart';
 
-class GuideMeTabController extends StatelessWidget {
+class GuideMeTabController extends StatefulWidget {
   const GuideMeTabController({required this.isRePairing, super.key});
-
   final bool? isRePairing;
+  @override
+  State<StatefulWidget> createState() {
+    return GuideMeTabControllerState();
+  }
+}
+
+const listOfSupportWallets = [
+  {'name': 'Biconomy', 'logo': 'assets/images/biconomy.png'},
+  {'name': 'Stackup', 'logo': 'assets/images/stackup.png'},
+  {'name': 'Zero Dev', 'logo': 'assets/images/zerodev.png'},
+  {'name': 'Trust wallet', 'logo': 'assets/images/trustwallet.png'},
+];
+
+class GuideMeTabControllerState extends State<GuideMeTabController> {
+  bool showSupportWallets = false;
 
   @override
   Widget build(BuildContext context) {
+    List<SupportWallet> supportWallets = listOfSupportWallets.map((e) => SupportWallet.fromJson(e)).toList();
     TextTheme textTheme = Theme.of(context).textTheme;
-    return DefaultTabController(
-        length: 2,
-        child: Wrap(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(defaultPadding * 2),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Gap(defaultPadding),
-                  Text(
-                    'How to connect wallet using',
-                    style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const TabBar(
-                    tabs: [
-                      Tab(text: 'Meta Mask'),
-                      Tab(text: 'Other wallet'),
-                    ],
-                    labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: primaryColor2),
-                    dividerColor: Color(0x804A408D),
-                    indicatorColor: primaryColor2,
-                    indicatorSize: TabBarIndicatorSize.tab,
-                  ),
-                  SizedBox(
-                    height: 375,
-                    child: TabBarView(
-                      children: [
-                        SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    child: Image.asset(
-                                      'assets/images/metamaskIcon.png',
-                                      height: 18,
+    return showSupportWallets
+        ? SupportWalletList(
+            supportWallets: supportWallets,
+            onBack: () {
+              setState(() {
+                showSupportWallets = false;
+              });
+            })
+        : DefaultTabController(
+            length: 2,
+            child: SingleChildScrollView(
+              child: Container(
+                padding: const EdgeInsets.all(defaultPadding * 2),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const Gap(defaultPadding),
+                    Text(
+                      'How to connect wallet using',
+                      style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const TabBar(
+                      tabs: [
+                        Tab(text: 'Meta Mask'),
+                        Tab(text: 'Other wallet'),
+                      ],
+                      labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: primaryColor2),
+                      dividerColor: Color(0x804A408D),
+                      indicatorColor: primaryColor2,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                    ),
+                    SizedBox(
+                      height: 375,
+                      child: TabBarView(
+                        children: [
+                          SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                Row(
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      child: Image.asset(
+                                        'assets/images/metamaskIcon.png',
+                                        height: 18,
+                                      ),
                                     ),
-                                  ),
-                                  const Gap(defaultPadding),
-                                  Text('MetaMask Snap', style: textTheme.displaySmall?.copyWith(color: textGrey))
-                                ],
-                              ),
-                              const Gap(defaultPadding * 2),
-                              Bullet(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: <TextSpan>[
-                                      TextSpan(text: 'Open ', style: textTheme.displaySmall),
-                                      TextSpan(
-                                          text: 'snap.silencelaboratories.com', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                                      TextSpan(text: ' in your desktop.', style: textTheme.displaySmall),
-                                    ],
-                                  ),
+                                    const Gap(defaultPadding),
+                                    Text('MetaMask Snap', style: textTheme.displaySmall?.copyWith(color: textGrey))
+                                  ],
                                 ),
-                              ),
-                              Bullet(
-                                child: Text("Connect Silent Shard Snap with your MetaMask extension.", style: textTheme.displaySmall),
-                              ),
-                              if (isRePairing == true)
+                                const Gap(defaultPadding * 2),
                                 Bullet(
                                   child: RichText(
                                     text: TextSpan(
-                                      children: <InlineSpan>[
-                                        TextSpan(text: 'If account is already present:  press on the', style: textTheme.displaySmall),
-                                        const WidgetSpan(
-                                          child: Icon(
-                                            Icons.more_vert,
-                                            size: 20,
-                                          ),
-                                        ),
+                                      children: <TextSpan>[
+                                        TextSpan(text: 'Open ', style: textTheme.displaySmall),
                                         TextSpan(
-                                            text: 'icon and click on ‘Recover account on phone’ and follow the instructions',
-                                            style: textTheme.displaySmall),
+                                            text: 'snap.silencelaboratories.com',
+                                            style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                        TextSpan(text: ' in your desktop.', style: textTheme.displaySmall),
                                       ],
                                     ),
                                   ),
                                 ),
-                              Bullet(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: <InlineSpan>[
-                                      TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
-                                      WidgetSpan(
-                                        child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                                Bullet(
+                                  child: Text("Connect Silent Shard Snap with your MetaMask extension.", style: textTheme.displaySmall),
+                                ),
+                                if (widget.isRePairing == true)
+                                  Bullet(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: <InlineSpan>[
+                                          TextSpan(text: 'If account is already present:  press on the', style: textTheme.displaySmall),
+                                          const WidgetSpan(
+                                            child: Icon(
+                                              Icons.more_vert,
+                                              size: 20,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                              text: 'icon and click on ‘Recover account on phone’ and follow the instructions',
+                                              style: textTheme.displaySmall),
+                                        ],
                                       ),
-                                      TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                                      TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
-                                    ],
+                                    ),
+                                  ),
+                                Bullet(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: <InlineSpan>[
+                                        TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
+                                        WidgetSpan(
+                                          child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                                        ),
+                                        TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                        TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ]),
+                              ]),
+                            ),
                           ),
-                        ),
-                        // Other wallet
-                        SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              CheckWalletButton(),
-                              const Gap(defaultPadding * 2),
-                              Bullet(
-                                child: Text("Head over to your favourite SilentShard-supported wallets (coming soon...) on your browser to desktop.",
-                                    style: textTheme.displaySmall),
-                              ),
-                              Bullet(
-                                child: Text("Follow the instructions to create a new distributed wallet.", style: textTheme.displaySmall),
-                              ),
-                              Bullet(
-                                child: RichText(
-                                  text: TextSpan(
-                                    children: <InlineSpan>[
-                                      TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
-                                      WidgetSpan(
-                                        child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
-                                      ),
-                                      TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                                      TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
-                                    ],
+                          // Other wallet
+                          SingleChildScrollView(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                CheckWalletButton(
+                                  supportWalletsCount: supportWallets.length,
+                                  onShowSupportWallets: () {
+                                    setState(() {
+                                      showSupportWallets = true;
+                                    });
+                                  },
+                                ),
+                                const Gap(defaultPadding * 2),
+                                Bullet(
+                                  child: Text(
+                                      "Head over to your favourite SilentShard-supported wallets (coming soon...) on your browser to desktop.",
+                                      style: textTheme.displaySmall),
+                                ),
+                                Bullet(
+                                  child: Text("Follow the instructions to create a new distributed wallet.", style: textTheme.displaySmall),
+                                ),
+                                Bullet(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: <InlineSpan>[
+                                        TextSpan(text: 'Scan QR code with ', style: textTheme.displaySmall),
+                                        WidgetSpan(
+                                          child: Image.asset('assets/icon/silentShardLogo.png', height: 20, width: 20),
+                                        ),
+                                        TextSpan(text: ' Silent Shard', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                        TextSpan(text: ' logo and connect this device.', style: textTheme.displaySmall),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ]),
+                              ]),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Button(
-                    onPressed: () {},
-                    child: Text('Back to scanning', style: textTheme.displayMedium),
-                  ),
-                  // Add space
-                ],
+                    Button(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text('Back to scanning', style: textTheme.displayMedium),
+                    ),
+                    // Add space
+                  ],
+                ),
               ),
-            )
-          ],
-        ));
+            ));
   }
 }
 
 class CheckWalletButton extends StatelessWidget {
+  const CheckWalletButton({super.key, required this.onShowSupportWallets, required this.supportWalletsCount});
+  final Function onShowSupportWallets;
+  final int supportWalletsCount;
+
   Widget overlapped() {
-    final overlap = 30.0;
+    const overlap = 30.0;
     final items = [
       CircleAvatar(
         backgroundColor: Colors.white,
@@ -210,20 +246,40 @@ class CheckWalletButton extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(vertical: defaultPadding, horizontal: defaultPadding * 1.5),
       ),
-      onPressed: () {},
-      child: Row(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text('Check all support wallet', style: textTheme.displayMedium?.copyWith(color: textGrey)),
-          const Gap(defaultPadding),
-          const Spacer(),
-          overlapped(),
-          const Gap(defaultPadding),
-          Text('+5', style: textTheme.displayMedium?.copyWith(color: textGrey)), // TODO: Remove hardcode
-          const Gap(defaultPadding),
-          const Icon(
-            Icons.arrow_forward,
-            color: Color(0xFFB1BBC8),
+      onPressed: () {
+        onShowSupportWallets();
+      },
+      child: Wrap(
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('Check all support wallet', style: textTheme.displayMedium?.copyWith(color: textGrey))),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          overlapped(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+                            child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Color(0xFFB1BBC8),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           )
         ],
       ),
