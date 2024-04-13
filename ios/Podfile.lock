@@ -955,6 +955,8 @@ PODS:
   - sodium_libs (2.2.0):
     - Flutter
   - SwiftyGif (5.4.4)
+  - uni_links (0.0.1):
+    - Flutter
   - url_launcher_ios (0.0.1):
     - Flutter
 
@@ -981,6 +983,7 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sodium_libs (from `.symlinks/plugins/sodium_libs/ios`)
+  - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -1071,6 +1074,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   sodium_libs:
     :path: ".symlinks/plugins/sodium_libs/ios"
+  uni_links:
+    :path: ".symlinks/plugins/uni_links/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
@@ -1102,7 +1107,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 9bc34a98d2e0237e1b121915120d4d48ddcf301e
   FirebaseSessions: e5f4caa188dc8bc6142abc974355be75b042215e
   FirebaseSharedSwift: f34eeb7d3ea87a34497629b6ca41657beadef76a
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
   google_sign_in_ios: ede92ec558c3a73ec07cb180f31820152fb8ca89
   GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
@@ -1137,8 +1142,9 @@ SPEC CHECKSUMS:
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
   sodium_libs: 0486eb2c3172ce494406367d4b379042444b769d
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
+  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   url_launcher_ios: bf5ce03e0e2088bad9cc378ea97fa0ed5b49673b
 
 PODFILE CHECKSUM: ec8b70a489dd1f81e53ef185cf7ad30fce8f8d00
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.3
