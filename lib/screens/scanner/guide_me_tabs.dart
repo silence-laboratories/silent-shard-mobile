@@ -15,19 +15,20 @@ class GuideMeTabController extends StatefulWidget {
   }
 }
 
+// TODO: Remove hardcode
 const listOfSupportWallets = [
-  {'name': 'Biconomy', 'logo': 'assets/images/biconomy.png'},
-  {'name': 'Stackup', 'logo': 'assets/images/stackup.png'},
-  {'name': 'Zero Dev', 'logo': 'assets/images/zerodev.png'},
-  {'name': 'Trust wallet', 'logo': 'assets/images/trustwallet.png'},
+  {'name': 'Biconomy', 'icon': 'assets/images/biconomy.png'},
+  {'name': 'Stackup', 'icon': 'assets/images/stackup.png'},
+  {'name': 'Zero Dev', 'icon': 'assets/images/zerodev.png'},
+  {'name': 'Trust wallet', 'icon': 'assets/images/trustwallet.png'},
 ];
 
 class GuideMeTabControllerState extends State<GuideMeTabController> {
   bool showSupportWallets = false;
+  List<SupportWallet> supportWallets = listOfSupportWallets.map((e) => SupportWallet.fromJson(e)).toList();
 
   @override
   Widget build(BuildContext context) {
-    List<SupportWallet> supportWallets = listOfSupportWallets.map((e) => SupportWallet.fromJson(e)).toList();
     TextTheme textTheme = Theme.of(context).textTheme;
     return showSupportWallets
         ? SupportWalletList(
@@ -197,27 +198,30 @@ class CheckWalletButton extends StatelessWidget {
   final int supportWalletsCount;
 
   Widget overlapped() {
-    const overlap = 30.0;
+    const overlap = 20.0;
     final items = [
       CircleAvatar(
+        maxRadius: 12,
         backgroundColor: Colors.white,
         child: Image.asset(
           'assets/images/biconomy.png',
-          height: 24,
+          height: 18,
         ),
       ),
       CircleAvatar(
+        maxRadius: 12,
         backgroundColor: Colors.white,
         child: Image.asset(
           'assets/images/stackup.png',
-          height: 24,
+          height: 18,
         ),
       ),
       CircleAvatar(
+        maxRadius: 12,
         backgroundColor: Colors.white,
         child: Image.asset(
           'assets/images/zerodev.png',
-          height: 24,
+          height: 18,
         ),
       ),
     ];
@@ -238,51 +242,54 @@ class CheckWalletButton extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Color(0xFF5833CF), width: 1),
-        backgroundColor: secondaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color(0xFF5833CF), width: 1),
+          backgroundColor: secondaryColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: defaultPadding, horizontal: defaultPadding * 1.5),
         ),
-        padding: const EdgeInsets.symmetric(vertical: defaultPadding, horizontal: defaultPadding * 1.5),
-      ),
-      onPressed: () {
-        onShowSupportWallets();
-      },
-      child: Wrap(
-        children: [
-          Row(
+        onPressed: () {
+          onShowSupportWallets();
+        },
+        child: SizedBox(
+          width: double.infinity,
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.spaceBetween,
             children: [
-              Expanded(child: Text('Check all support wallet', style: textTheme.displayMedium?.copyWith(color: textGrey))),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          overlapped(),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                            child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
-                          ),
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: Color(0xFFB1BBC8),
-                          )
-                        ],
+              Expanded(child: Text('Check all support wallet', style: textTheme.displaySmall?.copyWith(color: textGrey))),
+              Container(
+                margin: const EdgeInsets.only(left: defaultPadding),
+                child: Expanded(
+                  child: Wrap(
+                    alignment: WrapAlignment.end,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            overlapped(),
+                            Padding(
+                              padding: const EdgeInsets.only(right: defaultPadding, left: defaultPadding / 2),
+                              child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward,
+                              color: Color(0xFFB1BBC8),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
-          )
-        ],
-      ),
-    );
+          ),
+        ));
   }
 }
