@@ -327,7 +327,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
                             backgroundColor: sheetBackgroundColor,
                             context: context,
                             builder: (context) {
-                              return GuideMeTabController(isRePairing: widget.isRePairing);
+                              return GuideMeTabController(
+                                isRePairing: widget.isRePairing,
+                              );
                             },
                           );
                         },
