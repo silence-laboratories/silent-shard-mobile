@@ -261,33 +261,22 @@ class CheckWalletButton extends StatelessWidget {
             children: [
               Text('Check all support wallet', style: textTheme.displaySmall?.copyWith(color: textGrey)),
               Container(
-                margin: const EdgeInsets.only(left: defaultSpacing),
-                child: Expanded(
+                  margin: const EdgeInsets.only(left: defaultSpacing),
                   child: Wrap(
                     alignment: WrapAlignment.end,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Expanded(
-                        flex: 2,
-                        child: Wrap(
-                          alignment: WrapAlignment.end,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            overlapped(),
-                            Padding(
-                              padding: const EdgeInsets.only(right: defaultSpacing, left: defaultSpacing / 2),
-                              child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward,
-                              color: Color(0xFFB1BBC8),
-                            )
-                          ],
-                        ),
+                      overlapped(),
+                      Padding(
+                        padding: const EdgeInsets.only(right: defaultSpacing, left: defaultSpacing / 2),
+                        child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
                       ),
+                      const Icon(
+                        Icons.arrow_forward,
+                        color: Color(0xFFB1BBC8),
+                      )
                     ],
-                  ),
-                ),
-              ),
+                  )),
             ],
           ),
         ));
