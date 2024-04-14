@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/wallet/wallet_menu.dart';
 import 'package:silentshard/types/support_wallet.dart';
@@ -44,15 +45,26 @@ class _SupportWalletListState extends State<SupportWalletList> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(defaultSpacing * 4),
+          padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 2),
           child: Column(children: [
             ...widget.supportWallets.map((SupportWallet wallet) {
-              return WalletOption(
-                icon: Image.asset(
-                  wallet.icon,
-                  height: 24,
+              return InkWell(
+                splashColor: backgroundSecondaryColor2,
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.all(defaultSpacing * 2),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        wallet.icon,
+                        height: 24,
+                      ),
+                      const Gap(defaultSpacing),
+                      Text(wallet.name, style: textTheme.displayMedium),
+                    ],
+                  ),
                 ),
-                title: Text(wallet.name, style: textTheme.displayMedium),
               );
             })
           ]),

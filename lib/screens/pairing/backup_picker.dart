@@ -81,7 +81,7 @@ class BackupItem extends StatelessWidget {
       child: Row(
         children: [
           PaddedContainer(
-            color: secondaryDarkerColor,
+            color: backgroundSecondaryColor2,
             child: Image.asset(
               "assets/images/walletLight.png",
               height: 20,
