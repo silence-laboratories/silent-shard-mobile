@@ -22,9 +22,6 @@ class NotificationAlertDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return AlertDialog(
-      backgroundColor: secondaryColor,
-      elevation: 0,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
       insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
       content: SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
