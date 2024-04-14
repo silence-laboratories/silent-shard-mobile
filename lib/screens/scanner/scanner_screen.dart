@@ -401,11 +401,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
               ),
               if (_scannerState == ScannerState.error)
                 AlertDialog(
-                  backgroundColor: secondaryColor,
-                  elevation: 0,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
                   insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
                   content: Wrap(children: [
                     Container(
@@ -446,11 +441,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
           if (_scannerState == ScannerState.scanned)
             AlertDialog(
-              backgroundColor: secondaryColor,
-              elevation: 0,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
               content: Stack(children: [
                 AnimatedOpacity(
                   opacity: (_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
