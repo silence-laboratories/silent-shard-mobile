@@ -81,9 +81,6 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     if (userId != null) {
       FirebaseCrashlytics.instance.log('Listening to sign requests');
       _signRequestsSubscription = appRepository.signRequests(userId).listen(_handleSignRequest);
-    } else {
-      FirebaseCrashlytics.instance.log('No userId found');
-      FirebaseCrashlytics.instance.crash();
     }
 
     _getNotificatioSettingsStatus().then((value) {
