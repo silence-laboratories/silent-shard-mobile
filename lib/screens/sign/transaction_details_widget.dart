@@ -43,15 +43,15 @@ class TransactionDetailsWidget extends StatelessWidget {
           }
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
-              padding: const EdgeInsets.only(left: defaultPadding * 1.5, right: defaultPadding * 1.5, top: defaultPadding * 3),
+              padding: const EdgeInsets.only(left: defaultSpacing * 1.5, right: defaultSpacing * 1.5, top: defaultSpacing * 3),
               child: Text(
                 'Approve transaction?',
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Container(
-              padding: const EdgeInsets.all(defaultPadding * 1.5),
+              padding: const EdgeInsets.all(defaultSpacing * 1.5),
               child: Row(
                 children: [
                   Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
@@ -75,7 +75,7 @@ class TransactionDetailsWidget extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(defaultPadding * 1.5),
+              padding: const EdgeInsets.all(defaultSpacing * 1.5),
               width: MediaQuery.of(context).size.width,
               color: backgroundPrimaryColor.withOpacity(0.1),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -84,7 +84,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                     "Message",
                     style: textTheme.bodyMedium,
                   ),
-                  const Gap(defaultPadding * 1.5),
+                  const Gap(defaultSpacing * 1.5),
                   Text(
                     '${requestModel.amount ?? '0'} ${snapshot.data?.code ?? 'Unknown'}',
                     style: textTheme.displayLarge,
@@ -94,7 +94,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                     "Transaction Type",
                     style: textTheme.bodyMedium,
                   ),
-                  const Gap(defaultPadding * 1.5),
+                  const Gap(defaultSpacing * 1.5),
                   Text(
                     switch (requestModel.signType) {
                       SignType.legacyTransaction => 'Legacy Transaction',
@@ -109,12 +109,12 @@ class TransactionDetailsWidget extends StatelessWidget {
                     },
                     style: textTheme.displayMedium,
                   ),
-                  const Gap(defaultPadding * 2),
+                  const Gap(defaultSpacing * 2),
                   Text(
                     "Message",
                     style: textTheme.bodyMedium,
                   ),
-                  const Gap(defaultPadding * 1.5),
+                  const Gap(defaultSpacing * 1.5),
                   Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Flexible(
                       child: Text(
@@ -140,10 +140,10 @@ class TransactionDetailsWidget extends StatelessWidget {
               ]),
             ),
             Container(
-              padding: const EdgeInsets.all(defaultPadding * 1.5),
+              padding: const EdgeInsets.all(defaultSpacing * 1.5),
               child: Column(
                 children: [
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   if (!requestModel.signType.isTransaction)
                     Row(
                       children: [
@@ -160,7 +160,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                     ),
                   if (requestModel.signType.isTransaction)
                     Container(
-                      padding: const EdgeInsets.all(defaultPadding * 2),
+                      padding: const EdgeInsets.all(defaultSpacing * 2),
                       decoration: BoxDecoration(
                         color: const Color(0xFF222222),
                         borderRadius: BorderRadius.circular(10),
@@ -187,7 +187,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const Gap(defaultPadding * 2),
+                          const Gap(defaultSpacing * 2),
                           Row(
                             children: [
                               const Text('Requested at',
@@ -214,7 +214,7 @@ class TransactionDetailsWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                  const Gap(defaultPadding * 5),
+                  const Gap(defaultSpacing * 5),
                   SlideAction(
                     borderRadius: 10,
                     elevation: 0,

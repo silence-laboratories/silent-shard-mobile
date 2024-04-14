@@ -42,7 +42,7 @@ class Button extends StatelessWidget {
     return ElevatedButton(
       onPressed: isDisabled ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        padding: padding ?? EdgeInsets.all(defaultPadding * 1.5),
+        padding: padding ?? EdgeInsets.all(defaultSpacing * 1.5),
         disabledBackgroundColor: buttonColor ?? (type == ButtonType.secondary ? secondaryColor.withOpacity(0) : backgroundPrimaryColor),
         backgroundColor: buttonColor ?? (type == ButtonType.secondary ? secondaryColor.withOpacity(0) : backgroundPrimaryColor),
         foregroundColor: activeColor,
@@ -55,9 +55,9 @@ class Button extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (leftIcon != null) ...[leftIcon!, Gap(defaultPadding)],
+          if (leftIcon != null) ...[leftIcon!, Gap(defaultSpacing)],
           child,
-          if (rightIcon != null) ...[Gap(defaultPadding), rightIcon!]
+          if (rightIcon != null) ...[Gap(defaultSpacing), rightIcon!]
         ],
       ),
     );

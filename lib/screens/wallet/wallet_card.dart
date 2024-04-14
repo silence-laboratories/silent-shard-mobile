@@ -28,7 +28,7 @@ class WalletCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(defaultPadding * 1.5),
+      padding: const EdgeInsets.all(defaultSpacing * 1.5),
       decoration: BoxDecoration(
         border: Border.all(width: 1, color: secondaryColor),
         borderRadius: BorderRadius.circular(10),
@@ -36,7 +36,7 @@ class WalletCard extends StatelessWidget {
       child: Column(
         children: [
           WalletInfo(widget: this),
-          const Gap(0.5 * defaultPadding),
+          const Gap(0.5 * defaultSpacing),
           const Divider(),
           BackupStatusDashboard(address: address),
         ],
@@ -59,7 +59,7 @@ class WalletInfo extends StatelessWidget {
           'assets/images/walletLightFill.png',
           height: 27.6,
         )),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -68,7 +68,7 @@ class WalletInfo extends StatelessWidget {
                 '${widget.address.substring(0, 5)}...${widget.address.substring(widget.address.length - 5)}',
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding),
+              const Gap(defaultSpacing),
               CopyButton(onCopy: () {
                 widget.onCopy();
               }),
@@ -81,7 +81,7 @@ class WalletInfo extends StatelessWidget {
                   'assets/images/metamaskIcon.png',
                   height: 18,
                 ),
-                const Gap(defaultPadding),
+                const Gap(defaultSpacing),
                 Text(
                   'MetaMask',
                   style: textTheme.displaySmall?.copyWith(fontSize: 12),

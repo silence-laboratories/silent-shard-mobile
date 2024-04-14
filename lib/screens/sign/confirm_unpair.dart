@@ -37,7 +37,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
     return SingleChildScrollView(
       child: Container(
           // color: secondaryColor,
-          padding: const EdgeInsets.all(defaultPadding * 2),
+          padding: const EdgeInsets.all(defaultSpacing * 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,23 +45,23 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                 "Are you sure?",
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Center(
                   child: Image.asset(
                 'assets/images/warningRed.png',
                 height: 130,
               )),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Text(
                 "This action will delete your Silent Account from your phone. You can still restore it with your backup files.",
                 style: textTheme.displayMedium,
                 textAlign: TextAlign.center,
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               const Divider(),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               BackupStatusDashboard(address: widget.address),
-              const Gap(defaultPadding * 6),
+              const Gap(defaultSpacing * 6),
               Row(
                 children: [
                   SizedBox(
@@ -75,7 +75,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       },
                     ),
                   ),
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   Flexible(
                     child: Text(
                       'I understand the risk and agree to continue',
@@ -84,7 +84,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                   ),
                 ],
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Row(
                 children: [
                   Expanded(
@@ -101,7 +101,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       ),
                     ),
                   ),
-                  const Gap(defaultPadding * 2),
+                  const Gap(defaultSpacing * 2),
                   Expanded(
                     child: Button(
                       type: ButtonType.primary,
@@ -131,7 +131,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                   ),
                 ],
               ),
-              const Gap(defaultPadding * 4),
+              const Gap(defaultSpacing * 4),
             ],
           )),
     );

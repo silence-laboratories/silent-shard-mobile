@@ -30,12 +30,12 @@ class WalletMismatchScreen extends StatelessWidget {
                 ),
                 child: IntrinsicHeight(
                   child: Container(
-                    padding: const EdgeInsets.all(defaultPadding * 1.5),
+                    padding: const EdgeInsets.all(defaultSpacing * 1.5),
                     width: MediaQuery.of(context).size.width,
                     child: Column(children: [
                       Expanded(
                         child: Container(
-                          padding: const EdgeInsets.all(defaultPadding * 3),
+                          padding: const EdgeInsets.all(defaultSpacing * 3),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -44,19 +44,19 @@ class WalletMismatchScreen extends StatelessWidget {
                                 'assets/images/accountMismatch.png',
                                 width: MediaQuery.of(context).size.width * 0.7,
                               ),
-                              const Gap(defaultPadding * 3),
+                              const Gap(defaultSpacing * 3),
                               Text(
                                 'Oops! we noticed a mismatch!',
                                 style: textTheme.displayLarge,
                                 textAlign: TextAlign.center,
                               ),
-                              const Gap(defaultPadding),
+                              const Gap(defaultSpacing),
                               Text(
                                 'Looks like you are recovering an account different from your current Snap account.',
                                 style: textTheme.bodyMedium,
                                 textAlign: TextAlign.center,
                               ),
-                              const Gap(defaultPadding),
+                              const Gap(defaultSpacing),
                             ],
                           ),
                         ),
@@ -69,12 +69,12 @@ class WalletMismatchScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                           color: Color(0xFFF87171).withOpacity(0.1),
                         ),
-                        padding: EdgeInsets.all(defaultPadding * 1.5),
+                        padding: EdgeInsets.all(defaultSpacing * 1.5),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Image.asset("assets/images/information-circle_light.png", height: 18, color: Color(0xFFF87171)),
-                            Gap(defaultPadding),
+                            Gap(defaultSpacing),
                             Flexible(
                               child: Text(
                                 'Restoring the selected account will replace the existing one on your browser',
@@ -86,7 +86,7 @@ class WalletMismatchScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Gap(defaultPadding * 2),
+                      Gap(defaultSpacing * 2),
                       Button(
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -98,7 +98,7 @@ class WalletMismatchScreen extends StatelessWidget {
                           style: textTheme.displaySmall?.copyWith(color: primaryColor, height: 2),
                         ),
                       ),
-                      Gap(defaultPadding * 2),
+                      Gap(defaultSpacing * 2),
                       Button(
                         onPressed: () {
                           Navigator.of(context).pop();

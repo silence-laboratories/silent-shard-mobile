@@ -34,7 +34,7 @@ class _SupportWalletListState extends State<SupportWalletList> {
             ),
             Center(
               child: Padding(
-                padding: const EdgeInsets.only(top: defaultPadding * 1.5),
+                padding: const EdgeInsets.only(top: defaultSpacing * 1.5),
                 child: Text(
                   'Supported wallet',
                   style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -44,7 +44,7 @@ class _SupportWalletListState extends State<SupportWalletList> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.all(defaultPadding * 4),
+          padding: const EdgeInsets.all(defaultSpacing * 4),
           child: Column(children: [
             ...widget.supportWallets.map((SupportWallet wallet) {
               return WalletOption(
