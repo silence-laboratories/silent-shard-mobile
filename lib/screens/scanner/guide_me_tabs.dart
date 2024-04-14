@@ -42,12 +42,12 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
             length: 2,
             child: SingleChildScrollView(
               child: Container(
-                padding: const EdgeInsets.all(defaultPadding * 2),
+                padding: const EdgeInsets.all(defaultSpacing * 2),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     Text(
                       'How to connect wallet using',
                       style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -68,7 +68,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                         children: [
                           SingleChildScrollView(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
+                              padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 Row(
                                   children: [
@@ -79,11 +79,11 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                                         height: 18,
                                       ),
                                     ),
-                                    const Gap(defaultPadding),
+                                    const Gap(defaultSpacing),
                                     Text('MetaMask Snap', style: textTheme.displaySmall?.copyWith(color: textGrey))
                                   ],
                                 ),
-                                const Gap(defaultPadding * 2),
+                                const Gap(defaultSpacing * 2),
                                 Bullet(
                                   child: RichText(
                                     text: TextSpan(
@@ -139,7 +139,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                           // Other wallet
                           SingleChildScrollView(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: defaultPadding * 2, vertical: defaultPadding * 3),
+                              padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                 CheckWalletButton(
                                   supportWalletsCount: supportWallets.length,
@@ -149,7 +149,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                                     });
                                   },
                                 ),
-                                const Gap(defaultPadding * 2),
+                                const Gap(defaultSpacing * 2),
                                 Bullet(
                                   child: Text(
                                       "Head over to your favourite SilentShard-supported wallets (coming soon...) on your browser to desktop.",
@@ -248,7 +248,7 @@ class CheckWalletButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
           ),
-          padding: const EdgeInsets.symmetric(vertical: defaultPadding, horizontal: defaultPadding * 1.5),
+          padding: const EdgeInsets.symmetric(vertical: defaultSpacing, horizontal: defaultSpacing * 1.5),
         ),
         onPressed: () {
           onShowSupportWallets();
@@ -259,9 +259,9 @@ class CheckWalletButton extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.spaceBetween,
             children: [
-              Expanded(child: Text('Check all support wallet', style: textTheme.displaySmall?.copyWith(color: textGrey))),
+              Text('Check all support wallet', style: textTheme.displaySmall?.copyWith(color: textGrey)),
               Container(
-                margin: const EdgeInsets.only(left: defaultPadding),
+                margin: const EdgeInsets.only(left: defaultSpacing),
                 child: Expanded(
                   child: Wrap(
                     alignment: WrapAlignment.end,
@@ -274,7 +274,7 @@ class CheckWalletButton extends StatelessWidget {
                           children: [
                             overlapped(),
                             Padding(
-                              padding: const EdgeInsets.only(right: defaultPadding, left: defaultPadding / 2),
+                              padding: const EdgeInsets.only(right: defaultSpacing, left: defaultSpacing / 2),
                               child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
                             ),
                             const Icon(

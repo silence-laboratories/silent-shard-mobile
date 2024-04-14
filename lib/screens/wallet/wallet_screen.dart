@@ -125,11 +125,11 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
       child: Stack(children: [
         SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.all(defaultSpacing * 1.5),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Gap(defaultPadding * 4),
+                const Gap(defaultSpacing * 4),
                 Row(children: [
                   Text(
                     "Silent Shard",
@@ -149,7 +149,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                     icon: const Icon(Icons.settings_outlined, color: textPrimaryColor),
                   )
                 ]),
-                const Gap(defaultPadding * 3),
+                const Gap(defaultSpacing * 3),
                 if (_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined) ...[
                   GestureDetector(
                     onTap: () async {
@@ -166,15 +166,15 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(defaultPadding),
-                      decoration: BoxDecoration(border: Border.all(color: warningColor), borderRadius: BorderRadius.circular(defaultPadding)),
+                      padding: const EdgeInsets.all(defaultSpacing),
+                      decoration: BoxDecoration(border: Border.all(color: warningColor), borderRadius: BorderRadius.circular(defaultSpacing)),
                       child: const Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                         Icon(
                           Icons.error,
                           color: warningColor,
                           size: 16,
                         ),
-                        Gap(defaultPadding),
+                        Gap(defaultSpacing),
                         Text(
                           'Enable notification',
                           style: TextStyle(fontSize: 12, color: warningColor),
@@ -182,7 +182,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                       ]),
                     ),
                   ),
-                  const Gap(defaultPadding * 2)
+                  const Gap(defaultSpacing * 2)
                 ],
                 Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                   var address = keysharesProvider.keyshares.firstOrNull?.ethAddress;
@@ -197,12 +197,12 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                           })
                       : Container();
                 }),
-                const Gap(defaultPadding * 5),
+                const Gap(defaultSpacing * 5),
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 3,
                   child: Image.asset('assets/images/signTransaction.png'),
                 ),
-                const Gap(defaultPadding * 5),
+                const Gap(defaultSpacing * 5),
                 Text(
                   "No pending transactions. Initiate any transaction from MetaMask extension to approve it here.",
                   style: textTheme.displayMedium,

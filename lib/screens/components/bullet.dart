@@ -15,12 +15,12 @@ class Bullet extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Text(
           "•",
           style: textTheme.displayMedium,
         ),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Expanded(child: child),
       ],
     );

@@ -34,7 +34,7 @@ class BackupWalletScreen extends StatelessWidget {
         content: Wrap(children: [
           Check(text: 'Backup successful!'),
         ]),
-        insetPadding: EdgeInsets.all(defaultPadding * 1.5),
+        insetPadding: EdgeInsets.all(defaultSpacing * 1.5),
       ),
     );
   }
@@ -119,19 +119,19 @@ class BackupWalletScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.black,
         body: Container(
-          padding: const EdgeInsets.all(defaultPadding * 1.5),
+          padding: const EdgeInsets.all(defaultSpacing * 1.5),
           margin: const EdgeInsets.only(top: 0.5),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(
               "Backup wallet",
               style: textTheme.displayLarge,
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Text(
               "Secure your wallet by backing up in ${Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager'}",
               style: textTheme.bodyMedium,
             ),
-            const Gap(defaultPadding * 3),
+            const Gap(defaultSpacing * 3),
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -139,7 +139,7 @@ class BackupWalletScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Container(
-                  padding: const EdgeInsets.all(defaultPadding * 2),
+                  padding: const EdgeInsets.all(defaultSpacing * 2),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Expanded(
                       child: Platform.isIOS
@@ -197,12 +197,12 @@ class BackupWalletScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Button(
               onPressed: () => _performBackup(context),
               child: Text('Backup wallet now', style: textTheme.displayMedium),
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Center(
               child: TextButton(
                 onPressed: () {
@@ -254,25 +254,25 @@ class _BackupSkipWarningState extends State<BackupSkipWarning> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.only(left: defaultPadding * 2, right: defaultPadding * 2),
+        padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(
             "Are you sure?",
             style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
-          const Gap(defaultPadding * 2),
+          const Gap(defaultSpacing * 2),
           Center(
             child: Image.asset(
               'assets/images/warningYellow.png',
               height: 100,
             ),
           ),
-          const Gap(defaultPadding * 2),
+          const Gap(defaultSpacing * 2),
           Text(
             'Your wallet backup file is crucial for restoring your funds in case any of your phone or laptop device is lost or reset.',
             style: textTheme.bodyMedium,
           ),
-          const Gap(defaultPadding * 2),
+          const Gap(defaultSpacing * 2),
           const Divider(),
           Row(
             children: [
@@ -292,7 +292,7 @@ class _BackupSkipWarningState extends State<BackupSkipWarning> {
               ),
             ],
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Button(
               type: ButtonType.primary,
               buttonColor: primaryColor.withOpacity(_checkboxState == CheckBoxState.unchecked ? 0.5 : 1),
@@ -318,14 +318,14 @@ class BackupKnowMoreModal extends StatelessWidget {
     return Wrap(
       children: [
         Container(
-          padding: const EdgeInsets.only(left: defaultPadding * 2, right: defaultPadding * 2),
+          padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               'Google Password Manager',
               style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Center(
               child: Lottie.asset('assets/lottie/GPMAnimation.json'),
             ),
@@ -333,18 +333,18 @@ class BackupKnowMoreModal extends StatelessWidget {
               question: 'Why am I saving a password?',
               answer: "The Silent Shard App leverages the your Google Password Manager to store your email id and your backup file.",
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             const BackupKnowMoreFAQ(
               question: 'What is Google Password Manager?',
               answer: "Google Password Manager is an android feature that securely saves passwords in your device storage.",
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             const BackupKnowMoreFAQ(
               question: 'What happens if I click on “Never”?',
               answer:
                   "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
             ),
-            const Gap(defaultPadding * 6),
+            const Gap(defaultSpacing * 6),
           ]),
         )
       ],
@@ -369,7 +369,7 @@ class BackupKnowMoreFAQ extends StatelessWidget {
         question,
         style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
       ),
-      const Gap(defaultPadding),
+      const Gap(defaultSpacing),
       Text(
         answer,
         style: textTheme.bodySmall,

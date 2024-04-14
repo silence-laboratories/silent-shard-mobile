@@ -256,14 +256,14 @@ class _PairState extends State<PairScreen> {
                   absorbing: authState.user == null,
                   child: SingleChildScrollView(
                     child: Container(
-                      padding: const EdgeInsets.all(defaultPadding * 1.5),
-                      margin: const EdgeInsets.only(top: defaultPadding * 0.5),
+                      padding: const EdgeInsets.all(defaultSpacing * 1.5),
+                      margin: const EdgeInsets.only(top: defaultSpacing * 0.5),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(
                           "Let's get started",
                           style: textTheme.displayLarge,
                         ),
-                        const Gap(defaultPadding * 3),
+                        const Gap(defaultSpacing * 3),
                         PairOption(
                           type: OptionType.primary,
                           icon: const Icon(Icons.add, color: Colors.white),
@@ -272,7 +272,7 @@ class _PairState extends State<PairScreen> {
                           infoText: "For new users",
                           onPress: _goToScannerScreen,
                         ),
-                        const Gap(defaultPadding * 3),
+                        const Gap(defaultSpacing * 3),
                         PairOption(
                           type: OptionType.secondary,
                           icon: const Icon(Icons.replay, color: Colors.white),
@@ -338,10 +338,10 @@ class PairOption extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.only(
-          left: defaultPadding * 1.5,
-          top: defaultPadding * 2,
-          bottom: defaultPadding * 2,
-          right: defaultPadding * 1.5,
+          left: defaultSpacing * 1.5,
+          top: defaultSpacing * 2,
+          bottom: defaultSpacing * 2,
+          right: defaultSpacing * 1.5,
         ),
         backgroundColor: type == OptionType.primary ? backgroundPrimaryColor.withOpacity(0.30) : const Color(0xFF1A1A1A),
       ),
@@ -352,15 +352,15 @@ class PairOption extends StatelessWidget {
             color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor2,
             child: icon,
           ),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500)),
-              const Gap(defaultPadding * 1.5),
+              const Gap(defaultSpacing * 1.5),
               Text(subtitle, style: textTheme.displaySmall),
-              const Gap(defaultPadding * 1.5),
+              const Gap(defaultSpacing * 1.5),
               Container(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: const EdgeInsets.all(defaultSpacing),
                 decoration: BoxDecoration(
                     border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1),
                     borderRadius: BorderRadius.circular(50)),
@@ -370,7 +370,7 @@ class PairOption extends StatelessWidget {
                     size: 16,
                     color: textPrimaryColor,
                   ),
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   Text(
                     infoText,
                     style: const TextStyle(fontSize: 12, color: textPrimaryColor),

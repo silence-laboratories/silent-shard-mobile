@@ -40,11 +40,11 @@ class MessageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.all(defaultPadding),
+      padding: const EdgeInsets.all(defaultSpacing),
       decoration: BoxDecoration(
         color: type.backgroundColor,
         border: Border.all(color: type.borderColor),
-        borderRadius: BorderRadius.circular(defaultPadding),
+        borderRadius: BorderRadius.circular(defaultSpacing),
       ),
       child: Row(
         children: [
@@ -53,7 +53,7 @@ class MessageWidget extends StatelessWidget {
             height: 16,
             color: type.contentColor,
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(
             child: Text(text, style: textTheme.bodyMedium?.copyWith(color: type.contentColor)),
           ),
