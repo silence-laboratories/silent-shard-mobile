@@ -23,14 +23,14 @@ class BackupPicker extends StatelessWidget {
       maxChildSize: 1,
       builder: (_, controller) {
         return Container(
-          padding: const EdgeInsets.all(defaultPadding * 2),
+          padding: const EdgeInsets.all(defaultSpacing * 2),
           child: Column(
             children: [
               Text(
                 "iCloud Keychain",
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding),
+              const Gap(defaultSpacing),
               Text(
                 "Select any account to restore from your iCloud Keychain",
                 style: textTheme.bodyMedium,
@@ -41,7 +41,7 @@ class BackupPicker extends StatelessWidget {
                   itemCount: list.length,
                   itemBuilder: (_, index) {
                     return Padding(
-                      padding: const EdgeInsets.only(top: 2 * defaultPadding),
+                      padding: const EdgeInsets.only(top: 2 * defaultSpacing),
                       child: BackupItem(address: list.elementAt(index), onPressed: onSelected),
                     );
                   },
@@ -67,13 +67,13 @@ class BackupItem extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(
-          horizontal: defaultPadding * 1.5,
-          vertical: defaultPadding * 2,
+          horizontal: defaultSpacing * 1.5,
+          vertical: defaultSpacing * 2,
         ),
         backgroundColor: const Color(0xFF1A1A1A),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
-            Radius.circular(defaultPadding),
+            Radius.circular(defaultSpacing),
           ),
         ),
       ),
@@ -87,7 +87,7 @@ class BackupItem extends StatelessWidget {
               height: 20,
             ),
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

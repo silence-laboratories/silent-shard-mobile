@@ -42,7 +42,7 @@ class ErrorHandler extends StatelessWidget {
           ),
           backgroundColor: Colors.black,
           body: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.all(defaultSpacing * 1.5),
             width: MediaQuery.of(context).size.width,
             child: Column(children: [
               Expanded(
@@ -55,13 +55,13 @@ class ErrorHandler extends StatelessWidget {
                           'assets/images/spill.png',
                           width: MediaQuery.of(context).size.width / 2,
                         ),
-                    const Gap(defaultPadding * 2),
+                    const Gap(defaultSpacing * 2),
                     Text(
                       errorTitle ?? 'Something went wrong',
                       style: textTheme.displayLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     if (errorSubtitle != null) errorSubtitle!,
                   ],
                 ),

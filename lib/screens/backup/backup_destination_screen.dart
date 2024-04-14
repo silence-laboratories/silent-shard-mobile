@@ -45,7 +45,7 @@ class BackupDestinationScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(2 * defaultPadding),
+            padding: const EdgeInsets.all(2 * defaultSpacing),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,12 +53,12 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Backup wallet",
                   style: textTheme.displayLarge,
                 ),
-                const Gap(defaultPadding),
+                const Gap(defaultSpacing),
                 Text(
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
-                const Gap(9 * defaultPadding),
+                const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(
                     builder: (context, backupService, _) => BackupDestinationWidget(
                           address: address,
@@ -69,9 +69,9 @@ class BackupDestinationScreen extends StatelessWidget {
                           check: backupService.getBackupInfo(address).cloud,
                           destination: BackupDestination.secureStorage,
                         )),
-                const Gap(4 * defaultPadding),
+                const Gap(4 * defaultSpacing),
                 const Divider(),
-                const Gap(4 * defaultPadding),
+                const Gap(4 * defaultSpacing),
                 Consumer<BackupService>(
                     builder: (context, backupService, _) => BackupDestinationWidget(
                           address: address,
@@ -210,40 +210,40 @@ class BackupDestinationWidget extends StatelessWidget {
     return InkWell(
       onTap: () => _performBackup(context, destination),
       child: Container(
-        padding: const EdgeInsets.all(defaultPadding),
+        padding: const EdgeInsets.all(defaultSpacing),
         child: Column(children: [
           Row(children: [
             PaddedContainer(
-              padding: const EdgeInsets.all(1.5 * defaultPadding),
+              padding: const EdgeInsets.all(1.5 * defaultSpacing),
               child: icon,
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, maxLines: 2, textAlign: TextAlign.left, style: textTheme.displaySmall),
                   if (subtitle != null) ...[
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     Text(subtitle!, maxLines: 3, style: textTheme.bodySmall),
                   ],
                 ],
               ),
             ),
             if (label != null) ...[
-              const Gap(4 * defaultPadding),
+              const Gap(4 * defaultSpacing),
               LabelWidget(label!),
             ],
           ]),
-          Gap(defaultPadding * check.status.distanceFactor),
+          Gap(defaultSpacing * check.status.distanceFactor),
           StatusWidget(check: check, destination: destination),
           if (Platform.isAndroid && destination == BackupDestination.secureStorage && check.status == BackupStatus.done) ...[
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Row(children: [
-              const Gap(6 * defaultPadding),
+              const Gap(6 * defaultSpacing),
               Button(
                 type: ButtonType.primary,
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: 0),
+                padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0),
                 buttonColor: primaryColor,
                 onPressed: () => _verifyBackup(context),
                 child: Text('Verify backup', style: textTheme.displaySmall),
@@ -272,9 +272,9 @@ class StatusWidget extends StatelessWidget {
     return switch (check.status) {
       BackupStatus.pending || BackupStatus.missing => MessageWidget(check.status.message, type: check.status.messageType),
       BackupStatus.done => Row(children: [
-          const Gap(6 * defaultPadding),
+          const Gap(6 * defaultSpacing),
           check.status.statusIcon,
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(child: Text(_details, style: Theme.of(context).textTheme.bodySmall)),
         ]),
     };
@@ -290,7 +290,7 @@ class LabelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: 0.5 * defaultPadding),
+      padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0.5 * defaultSpacing),
       decoration: BoxDecoration(
         color: infoBackgroundColor,
         border: Border.all(color: infoColor),

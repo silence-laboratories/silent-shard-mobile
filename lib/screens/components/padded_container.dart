@@ -19,7 +19,7 @@ class PaddedContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.all(defaultPadding),
+      padding: padding ?? const EdgeInsets.all(defaultSpacing),
       decoration: BoxDecoration(
         color: color ?? secondaryColor,
         borderRadius: BorderRadius.circular(30),

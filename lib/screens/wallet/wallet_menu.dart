@@ -29,7 +29,7 @@ class WalletMenu extends StatelessWidget {
         ),
       ),
       position: PopupMenuPosition.under,
-      offset: const Offset(0, defaultPadding),
+      offset: const Offset(0, defaultSpacing),
       itemBuilder: (BuildContext context) => _buildOptionsMenu(textTheme),
       child: const PaddedContainer(
         child: Icon(
@@ -60,7 +60,7 @@ class WalletMenu extends StatelessWidget {
                 )),
           ),
         ),
-        const CustomPopupMenuDivider(endIndent: defaultPadding * 2, indent: defaultPadding * 2),
+        const CustomPopupMenuDivider(endIndent: defaultSpacing * 2, indent: defaultSpacing * 2),
         PopupMenuItem<WalletActions>(
           value: WalletActions.exportBackup,
           child: WalletOption(
@@ -78,7 +78,7 @@ class WalletMenu extends StatelessWidget {
                 )),
           ),
         ),
-        const CustomPopupMenuDivider(endIndent: defaultPadding * 2, indent: defaultPadding * 2),
+        const CustomPopupMenuDivider(endIndent: defaultSpacing * 2, indent: defaultSpacing * 2),
         PopupMenuItem<WalletActions>(
           value: WalletActions.removeWallet,
           child: WalletOption(
@@ -114,11 +114,11 @@ class WalletOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
+        padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 2),
         child: Row(
           children: [
             icon,
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             title,
           ],
         ),

@@ -293,25 +293,25 @@ class _ScannerScreenState extends State<ScannerScreen> {
             body: Stack(children: [
               SingleChildScrollView(
                 child: Container(
-                  padding: const EdgeInsets.all(defaultPadding * 1.5),
-                  margin: const EdgeInsets.only(top: defaultPadding * 0.5),
+                  padding: const EdgeInsets.all(defaultSpacing * 1.5),
+                  margin: const EdgeInsets.only(top: defaultSpacing * 0.5),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(
                       "Pair with desktop",
                       style: textTheme.displayLarge,
                     ),
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     Text(
                       "Point your camera at the QR code generated on your wallet on desktop to pair.",
                       style: textTheme.displaySmall,
                     ),
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: primaryColor2, width: 1),
-                          padding: const EdgeInsets.symmetric(vertical: defaultPadding * 1.5, horizontal: defaultPadding * 3),
+                          padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 1.5, horizontal: defaultSpacing * 3),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -344,7 +344,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         ),
                       ),
                     ),
-                    const Gap(defaultPadding * 2),
+                    const Gap(defaultSpacing * 2),
                     Stack(children: [
                       Container(
                         height: MediaQuery.of(context).size.width - 20,
@@ -374,7 +374,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                           child: Image.asset('assets/images/scanArea.png'),
                         )
                     ]),
-                    const Gap(defaultPadding * 3),
+                    const Gap(defaultSpacing * 3),
                     GestureDetector(
                       onTap: () {
                         scannerController.toggleTorch();
@@ -389,7 +389,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                   value == TorchState.on ? Icons.flash_on : Icons.flash_off,
                                   color: primaryColor2,
                                 ),
-                                const Gap(defaultPadding),
+                                const Gap(defaultSpacing),
                                 Text((value == TorchState.on) ? "Flash on" : 'Flash off',
                                     style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
                               ]);
@@ -406,29 +406,29 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
-                  insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+                  insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
                   content: Wrap(children: [
                     Container(
                       width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.all(defaultPadding * 1.5),
+                      padding: const EdgeInsets.all(defaultSpacing * 1.5),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
                         Image.asset(
                           'assets/images/cameraDisabled.png',
                           width: 100,
                         ),
-                        const Gap(defaultPadding * 4),
+                        const Gap(defaultSpacing * 4),
                         Text(
                           'Allow Silent Shard to access your camera',
                           style: textTheme.displayLarge,
                           textAlign: TextAlign.center,
                         ),
-                        const Gap(defaultPadding * 2),
+                        const Gap(defaultSpacing * 2),
                         Text(
                           "This let's you scan the QR code and pair your phone with your browser to create your Silent Account.",
                           textAlign: TextAlign.center,
                           style: textTheme.bodyMedium,
                         ),
-                        const Gap(defaultPadding * 4),
+                        const Gap(defaultSpacing * 4),
                         Button(
                           onPressed: () {
                             openAppSettings();
@@ -467,7 +467,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   ]),
                 ),
               ]),
-              insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+              insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
             ),
         ]),
       ),

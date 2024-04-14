@@ -25,28 +25,28 @@ class NotificationAlertDialog extends StatelessWidget {
       backgroundColor: secondaryColor,
       elevation: 0,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10))),
-      insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+      insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
       content: SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           Text("Grant permission", style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Center(child: Lottie.asset('assets/lottie/NotificationPermissionAndroid.json')),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Row(
             children: [
               const PaddedContainer(
                 color: Color(0xFF343A46),
                 child: Icon(Icons.notifications),
               ),
-              const Gap(defaultPadding),
+              const Gap(defaultSpacing),
               Text(
                 "Notifications",
                 style: textTheme.displayMedium,
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: const EdgeInsets.all(defaultSpacing),
                 decoration: BoxDecoration(
                   color: const Color(0xFF85680E).withOpacity(0.1),
                   border: Border.all(
@@ -60,7 +60,7 @@ class NotificationAlertDialog extends StatelessWidget {
                     color: warningColor,
                     size: 16,
                   ),
-                  Gap(defaultPadding / 2),
+                  Gap(defaultSpacing / 2),
                   Text(
                     'Mandatory',
                     style: TextStyle(fontSize: 12, color: warningColor),
@@ -69,15 +69,15 @@ class NotificationAlertDialog extends StatelessWidget {
               )
             ],
           ),
-          const Gap(defaultPadding * 2),
+          const Gap(defaultSpacing * 2),
           Text(
             'Notifications in the silent shard app are crucial for timely transaction approval alerts.',
             style: textTheme.bodyMedium,
           ),
           if (Platform.isIOS) ...[
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             const Divider(),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Row(
               children: [
                 PaddedContainer(
@@ -87,25 +87,25 @@ class NotificationAlertDialog extends StatelessWidget {
                     height: 26,
                   ),
                 ),
-                const Gap(defaultPadding),
+                const Gap(defaultSpacing),
                 Text(
                   "Device Biometrics",
                   style: textTheme.displayMedium,
                 )
               ],
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Text(
               'Unlock Silent Shard app by using your Device Biometrics (Face ID/ Fingerprint).',
               style: textTheme.bodyMedium,
             ),
           ],
-          const Gap(defaultPadding * 3),
+          const Gap(defaultSpacing * 3),
           Button(
             onPressed: onAllow,
             child: Text('Allow', style: textTheme.displaySmall),
           ),
-          const Gap(defaultPadding * 2),
+          const Gap(defaultSpacing * 2),
           Center(
             child: TextButton(
               onPressed: onDeny,

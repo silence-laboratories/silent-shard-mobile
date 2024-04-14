@@ -127,9 +127,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                 child: Container(
                   alignment: Alignment.center,
                   child: const Column(children: [
-                    Gap(defaultPadding * 10),
+                    Gap(defaultSpacing * 10),
                     Loader(text: 'Approving transaction...'),
-                    Gap(defaultPadding * 10),
+                    Gap(defaultSpacing * 10),
                   ]),
                 ),
               ),
@@ -140,9 +140,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Gap(defaultPadding * 10),
+                      Gap(defaultSpacing * 10),
                       Check(text: 'Transaction Approved'),
-                      Gap(defaultPadding * 10),
+                      Gap(defaultSpacing * 10),
                     ],
                   ),
                 ),
@@ -153,9 +153,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                   Cancel(text: 'Transaction Failed'),
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                 ],
               )),
             if (_transactionState == TransactionState.canceled)
@@ -163,9 +163,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                   Cancel(text: 'Transaction Canceled'),
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                 ],
               )),
           ]),

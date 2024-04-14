@@ -63,13 +63,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.black,
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.all(defaultSpacing * 1.5),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
                 "Settings",
                 style: textTheme.displayLarge,
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Consumer<LocalAuth>(builder: (context, localAuth, _) {
                 return SettingOption(
                     icon: const Icon(
@@ -150,7 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const Divider(),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
+                padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -158,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       "For any queries reach out to",
                       style: textTheme.displaySmall,
                     ),
-                    const Gap(defaultPadding * 1.5),
+                    const Gap(defaultSpacing * 1.5),
                     GestureDetector(
                         onTap: () {
                           Uri emailLaunchUri = Uri(
@@ -174,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
                   onTap: () async {
@@ -188,8 +188,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     height: 30,
                   ),
                 ),
-                const Gap(defaultPadding * 2),
-                const Gap(defaultPadding * 2),
+                const Gap(defaultSpacing * 2),
+                const Gap(defaultSpacing * 2),
                 GestureDetector(
                   onTap: () async {
                     final url = Uri.parse('https://github.com/silence-laboratories');
@@ -254,12 +254,12 @@ class SettingOption extends StatelessWidget {
 
   Widget _buildContainer(TextTheme textTheme, bool hasSwitch) {
     return Container(
-      padding: const EdgeInsets.only(top: defaultPadding * 1.5, bottom: defaultPadding * 1.5, left: defaultPadding),
+      padding: const EdgeInsets.only(top: defaultSpacing * 1.5, bottom: defaultSpacing * 1.5, left: defaultSpacing),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           PaddedContainer(child: icon),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: textTheme.displaySmall),

@@ -48,7 +48,7 @@ class StatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 0.5 * defaultPadding),
+      padding: const EdgeInsets.symmetric(horizontal: 0.5 * defaultSpacing),
       height: height,
       decoration: BoxDecoration(
         border: Border.all(color: status.tintColor),
@@ -56,7 +56,7 @@ class StatusIndicator extends StatelessWidget {
       ),
       child: Row(children: [
         image,
-        const Gap(0.5 * defaultPadding),
+        const Gap(0.5 * defaultSpacing),
         status.statusIcon,
       ]),
     );
@@ -91,7 +91,7 @@ class BackupStatusWidget extends StatelessWidget {
             status: getBackupCheck(service.getBackupInfo(address), source).status,
             image: image,
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(
             child: Text(
               _getDetails(service.getBackupInfo(address)),
@@ -124,19 +124,19 @@ class BackupStatusDashboard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(0),
         child: Column(children: [
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Row(children: [
             Image.asset(
               "assets/images/cloud-upload_light.png",
               height: iconHeight,
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               "Backups",
               style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             )
           ]),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
             address: address,
             source: BackupSource.secureStorage,
@@ -145,7 +145,7 @@ class BackupStatusDashboard extends StatelessWidget {
               height: iconHeight,
             ),
           ),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
             address: address,
             source: BackupSource.fileSystem,

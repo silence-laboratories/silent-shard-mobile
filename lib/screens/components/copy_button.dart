@@ -47,7 +47,7 @@ class _CopyButtonState extends State<CopyButton> {
       targetAnchor: Alignment.bottomLeft,
       controller: controller,
       child: InkWell(
-        borderRadius: BorderRadius.circular(defaultPadding),
+        borderRadius: BorderRadius.circular(defaultSpacing),
         onTap: () {
           if (_autoHidePopupOperation is CancelableFuture<void>) {
             _autoHidePopupOperation?.cancel();
@@ -65,7 +65,7 @@ class _CopyButtonState extends State<CopyButton> {
           widget.onCopy();
         },
         child: Container(
-          padding: const EdgeInsets.all(defaultPadding),
+          padding: const EdgeInsets.all(defaultSpacing),
           child: Image.asset(
             'assets/images/copyLight.png',
             height: widget.size ?? 20,
@@ -84,7 +84,7 @@ class _CopyOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(defaultPadding),
+      padding: const EdgeInsets.all(defaultSpacing),
       decoration: BoxDecoration(
         border: Border.all(width: 1, color: secondaryColor),
         color: secondaryColor,

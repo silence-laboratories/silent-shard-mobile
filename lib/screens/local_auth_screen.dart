@@ -35,7 +35,7 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
         child: Container(
-      padding: const EdgeInsets.all(defaultPadding * 4),
+      padding: const EdgeInsets.all(defaultSpacing * 4),
       child: Center(
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Expanded(
@@ -44,7 +44,7 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
                 'assets/images/lockClosed.png',
                 width: MediaQuery.of(context).size.width / 2,
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Text(
                 'Silent Shard is locked!',
                 style: textTheme.displayLarge,

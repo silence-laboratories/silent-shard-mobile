@@ -20,7 +20,7 @@ class Cancel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset('assets/images/cancel.png', height: 100),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Text(text, style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500), textAlign: TextAlign.center),
       ],
     ));

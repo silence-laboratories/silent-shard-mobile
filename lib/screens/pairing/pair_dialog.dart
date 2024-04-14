@@ -41,12 +41,12 @@ class _PairDialogState extends State<PairDialog> {
           )
         ],
       ),
-      const Gap(defaultPadding),
+      const Gap(defaultSpacing),
       Text(
         'Please follow these steps in order to pair your mobile device with your browser',
         style: textTheme.bodySmall,
       ),
-      const Gap(defaultPadding * 2),
+      const Gap(defaultSpacing * 2),
       Stack(
         children: [
           AnimatedOpacity(
@@ -201,9 +201,9 @@ class PairingStep extends StatelessWidget {
           "Step ${page + 1}:",
           style: const TextStyle(color: textPrimaryColor, fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        const Gap(defaultPadding * 2),
+        const Gap(defaultSpacing * 2),
         info,
-        const Gap(defaultPadding * 2),
+        const Gap(defaultSpacing * 2),
         Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Image.asset(image, width: MediaQuery.of(context).size.width - 100),
           const SizedBox(
@@ -212,7 +212,7 @@ class PairingStep extends StatelessWidget {
           Image.asset('assets/images/pairingRectangle1.png'),
           Image.asset('assets/images/pairingRectangle2.png')
         ]),
-        const Gap(defaultPadding * 4),
+        const Gap(defaultSpacing * 4),
       ]),
     );
   }
