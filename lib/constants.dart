@@ -11,7 +11,6 @@ const backgroundSecondaryColor = Color(0xFF1A1A1A);
 const backgroundSecondaryColor2 = Color(0xFF343A46);
 const backgroundSecondaryColor3 = Color(0xFF3A4252);
 const secondaryColor = Color(0xFF23272E);
-const secondaryDarkerColor = Color(0xFF343A46);
 const sheetBackgroundColor = Color(0xFF111112);
 
 const infoColor = Color(0xFF166533);
