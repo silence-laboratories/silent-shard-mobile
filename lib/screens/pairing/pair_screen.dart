@@ -287,21 +287,11 @@ class _PairState extends State<PairScreen> {
                 ),
                 if (_pairingState == PairingState.fetchingBackup) ...[
                   const AlertDialog(
-                    backgroundColor: secondaryColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
                     content: Wrap(children: [Loader(text: 'Fetching backup...')]),
                   )
                 ],
                 if (authState.user == null)
                   const AlertDialog(
-                    backgroundColor: secondaryColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
                     content: Wrap(children: [Loader(text: 'Getting ready...')]),
                   )
               ],
