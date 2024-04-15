@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/wallet/wallet_menu.dart';
 import 'package:silentshard/types/support_wallet.dart';
 
 class SupportWalletList extends StatefulWidget {
