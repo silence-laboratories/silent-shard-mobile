@@ -32,3 +32,5 @@ const doneColor = Color(0xFF4ADE80);
 const doneIconColor = Color(0xFF86EFAD);
 
 const defaultPadding = 8.0;
+
+const CANNOT_VERIFY_BACKUP = 'Cannot verify backup with different address';
