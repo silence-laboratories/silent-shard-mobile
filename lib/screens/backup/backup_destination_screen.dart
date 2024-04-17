@@ -167,7 +167,7 @@ class BackupDestinationWidget extends StatelessWidget {
       FirebaseCrashlytics.instance.log('Cannot verify backup: $error, ${parseCredentialExceptionMessage(error)}');
       analyticManager.trackVerifyBackup(
           success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: parseCredentialExceptionMessage(error));
-      if (context.mounted) {
+      if (context.mounted && !(error is ArgumentError && error.message == CANNOT_VERIFY_BACKUP)) {
         _showErrorScreen(
           context,
           retryAction: () => _verifyBackup(context),

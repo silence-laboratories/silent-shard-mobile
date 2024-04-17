@@ -8,5 +8,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:snap.silencelaboratories.com</string>
+		<string>applinks:snap-staging.silencelaboratories.com</string>
+	</array>
 </dict>
 </plist>
