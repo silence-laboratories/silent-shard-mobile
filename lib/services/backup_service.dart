@@ -159,6 +159,9 @@ class BackupService extends ChangeNotifier {
     try {
       final backup = await readBackupFromStorage(null);
       if (backup != null) {
+        if (backup.walletBackup.accounts.firstOrNull?.address != address) {
+          throw ArgumentError('Cannot verify backup with different address');
+        }
         backupToStorageDidSave(backup);
       } else if (info.passwordManager.status == BackupStatus.done) {
         info.passwordManager = BackupCheck(BackupStatus.missing);
