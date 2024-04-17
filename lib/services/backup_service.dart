@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:credential_manager/credential_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:silentshard/constants.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/utils.dart';
 
@@ -159,6 +160,9 @@ class BackupService extends ChangeNotifier {
     try {
       final backup = await readBackupFromStorage(null);
       if (backup != null) {
+        if (backup.walletBackup.accounts.firstOrNull?.address != address) {
+          throw ArgumentError(CANNOT_VERIFY_BACKUP);
+        }
         backupToStorageDidSave(backup);
       } else if (info.passwordManager.status == BackupStatus.done) {
         info.passwordManager = BackupCheck(BackupStatus.missing);
