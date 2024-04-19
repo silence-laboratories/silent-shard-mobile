@@ -9,6 +9,8 @@ import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
+import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
+import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
@@ -19,7 +21,7 @@ import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/services/backup_use_cases.dart';
 import 'package:silentshard/utils.dart';
 
-import 'error/error_handler.dart';
+import '../error/error_handler.dart';
 
 class BackupWalletScreen extends StatefulWidget {
   const BackupWalletScreen({super.key});
@@ -267,146 +269,5 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
         ),
       ),
     );
-  }
-}
-
-class BackupSkipWarning extends StatefulWidget {
-  final VoidCallback onContinue;
-  const BackupSkipWarning({super.key, required this.onContinue});
-
-  @override
-  State<BackupSkipWarning> createState() => _BackupSkipWarningState();
-}
-
-enum CheckBoxState { checked, unchecked }
-
-class _BackupSkipWarningState extends State<BackupSkipWarning> {
-  CheckBoxState _checkboxState = CheckBoxState.unchecked;
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return SafeArea(
-      child: Container(
-        padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            "Are you sure?",
-            style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const Gap(defaultSpacing * 2),
-          Center(
-            child: Image.asset(
-              'assets/images/warningYellow.png',
-              height: 100,
-            ),
-          ),
-          const Gap(defaultSpacing * 2),
-          Text(
-            'Your wallet backup file is crucial for restoring your funds in case any of your phone or laptop device is lost or reset.',
-            style: textTheme.bodyMedium,
-          ),
-          const Gap(defaultSpacing * 2),
-          const Divider(),
-          Row(
-            children: [
-              Checkbox(
-                value: _checkboxState == CheckBoxState.checked ? true : false,
-                onChanged: (value) {
-                  setState(() {
-                    _checkboxState = (value ?? false) ? CheckBoxState.checked : CheckBoxState.unchecked;
-                  });
-                },
-              ),
-              Flexible(
-                child: Text(
-                  'I understand the risk and agree to continue',
-                  style: textTheme.bodySmall,
-                ),
-              ),
-            ],
-          ),
-          const Gap(defaultSpacing),
-          Button(
-              type: ButtonType.primary,
-              buttonColor: primaryColor.withOpacity(_checkboxState == CheckBoxState.unchecked ? 0.5 : 1),
-              onPressed: () {
-                _checkboxState == CheckBoxState.unchecked ? null : widget.onContinue();
-              },
-              isDisabled: _checkboxState == CheckBoxState.unchecked,
-              child: Text('Continue', style: textTheme.displayMedium))
-        ]),
-      ),
-    );
-  }
-}
-
-class BackupKnowMoreModal extends StatelessWidget {
-  const BackupKnowMoreModal({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return Wrap(
-      children: [
-        Container(
-          padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Gap(defaultSpacing),
-            Text(
-              'Google Password Manager',
-              style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const Gap(defaultSpacing * 2),
-            Center(
-              child: Lottie.asset('assets/lottie/GPMAnimation.json'),
-            ),
-            const BackupKnowMoreFAQ(
-              question: 'Why am I saving a password?',
-              answer: "The Silent Shard App leverages the your Google Password Manager to store your email id and your backup file.",
-            ),
-            const Gap(defaultSpacing * 2),
-            const BackupKnowMoreFAQ(
-              question: 'What is Google Password Manager?',
-              answer: "Google Password Manager is an android feature that securely saves passwords in your device storage.",
-            ),
-            const Gap(defaultSpacing * 2),
-            const BackupKnowMoreFAQ(
-              question: 'What happens if I click on “Never”?',
-              answer:
-                  "Your backup will not be saved to your google password manager. You can still export the backup file to your device storage or any other password managers.",
-            ),
-            const Gap(defaultSpacing * 6),
-          ]),
-        )
-      ],
-    );
-  }
-}
-
-class BackupKnowMoreFAQ extends StatelessWidget {
-  final String question;
-  final String answer;
-  const BackupKnowMoreFAQ({
-    super.key,
-    required this.question,
-    required this.answer,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(
-        question,
-        style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
-      ),
-      const Gap(defaultSpacing),
-      Text(
-        answer,
-        style: textTheme.bodySmall,
-      ),
-    ]);
   }
 }
