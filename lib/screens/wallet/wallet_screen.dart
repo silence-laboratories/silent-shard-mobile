@@ -203,17 +203,6 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                           })
                       : Container();
                 }),
-                const Gap(defaultSpacing * 5),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: Image.asset('assets/images/signTransaction.png'),
-                ),
-                const Gap(defaultSpacing * 5),
-                Text(
-                  "No pending transactions. Initiate any transaction from MetaMask extension to approve it here.",
-                  style: textTheme.displayMedium,
-                  textAlign: TextAlign.center,
-                ),
               ],
             ),
           ),

@@ -49,7 +49,11 @@ class PasswordStatusBanner extends StatelessWidget {
           icon,
           const Gap(defaultSpacing / 2),
           text,
-          if (status == PasswordBannerStatus.alert) const Icon(Icons.arrow_forward, color: Color(0xffF87171)),
+          if (status == PasswordBannerStatus.alert) //
+            ...[
+            const Spacer(),
+            const Icon(Icons.arrow_forward, color: Color(0xffF87171)),
+          ]
         ],
       ),
     );

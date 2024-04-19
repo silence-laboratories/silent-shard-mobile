@@ -2,10 +2,14 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/repository/app_repository.dart';
+import 'package:silentshard/screens/components/loader.dart';
+import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import '../../constants.dart';
@@ -32,6 +36,10 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final appRepository = Provider.of<AppRepository>(context, listen: false);
+    final keyshareProvider = appRepository.keysharesProvider;
+    final ethAddress = keyshareProvider.keyshares.firstOrNull?.ethAddress;
+    Stream<BackupMessage> backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -58,6 +66,20 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
+                const Gap(3 * defaultSpacing),
+                StreamBuilder(
+                    stream: backupMessageStream,
+                    builder: (ctx, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.active) {
+                        bool isBackedUp = snapshot.data?.isBackedUp ?? false;
+                        debugPrint('pairingId ${snapshot.data?.pairingId}');
+                        debugPrint('isBackedUp $isBackedUp');
+                        return isBackedUp
+                            ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                            : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
+                      }
+                      return const Loader(text: 'Fetching remote backup status...');
+                    }),
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(
                     builder: (context, backupService, _) => BackupDestinationWidget(

@@ -27,19 +27,25 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(defaultSpacing * 1.5),
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: secondaryColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        children: [
-          WalletInfo(widget: this),
-          const Gap(0.5 * defaultSpacing),
-          const Divider(),
-          BackupStatusDashboard(address: address),
-        ],
+    return InkWell(
+      onTap: () {
+        // Handle tap
+      },
+      highlightColor: const Color.fromRGBO(37, 25, 77, 0.30),
+      child: Container(
+        padding: const EdgeInsets.all(defaultSpacing * 1.5),
+        decoration: BoxDecoration(
+          border: Border.all(width: 1, color: secondaryColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            WalletInfo(widget: this),
+            const Gap(0.5 * defaultSpacing),
+            const Divider(),
+            BackupStatusDashboard(address: address),
+          ],
+        ),
       ),
     );
   }
@@ -56,8 +62,8 @@ class WalletInfo extends StatelessWidget {
       children: [
         PaddedContainer(
             child: Image.asset(
-          'assets/images/walletLightFill.png',
-          height: 27.6,
+          'assets/images/metamaskIcon.png',
+          height: 28,
         )),
         const Gap(defaultSpacing),
         Column(
@@ -74,19 +80,9 @@ class WalletInfo extends StatelessWidget {
               }),
               const SizedBox(width: 24),
             ]),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/metamaskIcon.png',
-                  height: 18,
-                ),
-                const Gap(defaultSpacing),
-                Text(
-                  'MetaMask',
-                  style: textTheme.displaySmall?.copyWith(fontSize: 12),
-                )
-              ],
+            Text(
+              'MetaMask',
+              style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],
         ),
