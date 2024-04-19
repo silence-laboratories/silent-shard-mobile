@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
+import 'package:silentshard/screens/backup_wallet/remind_backup_dapp_modal.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
@@ -32,16 +33,38 @@ class BackupWalletScreen extends StatefulWidget {
 
 class _BackupWalletScreenState extends State<BackupWalletScreen> {
   late Stream<BackupMessage> _backupMessageStream;
+  bool _isRemoteBackedUpReady = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isRemoteBackedUpReady) {
+        _showWaitingSetupDialog();
+      }
+    });
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     final keyshareProvider = appRepository.keysharesProvider;
     if (keyshareProvider.keyshares.firstOrNull != null) {
       final ethAddress = keyshareProvider.keyshares.firstOrNull?.ethAddress;
-      _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!);
+      _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!).map((event) {
+        setState(() {
+          _isRemoteBackedUpReady = event.isBackedUp;
+        });
+        return event;
+      });
     }
+  }
+
+  void _showWaitingSetupDialog() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      barrierColor: Colors.white.withOpacity(0.15),
+      showDragHandle: true,
+      context: context,
+      builder: (context) => const RemindBackupDappModal(),
+    );
   }
 
   void _showDialog(BuildContext context) {
@@ -63,42 +86,46 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-    FirebaseCrashlytics.instance.log('Saving backup');
-    try {
-      await SaveBackupToStorageUseCase(context).execute();
-      FirebaseCrashlytics.instance.log('Backup saved');
-      analyticManager.trackSaveBackupSystem(
-        success: true,
-        source: PageSource.onboarding,
-      );
+    if (!_isRemoteBackedUpReady) {
+      _showWaitingSetupDialog();
+    } else {
+      final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+      FirebaseCrashlytics.instance.log('Saving backup');
+      try {
+        await SaveBackupToStorageUseCase(context).execute();
+        FirebaseCrashlytics.instance.log('Backup saved');
+        analyticManager.trackSaveBackupSystem(
+          success: true,
+          source: PageSource.onboarding,
+        );
 
-      // ignore: use_build_context_synchronously
-      _showDialog(context);
-      await Future.delayed(const Duration(seconds: 2), () {});
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-    } catch (error) {
-      FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
-      if (error is CredentialException && error.code == 301) {
-        return;
-      }
-      if (error is CredentialException && error.code == 302) {
+        // ignore: use_build_context_synchronously
+        _showDialog(context);
+        await Future.delayed(const Duration(seconds: 2), () {});
         if (context.mounted) {
-          _showUnableToSaveBackupScreen(context);
+          Navigator.of(context).pop();
         }
-      } else if (context.mounted) {
-        _showErrorScreen(context);
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
+      } catch (error) {
+        FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
+        if (error is CredentialException && error.code == 301) {
+          return;
+        }
+        if (error is CredentialException && error.code == 302) {
+          if (context.mounted) {
+            _showUnableToSaveBackupScreen(context);
+          }
+        } else if (context.mounted) {
+          _showErrorScreen(context);
+        }
+        analyticManager.trackSaveBackupSystem(
+          success: false,
+          source: PageSource.onboarding,
+          error: parseCredentialExceptionMessage(error),
+        );
       }
-      analyticManager.trackSaveBackupSystem(
-        success: false,
-        source: PageSource.onboarding,
-        error: parseCredentialExceptionMessage(error),
-      );
     }
   }
 
@@ -224,7 +251,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
             StreamBuilder(
                 stream: _backupMessageStream,
                 builder: (ctx, snapshot) {
-                  bool isBackedUp = snapshot.data?.isBackedUp ?? true;
+                  bool isBackedUp = snapshot.data?.isBackedUp ?? false;
                   debugPrint('pairingId ${snapshot.data?.pairingId}');
                   debugPrint('backupData ${snapshot.data?.backupData}');
                   debugPrint('isBackedUp $isBackedUp');
