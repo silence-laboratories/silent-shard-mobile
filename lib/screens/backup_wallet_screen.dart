@@ -222,12 +222,13 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
             StreamBuilder(
                 stream: _backupMessageStream,
                 builder: (ctx, snapshot) {
-                  bool isBackupDataEmpty = snapshot.data?.backupData.isEmpty ?? true;
+                  bool isBackedUp = snapshot.data?.isBackedUp ?? true;
                   debugPrint('pairingId ${snapshot.data?.pairingId}');
                   debugPrint('backupData ${snapshot.data?.backupData}');
-                  return isBackupDataEmpty
-                      ? const PasswordStatusBanner(status: PasswordBannerStatus.warn)
-                      : const PasswordStatusBanner(status: PasswordBannerStatus.ready);
+                  debugPrint('isBackedUp $isBackedUp');
+                  return isBackedUp
+                      ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                      : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
                 }),
             const Gap(defaultSpacing * 2),
             Button(
