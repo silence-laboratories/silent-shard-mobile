@@ -19,7 +19,7 @@ import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/backup_wallet_screen.dart';
+import 'package:silentshard/screens/backup_wallet/backup_wallet_screen.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/check.dart';

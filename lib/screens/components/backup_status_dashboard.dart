@@ -11,7 +11,7 @@ import '../../constants.dart';
 import '../../types/backup_info.dart';
 import '../../services/backup_service.dart';
 import '../../utils.dart';
-import '../backup/backup_destination_screen.dart' show BackupDestinationScreen;
+import '../backup_destination/backup_destination_screen.dart' show BackupDestinationScreen;
 
 const iconHeight = 16.0;
 
