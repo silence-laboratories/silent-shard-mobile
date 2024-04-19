@@ -28,11 +28,11 @@ extension BackupStatusUtils on BackupStatus {
         BackupStatus.missing => Image.asset("assets/images/checkmark-triangle_light.png", height: iconHeight, color: errorColor),
       };
 
-  String get statusDetails => switch (this) {
-        BackupStatus.pending => "Action pending",
-        BackupStatus.done => "Backup valid",
-        BackupStatus.missing => "Backup not found. Backup now!",
-      };
+  // String get statusDetails => switch (this) {
+  //       BackupStatus.pending => "Action pending",
+  //       BackupStatus.done => "Backup valid",
+  //       BackupStatus.missing => "Backup not found. Backup now!",
+  //     };
 }
 
 BackupCheck getBackupCheck(BackupInfo info, BackupSource source) =>
@@ -75,15 +75,8 @@ class BackupStatusWidget extends StatelessWidget {
     required this.image,
   });
 
-  String _getDetails(BackupInfo info) => switch (source) {
-        BackupSource.fileSystem => info.file.status == BackupStatus.pending ? info.file.status.statusDetails : fileMessage(info.file.date),
-        BackupSource.secureStorage =>
-          Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
-      };
-
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return Consumer<BackupService>(
       builder: (context, service, _) => Row(
         children: [
@@ -91,13 +84,6 @@ class BackupStatusWidget extends StatelessWidget {
             status: getBackupCheck(service.getBackupInfo(address), source).status,
             image: image,
           ),
-          const Gap(defaultSpacing),
-          Expanded(
-            child: Text(
-              _getDetails(service.getBackupInfo(address)),
-              style: textTheme.bodySmall,
-            ),
-          )
         ],
       ),
     );
@@ -122,8 +108,8 @@ class BackupStatusDashboard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => _showBackupDestination(context),
       child: Container(
-        padding: const EdgeInsets.all(0),
-        child: Column(children: [
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3 * defaultSpacing),
+        child: Row(children: [
           const Gap(defaultSpacing),
           Row(children: [
             Image.asset(
@@ -153,7 +139,9 @@ class BackupStatusDashboard extends StatelessWidget {
               "assets/images/folder-open_light.png",
               height: iconHeight,
             ),
-          )
+          ),
+          const Spacer(),
+          const Icon(Icons.chevron_right_rounded)
         ]),
       ),
     );
