@@ -121,14 +121,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(bool saveBackup, bool isRePair) async {
-    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: $saveBackup');
+  Future<void> _finish(bool showBackupScreen, bool isRePair, AppRepository appRepository) async {
+    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: $showBackupScreen');
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
     await Future.delayed(const Duration(seconds: 2), () {});
     if (!mounted) return;
 
-    if (saveBackup) {
+    if (showBackupScreen) {
+      await appRepository.keygen();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const BackupWalletScreen(),
@@ -179,7 +180,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
                 FirebaseCrashlytics.instance.log('Continue with new account');
-                _finish(shouldSaveBackup, isRePair);
+                _finish(shouldSaveBackup, isRePair, appRepository);
               },
               onBack: () {
                 FirebaseCrashlytics.instance.log('Cancel pairing');
@@ -191,7 +192,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
         );
       } else {
-        _finish(shouldSaveBackup, isRePair);
+        _finish(shouldSaveBackup, isRePair, appRepository);
       }
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
