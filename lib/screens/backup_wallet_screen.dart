@@ -2,12 +2,15 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/components/check.dart';
+import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -18,8 +21,26 @@ import 'package:silentshard/utils.dart';
 
 import 'error/error_handler.dart';
 
-class BackupWalletScreen extends StatelessWidget {
+class BackupWalletScreen extends StatefulWidget {
   const BackupWalletScreen({super.key});
+
+  @override
+  State<BackupWalletScreen> createState() => _BackupWalletScreenState();
+}
+
+class _BackupWalletScreenState extends State<BackupWalletScreen> {
+  late Stream<BackupMessage> _backupMessageStream;
+
+  @override
+  void initState() {
+    super.initState();
+    final appRepository = Provider.of<AppRepository>(context, listen: false);
+    final keyshareProvider = appRepository.keysharesProvider;
+    if (keyshareProvider.keyshares.firstOrNull != null) {
+      final ethAddress = keyshareProvider.keyshares.firstOrNull?.ethAddress;
+      _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!);
+    }
+  }
 
   void _showDialog(BuildContext context) {
     showDialog(
@@ -197,6 +218,17 @@ class BackupWalletScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const Gap(defaultSpacing * 2),
+            StreamBuilder(
+                stream: _backupMessageStream,
+                builder: (ctx, snapshot) {
+                  bool isBackupDataEmpty = snapshot.data?.backupData.isEmpty ?? true;
+                  debugPrint('pairingId ${snapshot.data?.pairingId}');
+                  debugPrint('backupData ${snapshot.data?.backupData}');
+                  return isBackupDataEmpty
+                      ? const PasswordStatusBanner(status: PasswordBannerStatus.warn)
+                      : const PasswordStatusBanner(status: PasswordBannerStatus.ready);
+                }),
             const Gap(defaultSpacing * 2),
             Button(
               onPressed: () => _performBackup(context),
