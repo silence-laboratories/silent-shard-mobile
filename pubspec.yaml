@@ -51,7 +51,7 @@ dependencies:
   dart_2_party_ecdsa:
     git:
       url: git@github.com:silence-laboratories/silent-shard-flutter-sdk.git
-      ref: main
+      ref: feat/remote-backup-listener
   sign_in_with_apple: ^5.0.0
   url_launcher: ^6.2.1
   hashlib: ^1.12.0
