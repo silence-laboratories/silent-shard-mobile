@@ -17,7 +17,7 @@ import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
-import 'package:silentshard/screens/backup/backup_destination_screen.dart';
+import 'package:silentshard/screens/backup_destination/backup_destination_screen.dart';
 import 'package:silentshard/screens/settings_screen.dart';
 import 'package:silentshard/screens/sign/approve_transcation_screen.dart';
 import 'package:silentshard/screens/scanner/scanner_screen.dart';
@@ -80,7 +80,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
 
     _getNotificatioSettingsStatus().then((value) {
       _updateNotificationStatus(value);
-      FirebaseCrashlytics.instance.log('Notification permission status: ${value}');
+      FirebaseCrashlytics.instance.log('Notification permission status: $value');
       if (value == AuthorizationStatus.notDetermined) {
         _updateNotificationAlertState(SignScreenNotificationAlertState.showing);
       }
@@ -197,17 +197,6 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                           })
                       : Container();
                 }),
-                const Gap(defaultSpacing * 5),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: Image.asset('assets/images/signTransaction.png'),
-                ),
-                const Gap(defaultSpacing * 5),
-                Text(
-                  "No pending transactions. Initiate any transaction from MetaMask extension to approve it here.",
-                  style: textTheme.displayMedium,
-                  textAlign: TextAlign.center,
-                ),
               ],
             ),
           ),
@@ -225,7 +214,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
               onAllow: () async {
                 await FirebaseMessaging.instance.requestPermission().then((permissions) {
                   _updateNotificationStatus(permissions.authorizationStatus);
-                  FirebaseCrashlytics.instance.log('Notification permission status allow: ${permissions}');
+                  FirebaseCrashlytics.instance.log('Notification permission status allow: $permissions');
                   if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
                       permissions.authorizationStatus == AuthorizationStatus.provisional) {
                     analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
