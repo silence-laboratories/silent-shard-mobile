@@ -24,8 +24,9 @@ import '../error/error_handler.dart';
 
 class BackupDestinationScreen extends StatelessWidget {
   final String address;
+  final String walletName;
 
-  const BackupDestinationScreen({super.key, required this.address});
+  const BackupDestinationScreen({super.key, required this.address, required this.walletName});
 
   String get _cloudIconName => Platform.isAndroid ? "socialGoogle.png" : "socialApple.png";
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
@@ -36,10 +37,8 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final appRepository = Provider.of<AppRepository>(context, listen: false);
-    final keyshareProvider = appRepository.keysharesProvider;
-    final ethAddress = keyshareProvider.keyshares.firstOrNull?.ethAddress;
-    Stream<BackupMessage> backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!);
+    Stream<BackupMessage> backupMessageStream =
+        Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletName: walletName, accountAddress: address);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -72,8 +71,6 @@ class BackupDestinationScreen extends StatelessWidget {
                     builder: (ctx, snapshot) {
                       if (snapshot.connectionState == ConnectionState.active) {
                         bool isBackedUp = snapshot.data?.isBackedUp ?? false;
-                        debugPrint('pairingId ${snapshot.data?.pairingId}');
-                        debugPrint('isBackedUp $isBackedUp');
                         return isBackedUp
                             ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                             : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
@@ -90,6 +87,7 @@ class BackupDestinationScreen extends StatelessWidget {
                           // check: BackupCheck(BackupStatus.done),
                           check: backupService.getBackupInfo(address).cloud,
                           destination: BackupDestination.secureStorage,
+                          walletName: walletName,
                         )),
                 const Gap(4 * defaultSpacing),
                 const Divider(),
@@ -103,6 +101,7 @@ class BackupDestinationScreen extends StatelessWidget {
                           // check: BackupCheck(BackupStatus.pending),
                           check: backupService.getBackupInfo(address).file,
                           destination: BackupDestination.fileSystem,
+                          walletName: walletName,
                         )),
               ],
             ),
@@ -121,6 +120,7 @@ class BackupDestinationWidget extends StatelessWidget {
   final String? label;
   final BackupCheck check;
   final BackupDestination destination;
+  final String walletName;
 
   const BackupDestinationWidget({
     super.key,
@@ -131,6 +131,7 @@ class BackupDestinationWidget extends StatelessWidget {
     required this.destination,
     this.subtitle,
     this.label,
+    required this.walletName,
   });
 
   void _performBackup(BuildContext context, BackupDestination destination) async {
@@ -141,7 +142,7 @@ class BackupDestinationWidget extends StatelessWidget {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
         BackupDestination.secureStorage => SaveBackupToStorageUseCase(context),
       };
-      await useCase.execute();
+      await useCase.execute(walletName);
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: true, source: PageSource.backup_page);
