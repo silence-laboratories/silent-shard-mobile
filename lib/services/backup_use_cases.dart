@@ -12,7 +12,7 @@ import '../types/file_name.dart';
 import '../utils.dart';
 
 abstract interface class UseCase<R> {
-  Future<R> execute();
+  Future<R> execute(String walletName);
 }
 
 class SaveBackupToStorageUseCase extends UseCase {
@@ -21,7 +21,7 @@ class SaveBackupToStorageUseCase extends UseCase {
   SaveBackupToStorageUseCase(this.context);
 
   @override
-  Future<void> execute() async {
+  Future<void> execute(String walletName) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -30,9 +30,9 @@ class SaveBackupToStorageUseCase extends UseCase {
     final backupService = Provider.of<BackupService>(context, listen: false);
 
     return appRepository
-        .appBackup()
+        .appBackup(walletName)
         .value //
-        .then((appBackup) => backupService.saveBackupToStorage(appBackup));
+        .then((appBackup) => backupService.saveBackupToStorage(walletName, appBackup));
   }
 }
 
@@ -41,7 +41,7 @@ class ExportBackupUseCase extends UseCase {
   ExportBackupUseCase(this.context);
 
   @override
-  Future<void> execute() async {
+  Future<void> execute(String walletName) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -50,13 +50,13 @@ class ExportBackupUseCase extends UseCase {
     try {
       final appRepository = Provider.of<AppRepository>(context, listen: false);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final appBackup = await appRepository.appBackup().value;
+      final appBackup = await appRepository.appBackup(walletName).value;
 
       if (appBackup.walletBackup.accounts.isEmpty) {
         return Future.error(StateError('Cannot export backup: empty wallet'));
       }
 
-      final tempFile = await backupService.saveBackupToFile(appBackup);
+      final tempFile = await backupService.saveBackupToFile(walletName, appBackup);
       final isIPad = await PlatformUtils.isPad;
       if (context.mounted) {
         final obj = context.findRenderObject();
