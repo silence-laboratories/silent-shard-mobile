@@ -43,7 +43,7 @@
     // strings. This setting will prevent that.
     "editor.wordBasedSuggestions": "off",
     "editor.codeActionsOnSave": {
-      "source.fixAll": true
+      "source.fixAll": "explicit"
     }
   }
 }

@@ -22,12 +22,13 @@ enum TransactionState { readyToSign, signing, signed, canceled, failed }
 class ApproveTransactionScreen extends StatefulWidget {
   final SignRequestViewModel requestModel;
   final VoidCallback resumeSignRequestSubscription;
+  final String walletName;
 
-  const ApproveTransactionScreen({
-    super.key,
-    required this.requestModel,
-    required this.resumeSignRequestSubscription,
-  });
+  const ApproveTransactionScreen(
+      {super.key, //
+      required this.requestModel,
+      required this.resumeSignRequestSubscription,
+      required this.walletName});
 
   @override
   State<ApproveTransactionScreen> createState() => _ApproveTransactionScreenState();
@@ -119,7 +120,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
         child: SingleChildScrollView(
           child: Stack(children: [
             if (_transactionState == TransactionState.readyToSign)
-              TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
+              TransactionDetailsWidget(walletName: widget.walletName, requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
             if (_transactionState == TransactionState.signing || _transactionState == TransactionState.signed) ...[
               AnimatedOpacity(
                 opacity: _transactionState == TransactionState.signing ? 1.0 : 0.0,
