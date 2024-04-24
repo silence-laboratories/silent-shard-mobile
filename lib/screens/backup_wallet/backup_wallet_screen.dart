@@ -25,7 +25,9 @@ import 'package:silentshard/utils.dart';
 import '../error/error_handler.dart';
 
 class BackupWalletScreen extends StatefulWidget {
-  const BackupWalletScreen({super.key});
+  const BackupWalletScreen({super.key, required this.walletName});
+
+  final String walletName;
 
   @override
   State<BackupWalletScreen> createState() => _BackupWalletScreenState();
@@ -45,9 +47,11 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
     });
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     final keyshareProvider = appRepository.keysharesProvider;
-    if (keyshareProvider.keyshares.firstOrNull != null) {
-      final ethAddress = keyshareProvider.keyshares.firstOrNull?.ethAddress;
-      _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(ethAddress!).map((event) {
+    final ethAddress = keyshareProvider.keyshares[widget.walletName]?.firstOrNull?.ethAddress;
+    if (ethAddress != null) {
+      _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
+          .listenRemoteBackupMessage(walletName: widget.walletName, accountAddress: ethAddress)
+          .map((event) {
         setState(() {
           _isRemoteBackedUpReady = event.isBackedUp;
         });
@@ -92,7 +96,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
       FirebaseCrashlytics.instance.log('Saving backup');
       try {
-        await SaveBackupToStorageUseCase(context).execute();
+        await SaveBackupToStorageUseCase(context).execute(widget.walletName);
         FirebaseCrashlytics.instance.log('Backup saved');
         analyticManager.trackSaveBackupSystem(
           success: true,
