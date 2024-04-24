@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import '../../constants.dart';
 import '../../types/backup_info.dart';
 import '../../services/backup_service.dart';
-import '../../utils.dart';
 import '../backup_destination/backup_destination_screen.dart' show BackupDestinationScreen;
 
 const iconHeight = 16.0;
@@ -92,12 +91,17 @@ class BackupStatusWidget extends StatelessWidget {
 
 class BackupStatusDashboard extends StatelessWidget {
   final String address;
+  final String walletName;
 
-  const BackupStatusDashboard({super.key, required this.address});
+  const BackupStatusDashboard({super.key, required this.address, required this.walletName});
 
   void _showBackupDestination(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => BackupDestinationScreen(address: address)),
+      MaterialPageRoute(
+          builder: (context) => BackupDestinationScreen(
+                address: address,
+                walletName: walletName,
+              )),
     );
   }
 
