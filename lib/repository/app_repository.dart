@@ -75,14 +75,14 @@ class AppRepository extends DemoDecoratorComposite {
     return _sdk.startRePairing(qrMessage, userId);
   }
 
-  CancelableOperation<AppBackup> appBackup() {
+  CancelableOperation<AppBackup> appBackup(String walletName) {
     if (isDemoActive) {
       final demoBackup = WalletBackup([AccountBackup("0xDemoAddress", 'Test demo wallet', 'This is a demo backup, not recoverable')]);
       return CancelableOperation.fromValue(AppBackup(demoBackup));
     }
 
     return _sdk //
-        .walletBackup()
+        .walletBackup(walletName)
         .then((walletBackup) => AppBackup(walletBackup));
   }
 

@@ -77,18 +77,11 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Save --------------------
 
-  Future<void> saveBackup(AppBackup backup, BackupDestination destination) {
-    return switch (destination) {
-      BackupDestination.fileSystem => saveBackupToFile(backup),
-      BackupDestination.secureStorage => saveBackupToStorage(backup),
-    };
-  }
-
-  Future<File> saveBackupToFile(AppBackup backup) {
+  Future<File> saveBackupToFile(String walletName, AppBackup backup) {
     final ethAddress = backup.walletBackup.accounts.firstOrNull?.address;
     if (ethAddress == null) return Future.error(ArgumentError('Cannot backup wallet with no accounts'));
 
-    final filename = '${ethAddress.substring(0, 7)}-${DateTime.now().toString().substring(0, 10)}-silentshard-wallet-backup';
+    final filename = '${ethAddress.substring(0, 7)}-${DateTime.now().toString().substring(0, 10)}-$walletName-backup';
 
     return _fileService.createTemporaryFile(filename).then((file) => file.writeAsString(backup.toString()));
   }
@@ -99,8 +92,10 @@ class BackupService extends ChangeNotifier {
     });
   }
 
-  Future<void> saveBackupToStorage(AppBackup backup) {
-    final entry = SecureStorageEntry(backup.walletBackup.accounts.first.address, backup.toString());
+  Future<void> saveBackupToStorage(String walletName, AppBackup backup) {
+    final ethAddress = backup.walletBackup.accounts.firstOrNull?.address;
+    if (ethAddress == null) return Future.error(ArgumentError('Cannot backup wallet with no accounts'));
+    final entry = SecureStorageEntry('$walletName-$ethAddress', backup.toString());
     return _secureStorage //
         .write(entry)
         .then((_) => backupToStorageDidSave(backup));

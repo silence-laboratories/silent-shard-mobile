@@ -197,8 +197,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "feat/remote-backup-listener"
-      resolved-ref: "34f569aa41970b541ed50f422c6c7da80eb33a46"
+      ref: "feat/multi-account"
+      resolved-ref: "1636bc774527caa6fc138f96882622b4a16a5f84"
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
