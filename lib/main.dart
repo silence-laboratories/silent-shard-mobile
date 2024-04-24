@@ -132,16 +132,17 @@ class _MyAppState extends State<MyApp> {
             builder: (context, localAuth, _) => Consumer<PairingDataProvider>(
               builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
-                final ethAddress = keysharesProvider.keyshares.firstOrNull?.ethAddress ?? '';
+                // TODO: Identify crashlytics and mixpanel user by wallet's public key
+                final ethAddress = keysharesProvider.keyshares["snap"]?.firstOrNull?.ethAddress ?? '';
                 FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),
                   pairingDataProvider.pairingData,
-                  keysharesProvider.keyshares.firstOrNull
+                  keysharesProvider.keyshares.isNotEmpty
                 )) {
-                  (false, true, _?, _?) => const SignScreen(),
+                  (false, true, _?, true) => const SignScreen(),
                   (false, true, _, _) => const PairScreen(),
                   (false, false, _, _) => const OnboardingScreen(),
                   (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
