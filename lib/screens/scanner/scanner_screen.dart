@@ -121,7 +121,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(bool showBackupScreen, bool isRePair, AppRepository appRepository) async {
+  Future<void> _finish(bool showBackupScreen, bool isRePair, AppRepository appRepository, String walletName) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: $showBackupScreen');
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
@@ -129,10 +129,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (!mounted) return;
 
     if (showBackupScreen) {
-      await appRepository.keygen();
+      await appRepository.keygen(walletName);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const BackupWalletScreen(),
+          builder: (context) => BackupWalletScreen(walletName: walletName),
         ),
       );
     } else {
@@ -161,7 +161,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
 
     final hasBackupAlready = widget.backup != null;
-    final shouldSaveBackup = !hasBackupAlready && !isRePair;
+    final showBackupScreen = !hasBackupAlready && !isRePair;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
     _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
@@ -180,7 +180,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
                 FirebaseCrashlytics.instance.log('Continue with new account');
-                _finish(shouldSaveBackup, isRePair, appRepository);
+                _finish(showBackupScreen, isRePair, appRepository, qrMessage.walletName);
               },
               onBack: () {
                 FirebaseCrashlytics.instance.log('Cancel pairing');
@@ -192,7 +192,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
         );
       } else {
-        _finish(shouldSaveBackup, isRePair, appRepository);
+        _finish(showBackupScreen, isRePair, appRepository, qrMessage.walletName);
       }
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
