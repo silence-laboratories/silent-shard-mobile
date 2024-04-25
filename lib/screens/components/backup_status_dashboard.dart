@@ -91,16 +91,16 @@ class BackupStatusWidget extends StatelessWidget {
 
 class BackupStatusDashboard extends StatelessWidget {
   final String address;
-  final String walletName;
+  final String walletId;
 
-  const BackupStatusDashboard({super.key, required this.address, required this.walletName});
+  const BackupStatusDashboard({super.key, required this.address, required this.walletId});
 
   void _showBackupDestination(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
           builder: (context) => BackupDestinationScreen(
                 address: address,
-                walletName: walletName,
+                walletId: walletId,
               )),
     );
   }

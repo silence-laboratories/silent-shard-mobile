@@ -19,13 +19,13 @@ import 'wallet_address_widget.dart';
 class TransactionDetailsWidget extends StatelessWidget {
   final SignRequestViewModel requestModel;
   final void Function(bool approved, SignRequestViewModel requestModel, {Function? onErrorCb}) handleSignResponse;
-  final String walletName;
+  final String walletId;
 
   const TransactionDetailsWidget(
       {super.key, //
       required this.requestModel,
       required this.handleSignResponse,
-      required this.walletName});
+      required this.walletId});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class TransactionDetailsWidget extends StatelessWidget {
               child: Row(
                 children: [
                   Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                    var address = keysharesProvider.keyshares[walletName]?.firstOrNull?.ethAddress;
+                    var address = keysharesProvider.keyshares[walletId]?.firstOrNull?.ethAddress;
                     return WalletAddressWidget(
                       title: 'From wallet',
                       displayText: address ?? "Unknown address",

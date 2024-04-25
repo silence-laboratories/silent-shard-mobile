@@ -38,10 +38,10 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Future<Keyshare2> keygen(String walletName) async {
+  Future<Keyshare2> keygen(String walletId) async {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-      final keyshare = await _sdk.startKeygen(walletName).value;
+      final keyshare = await _sdk.startKeygen(walletId).value;
       _analyticManager.trackDistributedKeyGen(
           type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
       return keyshare;
@@ -52,12 +52,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Stream<BackupMessage> listenRemoteBackupMessage({required String walletName, required String accountAddress}) {
+  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress}) {
     if (isDemoActive) {
       return CancelableCompleter<BackupMessage>().operation.asStream();
     }
 
-    return _sdk.listenRemoteBackup(walletName: walletName, accountAddress);
+    return _sdk.listenRemoteBackup(walletId: walletId, accountAddress);
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
@@ -73,14 +73,14 @@ class AppRepository extends DemoDecoratorComposite {
     return _sdk.startRePairing(qrMessage, userId);
   }
 
-  CancelableOperation<AppBackup> appBackup(String walletName) {
+  CancelableOperation<AppBackup> appBackup(String walletId) {
     if (isDemoActive) {
       final demoBackup = WalletBackup([AccountBackup("0xDemoAddress", 'Test demo wallet', 'This is a demo backup, not recoverable')]);
       return CancelableOperation.fromValue(AppBackup(demoBackup));
     }
 
     return _sdk //
-        .walletBackup(walletName)
+        .walletBackup(walletId)
         .then((walletBackup) => AppBackup(walletBackup));
   }
 
