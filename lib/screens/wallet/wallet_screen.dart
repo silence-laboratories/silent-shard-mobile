@@ -128,139 +128,148 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
-      child: Stack(children: [
-        SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(defaultSpacing * 1.5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Gap(defaultSpacing * 4),
-                Row(children: [
-                  Text(
-                    "Silent Shard",
-                    style: textTheme.displayLarge?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      FirebaseCrashlytics.instance.log('Open settings screen');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SettingsScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.settings_outlined, color: textPrimaryColor),
-                  )
-                ]),
-                const Gap(defaultSpacing * 3),
-                if (_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined) ...[
-                  GestureDetector(
-                    onTap: () async {
-                      await _getNotificatioSettingsStatus().then(
-                        (value) async {
-                          if (value == AuthorizationStatus.denied) {
-                            AppSettings.openAppSettings(type: AppSettingsType.notification);
-                          } else {
-                            await FirebaseMessaging.instance.requestPermission().then((permissions) {
-                              _updateNotificationStatus(permissions.authorizationStatus);
-                            });
-                          }
-                        },
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(defaultSpacing),
-                      decoration: BoxDecoration(border: Border.all(color: warningColor), borderRadius: BorderRadius.circular(defaultSpacing)),
-                      child: const Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                        Icon(
-                          Icons.error,
-                          color: warningColor,
-                          size: 16,
-                        ),
-                        Gap(defaultSpacing),
+        child: Scaffold(
+            backgroundColor: Colors.black,
+            body: Stack(children: [
+              SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(defaultSpacing * 1.5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Gap(defaultSpacing * 4),
+                      Row(children: [
                         Text(
-                          'Enable notification',
-                          style: TextStyle(fontSize: 12, color: warningColor),
+                          "Silent Shard",
+                          style: textTheme.displayLarge?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: () {
+                            FirebaseCrashlytics.instance.log('Open settings screen');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsScreen(),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.settings_outlined, color: textPrimaryColor),
                         )
                       ]),
-                    ),
+                      const Gap(defaultSpacing * 3),
+                      if (_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined) ...[
+                        GestureDetector(
+                          onTap: () async {
+                            await _getNotificatioSettingsStatus().then(
+                              (value) async {
+                                if (value == AuthorizationStatus.denied) {
+                                  AppSettings.openAppSettings(type: AppSettingsType.notification);
+                                } else {
+                                  await FirebaseMessaging.instance.requestPermission().then((permissions) {
+                                    _updateNotificationStatus(permissions.authorizationStatus);
+                                  });
+                                }
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(defaultSpacing),
+                            decoration: BoxDecoration(border: Border.all(color: warningColor), borderRadius: BorderRadius.circular(defaultSpacing)),
+                            child: const Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                              Icon(
+                                Icons.error,
+                                color: warningColor,
+                                size: 16,
+                              ),
+                              Gap(defaultSpacing),
+                              Text(
+                                'Enable notification',
+                                style: TextStyle(fontSize: 12, color: warningColor),
+                              )
+                            ]),
+                          ),
+                        ),
+                        const Gap(defaultSpacing * 2)
+                      ],
+                      Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
+                        // final listOfWallets =
+
+                        return Column(
+                            children: keysharesProvider.keyshares.entries.map((e) {
+                          final walletId = e.key;
+                          final keyshareList = e.value;
+                          var address = keyshareList.firstOrNull?.ethAddress ?? "";
+                          return WalletCard(
+                            onRepair: _repair,
+                            onExport: () => _exportBackup(walletId, address),
+                            onLogout: () => _confirmSignOut(walletId, address),
+                            address: address,
+                            onCopy: () async {
+                              await Clipboard.setData(ClipboardData(text: address));
+                            },
+                            walletId: walletId,
+                          );
+                        }).toList());
+                      }),
+                    ],
                   ),
-                  const Gap(defaultSpacing * 2)
-                ],
-                Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                  return Column(
-                      children: keysharesProvider.keyshares.entries.map((e) {
-                    final walletId = e.key;
-                    final keyshareList = e.value;
-                    var address = keyshareList.firstOrNull?.ethAddress ?? "";
-                    return WalletCard(
-                      onRepair: _repair,
-                      onExport: () => _exportBackup(walletId, address),
-                      onLogout: () => _confirmSignOut(walletId, address),
-                      address: address,
-                      onCopy: () async {
-                        await Clipboard.setData(ClipboardData(text: address));
-                      },
-                      walletId: walletId,
-                    );
-                  }).toList());
+                ),
+              ),
+              const UpdateDialog(),
+              if (_notificationAlertState == SignScreenNotificationAlertState.showing)
+                Consumer<LocalAuth>(builder: (context, localAuth, _) {
+                  final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+                  return NotificationAlertDialog(
+                    onDeny: () {
+                      analyticManager.trackAllowPermissions(
+                          notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
+                      _updateNotificationStatus(AuthorizationStatus.notDetermined);
+                      _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
+                    },
+                    onAllow: () async {
+                      await FirebaseMessaging.instance.requestPermission().then((permissions) {
+                        _updateNotificationStatus(permissions.authorizationStatus);
+                        FirebaseCrashlytics.instance.log('Notification permission status allow: $permissions');
+                        if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
+                            permissions.authorizationStatus == AuthorizationStatus.provisional) {
+                          analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
+                        } else if (permissions.authorizationStatus == AuthorizationStatus.denied) {
+                          analyticManager.trackAllowPermissions(
+                              notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
+                        } else {
+                          analyticManager.trackAllowPermissions(
+                              notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns");
+                        }
+                      });
+                      if (Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired() == false) {
+                        bool res = await localAuth.authenticate();
+                        FirebaseCrashlytics.instance.log('Local auth setup: $res');
+                        if (res) {
+                          Provider.of<AppPreferences>(context, listen: false).setIsLocalAuthRequired(true);
+                        }
+                        bool isLocalAuthSupported = await localAuth.canAuthenticate();
+                        if (isLocalAuthSupported) {
+                          analyticManager.trackAllowPermissions(
+                              deviceLock: res ? AllowPermissionsDeviceLock.allowed : AllowPermissionsDeviceLock.denied,
+                              source: PageSource.homepage,
+                              error: res ? null : "User denied request");
+                        } else {
+                          analyticManager.trackAllowPermissions(
+                              notifications: AllowPermissionsNoti.allowed, deviceLock: AllowPermissionsDeviceLock.na, source: PageSource.homepage);
+                        }
+                      }
+                      _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
+                    },
+                  );
                 }),
-              ],
-            ),
-          ),
-        ),
-        const UpdateDialog(),
-        if (_notificationAlertState == SignScreenNotificationAlertState.showing)
-          Consumer<LocalAuth>(builder: (context, localAuth, _) {
-            final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-            return NotificationAlertDialog(
-              onDeny: () {
-                analyticManager.trackAllowPermissions(
-                    notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
-                _updateNotificationStatus(AuthorizationStatus.notDetermined);
-                _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
-              },
-              onAllow: () async {
-                await FirebaseMessaging.instance.requestPermission().then((permissions) {
-                  _updateNotificationStatus(permissions.authorizationStatus);
-                  FirebaseCrashlytics.instance.log('Notification permission status allow: $permissions');
-                  if (permissions.authorizationStatus == AuthorizationStatus.authorized ||
-                      permissions.authorizationStatus == AuthorizationStatus.provisional) {
-                    analyticManager.trackAllowPermissions(notifications: AllowPermissionsNoti.allowed, source: PageSource.homepage);
-                  } else if (permissions.authorizationStatus == AuthorizationStatus.denied) {
-                    analyticManager.trackAllowPermissions(
-                        notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "User denied request");
-                  } else {
-                    analyticManager.trackAllowPermissions(
-                        notifications: AllowPermissionsNoti.denied, source: PageSource.homepage, error: "Permission status unknowns");
-                  }
-                });
-                if (Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired() == false) {
-                  bool res = await localAuth.authenticate();
-                  FirebaseCrashlytics.instance.log('Local auth setup: $res');
-                  if (res) {
-                    Provider.of<AppPreferences>(context, listen: false).setIsLocalAuthRequired(true);
-                  }
-                  bool isLocalAuthSupported = await localAuth.canAuthenticate();
-                  if (isLocalAuthSupported) {
-                    analyticManager.trackAllowPermissions(
-                        deviceLock: res ? AllowPermissionsDeviceLock.allowed : AllowPermissionsDeviceLock.denied,
-                        source: PageSource.homepage,
-                        error: res ? null : "User denied request");
-                  } else {
-                    analyticManager.trackAllowPermissions(
-                        notifications: AllowPermissionsNoti.allowed, deviceLock: AllowPermissionsDeviceLock.na, source: PageSource.homepage);
-                  }
-                }
-                _updateNotificationAlertState(SignScreenNotificationAlertState.notShowing);
-              },
-            );
-          }),
-      ]),
-    );
+            ]),
+            floatingActionButton: FloatingActionButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
+              backgroundColor: Colors.transparent,
+              onPressed: () {},
+              child: Image.asset('assets/images/FAB.png'),
+            )));
   }
 
   void _repair() async {
