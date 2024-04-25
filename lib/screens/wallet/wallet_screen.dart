@@ -193,18 +193,18 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
                 Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                   return Column(
                       children: keysharesProvider.keyshares.entries.map((e) {
-                    final walletName = e.key;
+                    final walletId = e.key;
                     final keyshareList = e.value;
                     var address = keyshareList.firstOrNull?.ethAddress ?? "";
                     return WalletCard(
                       onRepair: _repair,
-                      onExport: () => _exportBackup(walletName, address),
-                      onLogout: () => _confirmSignOut(walletName, address),
+                      onExport: () => _exportBackup(walletId, address),
+                      onLogout: () => _confirmSignOut(walletId, address),
                       address: address,
                       onCopy: () async {
                         await Clipboard.setData(ClipboardData(text: address));
                       },
-                      walletName: walletName,
+                      walletId: walletId,
                     );
                   }).toList());
                 }),
@@ -273,7 +273,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
     );
   }
 
-  void _confirmSignOut(String walletName, String address) {
+  void _confirmSignOut(String walletId, String address) {
     FirebaseCrashlytics.instance.log('Initiated sign out');
     showModalBottomSheet(
         isScrollControlled: true,
@@ -281,15 +281,15 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
         barrierColor: Colors.white.withOpacity(0.15),
         showDragHandle: true,
         context: context,
-        builder: (context) => ConfirmUnpair(walletName: walletName, address: address, onUnpair: _signOut));
+        builder: (context) => ConfirmUnpair(walletId: walletId, address: address, onUnpair: _signOut));
   }
 
-  void _exportBackup(String walletName, String address) async {
+  void _exportBackup(String walletId, String address) async {
     FirebaseCrashlytics.instance.log('Open export backup');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BackupDestinationScreen(walletName: walletName, address: address),
+        builder: (context) => BackupDestinationScreen(walletId: walletId, address: address),
       ),
     );
   }
@@ -308,10 +308,10 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
 
     final requestModel = SignRequestViewModel(requst, chain);
     analyticManager.trackSignInitiated();
-    _showConfirmationDialog(requst.walletName ?? "", requestModel);
+    _showConfirmationDialog(requst.walletId ?? "", requestModel);
   }
 
-  void _showConfirmationDialog(String walletName, SignRequestViewModel requestModel) {
+  void _showConfirmationDialog(String walletId, SignRequestViewModel requestModel) {
     showModalBottomSheet(
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
@@ -322,7 +322,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
       backgroundColor: sheetBackgroundColor,
       context: context,
       builder: (context) => ApproveTransactionScreen(
-        walletName: walletName,
+        walletId: walletId,
         requestModel: requestModel,
         resumeSignRequestSubscription: () {
           _signRequestsSubscription?.resume();

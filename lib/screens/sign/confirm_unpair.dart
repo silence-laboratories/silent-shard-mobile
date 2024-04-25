@@ -14,14 +14,14 @@ import '../components/backup_status_dashboard.dart';
 
 class ConfirmUnpair extends StatefulWidget {
   final String address;
-  final String walletName;
+  final String walletId;
   final Future<void> Function() onUnpair;
 
   const ConfirmUnpair({
     super.key,
     required this.address,
     required this.onUnpair,
-    required this.walletName,
+    required this.walletId,
   });
 
   @override
@@ -62,7 +62,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
               const Gap(defaultSpacing * 2),
               const Divider(),
               const Gap(defaultSpacing * 2),
-              BackupStatusDashboard(address: widget.address, walletName: widget.walletName),
+              BackupStatusDashboard(address: widget.address, walletId: widget.walletId),
               const Gap(defaultSpacing * 6),
               Row(
                 children: [

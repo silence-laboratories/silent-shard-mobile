@@ -24,9 +24,9 @@ import '../error/error_handler.dart';
 
 class BackupDestinationScreen extends StatelessWidget {
   final String address;
-  final String walletName;
+  final String walletId;
 
-  const BackupDestinationScreen({super.key, required this.address, required this.walletName});
+  const BackupDestinationScreen({super.key, required this.address, required this.walletId});
 
   String get _cloudIconName => Platform.isAndroid ? "socialGoogle.png" : "socialApple.png";
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
@@ -38,7 +38,7 @@ class BackupDestinationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     Stream<BackupMessage> backupMessageStream =
-        Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletName: walletName, accountAddress: address);
+        Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -87,7 +87,7 @@ class BackupDestinationScreen extends StatelessWidget {
                           // check: BackupCheck(BackupStatus.done),
                           check: backupService.getBackupInfo(address).cloud,
                           destination: BackupDestination.secureStorage,
-                          walletName: walletName,
+                          walletId: walletId,
                         )),
                 const Gap(4 * defaultSpacing),
                 const Divider(),
@@ -101,7 +101,7 @@ class BackupDestinationScreen extends StatelessWidget {
                           // check: BackupCheck(BackupStatus.pending),
                           check: backupService.getBackupInfo(address).file,
                           destination: BackupDestination.fileSystem,
-                          walletName: walletName,
+                          walletId: walletId,
                         )),
               ],
             ),
@@ -120,7 +120,7 @@ class BackupDestinationWidget extends StatelessWidget {
   final String? label;
   final BackupCheck check;
   final BackupDestination destination;
-  final String walletName;
+  final String walletId;
 
   const BackupDestinationWidget({
     super.key,
@@ -131,7 +131,7 @@ class BackupDestinationWidget extends StatelessWidget {
     required this.destination,
     this.subtitle,
     this.label,
-    required this.walletName,
+    required this.walletId,
   });
 
   void _performBackup(BuildContext context, BackupDestination destination) async {
@@ -142,7 +142,7 @@ class BackupDestinationWidget extends StatelessWidget {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
         BackupDestination.secureStorage => SaveBackupToStorageUseCase(context),
       };
-      await useCase.execute(walletName);
+      await useCase.execute(walletId);
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: true, source: PageSource.backup_page);

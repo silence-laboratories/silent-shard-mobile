@@ -15,7 +15,7 @@ class WalletCard extends StatelessWidget {
   final VoidCallback onExport;
   final String address;
   final VoidCallback onCopy;
-  final String walletName;
+  final String walletId;
 
   const WalletCard({
     super.key,
@@ -24,7 +24,7 @@ class WalletCard extends StatelessWidget {
     required this.onExport,
     required this.address,
     required this.onCopy,
-    required this.walletName,
+    required this.walletId,
   });
 
   @override
@@ -45,7 +45,7 @@ class WalletCard extends StatelessWidget {
             WalletInfo(widget: this),
             const Gap(0.5 * defaultSpacing),
             const Divider(),
-            BackupStatusDashboard(address: address, walletName: walletName),
+            BackupStatusDashboard(address: address, walletId: walletId),
           ],
         ),
       ),
