@@ -4,10 +4,19 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
+import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';
 import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
+
+// TODO: Move to centralized place
+const walletMetaData = {
+  "snap": {"name": "Metamask", "icon": "assets/images/metamaskIcon.png"},
+  "stackup": {"name": "Stackup", "icon": "assets/images/stackup.png"},
+  "biconomy": {"name": "Biconomy", "icon": "assets/images/biconomy.png"},
+  "zerodev": {"name": "ZeroDev", "icon": "assets/images/zerodev.png"},
+};
 
 class WalletCard extends StatelessWidget {
   final VoidCallback onRepair;
@@ -60,11 +69,12 @@ class WalletInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    final walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId]!);
     return Row(
       children: [
         PaddedContainer(
             child: Image.asset(
-          'assets/images/metamaskIcon.png',
+          walletInfo.icon,
           height: 28,
         )),
         const Gap(defaultSpacing),
@@ -83,7 +93,7 @@ class WalletInfo extends StatelessWidget {
               const SizedBox(width: 24),
             ]),
             Text(
-              'MetaMask',
+              walletInfo.name,
               style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],
