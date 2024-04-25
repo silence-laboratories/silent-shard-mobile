@@ -15,17 +15,12 @@ class GuideMeTabController extends StatefulWidget {
   }
 }
 
-// TODO: Remove hardcode
-const listOfSupportWallets = [
-  {'name': 'Biconomy', 'icon': 'assets/images/biconomy.png'},
-  {'name': 'Stackup', 'icon': 'assets/images/stackup.png'},
-  {'name': 'Zero Dev', 'icon': 'assets/images/zerodev.png'},
-  {'name': 'Trust wallet', 'icon': 'assets/images/trustwallet.png'},
-];
-
 class GuideMeTabControllerState extends State<GuideMeTabController> {
   bool showSupportWallets = false;
-  List<SupportWallet> supportWallets = listOfSupportWallets.map((e) => SupportWallet.fromJson(e)).toList();
+  List<SupportWallet> supportWallets = walletMetaData.entries
+      .map((entry) => SupportWallet(name: entry.value['name'] ?? "", icon: entry.value['icon'] ?? ""))
+      .where((e) => e.name != "Metamask")
+      .toList();
 
   @override
   Widget build(BuildContext context) {
