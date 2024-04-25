@@ -10,14 +10,6 @@ import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
 
-// TODO: Move to centralized place
-const walletMetaData = {
-  "snap": {"name": "Metamask", "icon": "assets/images/metamaskIcon.png"},
-  "stackup": {"name": "Stackup", "icon": "assets/images/stackup.png"},
-  "biconomy": {"name": "Biconomy", "icon": "assets/images/biconomy.png"},
-  "zerodev": {"name": "ZeroDev", "icon": "assets/images/zerodev.png"},
-};
-
 class WalletCard extends StatelessWidget {
   final VoidCallback onRepair;
   final VoidCallback onLogout;

@@ -34,3 +34,12 @@ const doneIconColor = Color(0xFF86EFAD);
 const defaultSpacing = 8.0;
 
 const CANNOT_VERIFY_BACKUP = 'Cannot verify backup with different address';
+
+// TODO: Move to centralized place
+const walletMetaData = {
+  "snap": {"name": "Metamask", "icon": "assets/images/metamaskIcon.png"},
+  "stackup": {"name": "Stackup", "icon": "assets/images/stackup.png"},
+  "biconomy": {"name": "Biconomy", "icon": "assets/images/biconomy.png"},
+  "zerodev": {"name": "ZeroDev", "icon": "assets/images/zerodev.png"},
+  "trustwallet": {"name": "Trust Wallet", "icon": "assets/images/trustwallet.png"},
+};
