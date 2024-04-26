@@ -65,9 +65,9 @@ class _WalletListState extends State<WalletList> {
         builder: (context) => ConfirmUnpair(walletId: walletId, address: address, onUnpair: _signOut));
   }
 
-  Future<void> _signOut() async {
+  Future<void> _signOut(String walletId) async {
     FirebaseCrashlytics.instance.log('Signing out');
-    Provider.of<AppRepository>(context, listen: false).reset();
+    Provider.of<AppRepository>(context, listen: false).reset(walletId);
   }
 
   @override
@@ -109,6 +109,7 @@ class _WalletListState extends State<WalletList> {
             }),
             borderRadius: BorderRadius.circular(8.0),
             child: WalletCard(
+              key: Key(walletId),
               walletId: walletId,
               onRepair: _repair,
               onExport: () => _exportBackup(walletId, address),

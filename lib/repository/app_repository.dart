@@ -63,7 +63,7 @@ class AppRepository extends DemoDecoratorComposite {
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
-    _sdk.reset();
+    _sdk.unpairIfNoKeyshares();
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
@@ -109,9 +109,9 @@ class AppRepository extends DemoDecoratorComposite {
     _sdk.decline(request);
   }
 
-  void reset() {
+  void reset(String walletId) {
     stopDemoMode();
-    _sdk.reset();
+    _sdk.reset(walletId);
   }
 
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);
