@@ -30,25 +30,15 @@ class WalletCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // Handle tap
-      },
-      highlightColor: const Color.fromRGBO(37, 25, 77, 0.30),
-      child: Container(
-        padding: const EdgeInsets.all(defaultSpacing * 1.5),
-        decoration: BoxDecoration(
-          border: Border.all(width: 1, color: secondaryColor),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          children: [
-            WalletInfo(widget: this),
-            const Gap(0.5 * defaultSpacing),
-            const Divider(),
-            BackupStatusDashboard(address: address, walletId: walletId),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(defaultSpacing * 1.5),
+      child: Column(
+        children: [
+          WalletInfo(widget: this),
+          const Gap(0.5 * defaultSpacing),
+          const Divider(),
+          BackupStatusDashboard(address: address, walletId: walletId),
+        ],
       ),
     );
   }

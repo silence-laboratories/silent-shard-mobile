@@ -22,6 +22,7 @@ class WalletMenu extends StatelessWidget {
       initialValue: null,
       onSelected: onSelected,
       color: Colors.black,
+      splashRadius: 8,
       shape: const RoundedRectangleBorder(
         side: BorderSide(color: Color(0xFF434E61)),
         borderRadius: BorderRadius.all(
