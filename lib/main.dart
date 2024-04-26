@@ -131,7 +131,7 @@ class _MyAppState extends State<MyApp> {
                   pairingDataProvider.pairingData,
                   keysharesProvider.keyshares.isNotEmpty
                 )) {
-                  (false, true, _?, true) => const SignScreen(),
+                  (false, true, _?, true) => const WalletScreen(),
                   (false, true, _, _) => const PairScreen(),
                   (false, false, _, _) => const OnboardingScreen(),
                   (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
