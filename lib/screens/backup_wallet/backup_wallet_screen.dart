@@ -93,7 +93,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (!_isRemoteBackedUpReady) {
+    if (!_isRemoteBackedUpReady && widget.walletId != "snap") {
       _showWaitingSetupDialog();
     } else {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);

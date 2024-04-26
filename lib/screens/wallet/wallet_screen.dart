@@ -11,6 +11,7 @@ import 'package:gap/gap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/screens/pairing/pair_screen.dart';
 import 'package:silentshard/screens/wallet/wallet_list.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
@@ -37,7 +38,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   StreamSubscription<SignRequest>? _signRequestsSubscription;
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
-  final ScrollController _scrollController = ScrollController();
   _updateNotificationAlertState(AllowNotificationAlertState value) {
     setState(() {
       _notificationAlertState = value;
@@ -181,7 +181,13 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
             floatingActionButton: FloatingActionButton(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
               backgroundColor: Colors.transparent,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const PairScreen(),
+                  ),
+                );
+              },
               child: Image.asset(
                 'assets/images/FAB.png',
                 height: 64,
