@@ -15,6 +15,7 @@ import 'package:silentshard/screens/backup_wallet/remind_backup_dapp_modal.dart'
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
+import 'package:silentshard/screens/wallet/wallet_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
@@ -40,23 +41,25 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isRemoteBackedUpReady) {
-        _showWaitingSetupDialog();
-      }
-    });
-    final appRepository = Provider.of<AppRepository>(context, listen: false);
-    final keyshareProvider = appRepository.keysharesProvider;
-    final ethAddress = keyshareProvider.keyshares[widget.walletId]?.firstOrNull?.ethAddress;
-    if (ethAddress != null) {
-      _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
-          .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress)
-          .map((event) {
-        setState(() {
-          _isRemoteBackedUpReady = event.isBackedUp;
-        });
-        return event;
+    if (widget.walletId != "snap") {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isRemoteBackedUpReady) {
+          _showWaitingSetupDialog();
+        }
       });
+      final appRepository = Provider.of<AppRepository>(context, listen: false);
+      final keyshareProvider = appRepository.keysharesProvider;
+      final ethAddress = keyshareProvider.keyshares[widget.walletId]?.firstOrNull?.ethAddress;
+      if (ethAddress != null) {
+        _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
+            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress)
+            .map((event) {
+          setState(() {
+            _isRemoteBackedUpReady = event.isBackedUp;
+          });
+          return event;
+        });
+      }
     }
   }
 
@@ -252,17 +255,15 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               ),
             ),
             const Gap(defaultSpacing * 2),
-            StreamBuilder(
-                stream: _backupMessageStream,
-                builder: (ctx, snapshot) {
-                  bool isBackedUp = snapshot.data?.isBackedUp ?? false;
-                  debugPrint('pairingId ${snapshot.data?.pairingId}');
-                  debugPrint('backupData ${snapshot.data?.backupData}');
-                  debugPrint('isBackedUp $isBackedUp');
-                  return isBackedUp
-                      ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                      : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
-                }),
+            if (widget.walletId != "snap")
+              StreamBuilder(
+                  stream: _backupMessageStream,
+                  builder: (ctx, snapshot) {
+                    bool isBackedUp = snapshot.data?.isBackedUp ?? false;
+                    return isBackedUp
+                        ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                        : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
+                  }),
             const Gap(defaultSpacing * 2),
             Button(
               onPressed: () => _performBackup(context),
@@ -281,13 +282,17 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                     builder: (context) => Wrap(
                       children: [
                         BackupSkipWarning(onContinue: () {
-                          int count = 0;
                           analyticManager.trackSaveBackupSystem(
                             success: false,
                             source: PageSource.onboarding,
                             error: "User skipped backup",
                           );
-                          Navigator.of(context).popUntil((_) => count++ >= 2);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WalletScreen(),
+                            ),
+                          );
                         }),
                       ],
                     ),
@@ -302,3 +307,5 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
     );
   }
 }
+
+// 
