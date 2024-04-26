@@ -37,8 +37,9 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    Stream<BackupMessage> backupMessageStream =
-        Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address);
+    Stream<BackupMessage> backupMessageStream = walletId != "snap"
+        ? Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address)
+        : const Stream.empty();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -66,17 +67,18 @@ class BackupDestinationScreen extends StatelessWidget {
                   style: textTheme.displaySmall,
                 ),
                 const Gap(3 * defaultSpacing),
-                StreamBuilder(
-                    stream: backupMessageStream,
-                    builder: (ctx, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.active) {
-                        bool isBackedUp = snapshot.data?.isBackedUp ?? false;
-                        return isBackedUp
-                            ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                            : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
-                      }
-                      return const Loader(text: 'Fetching remote backup status...');
-                    }),
+                if (walletId != "snap")
+                  StreamBuilder(
+                      stream: backupMessageStream,
+                      builder: (ctx, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.active) {
+                          bool isBackedUp = snapshot.data?.isBackedUp ?? false;
+                          return isBackedUp
+                              ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                              : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
+                        }
+                        return const Loader(text: 'Fetching remote backup status...');
+                      }),
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(
                     builder: (context, backupService, _) => BackupDestinationWidget(
