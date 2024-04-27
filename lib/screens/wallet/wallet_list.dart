@@ -55,12 +55,13 @@ class WalletListState extends State<WalletList> {
     });
   }
 
-  void _repair() async {
+  void _repair(String repairWalletId) async {
     FirebaseCrashlytics.instance.log('Initiated repair');
+    print('repairWalletId: $repairWalletId');
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ScannerScreen(isRePairing: true),
+        builder: (context) => ScannerScreen(isRePairing: true, repairWalletId: repairWalletId),
       ),
     );
   }
@@ -135,7 +136,9 @@ class WalletListState extends State<WalletList> {
               child: WalletCard(
                 key: Key(walletId),
                 walletId: walletId,
-                onRepair: _repair,
+                onRepair: () {
+                  _repair(walletId);
+                },
                 onExport: () => _exportBackup(walletId, address),
                 onLogout: () => _confirmSignOut(walletId, address),
                 address: address,
