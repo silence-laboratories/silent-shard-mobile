@@ -11,27 +11,48 @@ import 'package:silentshard/screens/sign/confirm_unpair.dart';
 import 'package:silentshard/screens/wallet/wallet_card.dart';
 
 class WalletList extends StatefulWidget {
-  const WalletList({super.key, required this.walletEntries});
+  const WalletList({super.key, required this.walletEntries, this.pairedWalletId = 'metamask'});
   final List<MapEntry<String, List<Keyshare>>> walletEntries;
-
+  final String pairedWalletId;
   @override
-  _WalletListState createState() => _WalletListState();
+  WalletListState createState() => WalletListState();
 }
 
-class _WalletListState extends State<WalletList> {
+class WalletListState extends State<WalletList> {
   final ScrollController _scrollController = ScrollController();
   bool isScrolled = false;
+  int scrolledToIndex = 0;
 
-  void addNewWallet(String wallet) {
+  @override
+  void initState() {
+    super.initState();
+
+    for (var i = 0; i < widget.walletEntries.length; i++) {
+      if (widget.walletEntries[i].key == widget.pairedWalletId) {
+        setState(() {
+          scrolledToIndex = i;
+        });
+        break;
+      }
+    }
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        (scrolledToIndex * 150.0), // Adjust this value as needed
+        duration: const Duration(milliseconds: 1000),
+        curve: Curves.easeInOut,
+      );
+    }
+
     setState(() {
       isScrolled = true;
     });
-    // Animate to the end of the list when a new wallet is added
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent + 100, // Adjust this value as needed
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 2));
+      setState(() {
+        isScrolled = false;
+      });
+    });
   }
 
   void _repair() async {
@@ -72,56 +93,60 @@ class _WalletListState extends State<WalletList> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: _scrollController,
-      itemCount: widget.walletEntries.length,
-      itemBuilder: (context, index) {
-        final walletEntry = widget.walletEntries[index];
-        final walletId = walletEntry.key;
-        final keyshareList = walletEntry.value;
-        final address = keyshareList.firstOrNull?.ethAddress ?? "";
-        return Container(
-          decoration: (index == widget.walletEntries.length - 1 && isScrolled)
-              ? BoxDecoration(
-                  color: const Color(0xB325194D),
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  border: Border.all(
-                    color: const Color(0xFF745EF6),
-                    width: 1.0,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0xB2745EF6),
-                      blurRadius: 20.0,
-                      spreadRadius: 0.0,
-                      offset: Offset(0.0, 0.0),
+    return GestureDetector(
+      onTap: () => setState(() {
+        isScrolled = false;
+      }),
+      child: ListView.builder(
+        controller: _scrollController,
+        itemCount: widget.walletEntries.length,
+        itemBuilder: (context, index) {
+          final walletEntry = widget.walletEntries[index];
+          final walletId = walletEntry.key;
+          final keyshareList = walletEntry.value;
+          final address = keyshareList.firstOrNull?.ethAddress ?? "";
+          return Container(
+            margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
+            decoration: (index == scrolledToIndex && isScrolled)
+                ? BoxDecoration(
+                    color: const Color(0xFF25194D),
+                    borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                    border: Border.all(
+                      color: const Color(0xFF745EF6),
+                      width: 1.0,
                     ),
-                  ],
-                  shape: BoxShape.rectangle,
-                )
-              : BoxDecoration(
-                  border: Border.all(width: 1, color: secondaryColor),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-          child: InkWell(
-            onTap: () => setState(() {
-              isScrolled = false;
-            }),
-            borderRadius: BorderRadius.circular(8.0),
-            child: WalletCard(
-              key: Key(walletId),
-              walletId: walletId,
-              onRepair: _repair,
-              onExport: () => _exportBackup(walletId, address),
-              onLogout: () => _confirmSignOut(walletId, address),
-              address: address,
-              onCopy: () async {
-                await Clipboard.setData(ClipboardData(text: address));
-              },
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0xB2745EF6),
+                        blurRadius: 20.0,
+                        spreadRadius: 0.0,
+                        offset: Offset(0.0, 0.0),
+                      ),
+                    ],
+                    shape: BoxShape.rectangle,
+                  )
+                : BoxDecoration(
+                    border: Border.all(width: 1, color: secondaryColor),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+            child: InkWell(
+              onTap: () {},
+              borderRadius: BorderRadius.circular(8.0),
+              child: WalletCard(
+                key: Key(walletId),
+                walletId: walletId,
+                onRepair: _repair,
+                onExport: () => _exportBackup(walletId, address),
+                onLogout: () => _confirmSignOut(walletId, address),
+                address: address,
+                onCopy: () async {
+                  await Clipboard.setData(ClipboardData(text: address));
+                },
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

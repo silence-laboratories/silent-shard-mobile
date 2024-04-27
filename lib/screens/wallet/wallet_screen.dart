@@ -26,7 +26,11 @@ import 'package:silentshard/services/local_auth_service.dart';
 import '../sign/sign_request_view_model.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({super.key});
+  WalletScreen({
+    this.pairedWalletId = 'metamask',
+    super.key,
+  });
+  String pairedWalletId;
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
@@ -164,6 +168,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                     Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                       return Expanded(
                           child: WalletList(
+                        pairedWalletId: widget.pairedWalletId,
                         walletEntries: keysharesProvider.keyshares.entries.toList(),
                       ));
                     }),
