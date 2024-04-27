@@ -55,7 +55,7 @@ class BackupSourcePicker extends StatelessWidget {
                       style: textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
                     ),
                     TextSpan(
-                      text: "silentshard-wallet-backup.txt",
+                      text: "silentshard-<WalletName>-backup.txt",
                       style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
                     ),
                     TextSpan(

@@ -12,9 +12,11 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/error/wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
+import 'package:silentshard/screens/error/wrong_password_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
 import 'package:silentshard/screens/wallet/wallet_screen.dart';
@@ -26,6 +28,7 @@ import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
+import "package:silentshard/extensions/string_extension.dart";
 import '../../auth_state.dart';
 import '../../services/backup_service.dart';
 import '../../types/app_backup.dart';
@@ -35,8 +38,9 @@ class ScannerScreen extends StatefulWidget {
   final AppBackup? backup;
   final BackupSource? source;
   final bool? isRePairing;
+  final String repairWalletId;
 
-  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing});
+  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing, this.repairWalletId = 'metamask'});
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -211,7 +215,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   : PairingDeviceType.new_account,
           status: PairingDeviceStatus.failed,
           error: error.toString());
-      _cancelPairing(true, error);
+      _cancelPairing(true, error, qrMessage.walletId);
     });
   }
 
@@ -220,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     _resetScannerController();
   }
 
-  void _cancelPairing(bool showTryAgain, [dynamic error]) {
+  void _cancelPairing(bool showTryAgain, [dynamic error, String walletId = 'metamask']) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
     if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
@@ -234,9 +238,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
     } else if (error is StateError && error.toString().contains('INVALID_BACKUP_DATA')) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => WrongMetaMaskWalletForRecoveryScreen(onPress: () {
-            _resetPairing();
-          }),
+          builder: (context) => walletId == 'metamask'
+              ? WrongMetaMaskWalletForRecoveryScreen(onPress: () {
+                  _resetPairing();
+                })
+              : WrongPasswordRecoveryScreen(onPress: () {
+                  _resetPairing();
+                }),
         ),
       );
     } else if (error is StateError && error.toString().contains('RESOURCE_EXHAUSTED')) {
@@ -309,10 +317,30 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       style: textTheme.displayLarge,
                     ),
                     const Gap(defaultSpacing),
-                    Text(
-                      "Point your camera at the QR code generated on your wallet on desktop to pair.",
-                      style: textTheme.displaySmall,
-                    ),
+                    if (widget.isRePairing == true) ...<Bullet>[
+                      Bullet(
+                        child: RichText(
+                          text: TextSpan(
+                            children: <TextSpan>[
+                              TextSpan(text: 'Head to ', style: textTheme.displaySmall),
+                              TextSpan(
+                                  text: '${widget.repairWalletId.capitalize()} wallet',
+                                  style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                              TextSpan(text: ' on your browser/desktop.', style: textTheme.displaySmall),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Bullet(
+                        child: Text("If the account is already present: select ‘recover account on phone’ from wallet menu option.",
+                            style: textTheme.displaySmall),
+                      ),
+                      const Bullet(child: Text("Scan QR code with SL Logo and connect this device."))
+                    ] else
+                      Text(
+                        "Point your camera at the QR code generated on your wallet on desktop to pair.",
+                        style: textTheme.displaySmall,
+                      ),
                     const Gap(defaultSpacing),
                     SizedBox(
                       width: double.infinity,
