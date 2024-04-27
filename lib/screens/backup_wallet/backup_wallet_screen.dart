@@ -115,12 +115,11 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
         if (context.mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => const WalletScreen(),
+              builder: (context) => WalletScreen(pairedWalletId: widget.walletId),
             ),
           );
         }
       } catch (error) {
-        debugPrint('Error in saving backupppppppppppppppppppppppppppp: $error');
         FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
         if (error is CredentialException && error.code == 301) {
           return;
@@ -295,7 +294,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const WalletScreen(),
+                              builder: (context) => WalletScreen(pairedWalletId: widget.walletId),
                             ),
                           );
                         }),

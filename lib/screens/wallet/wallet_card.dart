@@ -51,7 +51,7 @@ class WalletInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    final walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId]!);
+    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId] ?? {});
     return Row(
       children: [
         PaddedContainer(
@@ -75,7 +75,7 @@ class WalletInfo extends StatelessWidget {
               const SizedBox(width: 24),
             ]),
             Text(
-              walletInfo.name,
+              walletInfo.name ?? "Unknown",
               style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],

@@ -147,7 +147,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
       }
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const WalletScreen(),
+          builder: (context) => WalletScreen(
+            pairedWalletId: walletId,
+          ),
         ),
       );
     }
