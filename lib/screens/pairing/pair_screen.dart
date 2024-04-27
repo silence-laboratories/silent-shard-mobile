@@ -25,8 +25,8 @@ import 'backup_picker.dart';
 import 'backup_source_picker.dart';
 
 class PairScreen extends StatefulWidget {
-  const PairScreen({super.key});
-
+  PairScreen({super.key, this.fromWalletScreen = false});
+  bool fromWalletScreen;
   @override
   State<PairScreen> createState() => _PairState();
 }
@@ -247,8 +247,15 @@ class _PairState extends State<PairScreen> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.black,
-          ),
+              backgroundColor: Colors.black,
+              leading: widget.fromWalletScreen
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  : null),
           backgroundColor: Colors.black,
           body: Consumer<AuthState>(builder: (context, authState, _) {
             return Stack(

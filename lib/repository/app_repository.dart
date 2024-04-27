@@ -44,6 +44,9 @@ class AppRepository extends DemoDecoratorComposite {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
       final keyshare = await _sdk.startKeygen(walletName).value;
       final keyshare = await _sdk.startKeygen(userId).value;
+      if (walletId == 'metamask') {
+        _sdk.fetchRemoteBackup(keyshare.ethAddress).value;
+      }
       _analyticManager.trackDistributedKeyGen(
           type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
       return keyshare;

@@ -17,6 +17,7 @@ import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
+import 'package:silentshard/screens/wallet/wallet_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet/backup_wallet_screen.dart';
@@ -144,7 +145,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
-      Navigator.of(context).pop();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const WalletScreen(),
+        ),
+      );
     }
   }
 
