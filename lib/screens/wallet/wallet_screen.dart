@@ -182,9 +182,9 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
               backgroundColor: Colors.transparent,
               onPressed: () {
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const PairScreen(),
+                    builder: (context) => PairScreen(fromWalletScreen: true),
                   ),
                 );
               },

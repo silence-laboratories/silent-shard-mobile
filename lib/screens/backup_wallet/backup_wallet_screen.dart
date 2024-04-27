@@ -41,7 +41,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.walletId != "snap") {
+    if (widget.walletId != "metamask") {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_isRemoteBackedUpReady) {
           _showWaitingSetupDialog();
@@ -93,7 +93,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (!_isRemoteBackedUpReady && widget.walletId != "snap") {
+    if (!_isRemoteBackedUpReady && widget.walletId != "metamask") {
       _showWaitingSetupDialog();
     } else {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -113,9 +113,14 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           Navigator.of(context).pop();
         }
         if (context.mounted) {
-          Navigator.of(context).pop();
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const WalletScreen(),
+            ),
+          );
         }
       } catch (error) {
+        debugPrint('Error in saving backupppppppppppppppppppppppppppp: $error');
         FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
         if (error is CredentialException && error.code == 301) {
           return;
@@ -255,7 +260,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               ),
             ),
             const Gap(defaultSpacing * 2),
-            if (widget.walletId != "snap")
+            if (widget.walletId != "metamask")
               StreamBuilder(
                   stream: _backupMessageStream,
                   builder: (ctx, snapshot) {

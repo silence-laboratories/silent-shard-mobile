@@ -199,7 +199,7 @@ class AnalyticManager {
 
   String? _getWalletAddress() {
     // TODO: Implement _getWalletAddress by wallet
-    return _keysharesProvider.keyshares["snap"]?.firstOrNull?.ethAddress;
+    return _keysharesProvider.keyshares["metamask"]?.firstOrNull?.ethAddress;
   }
 
   String _getBackupSystem() {

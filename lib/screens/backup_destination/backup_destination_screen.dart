@@ -37,7 +37,7 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    Stream<BackupMessage> backupMessageStream = walletId != "snap"
+    Stream<BackupMessage> backupMessageStream = walletId != "metamask"
         ? Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address)
         : const Stream.empty();
     return SafeArea(
@@ -66,8 +66,8 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
-                const Gap(3 * defaultSpacing),
-                if (walletId != "snap")
+                if (walletId != "metamask") ...[
+                  const Gap(3 * defaultSpacing),
                   StreamBuilder(
                       stream: backupMessageStream,
                       builder: (ctx, snapshot) {
@@ -78,7 +78,8 @@ class BackupDestinationScreen extends StatelessWidget {
                               : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
                         }
                         return const Loader(text: 'Fetching remote backup status...');
-                      }),
+                      })
+                ],
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(
                     builder: (context, backupService, _) => BackupDestinationWidget(
