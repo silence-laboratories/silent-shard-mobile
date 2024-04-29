@@ -291,7 +291,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                             source: PageSource.onboarding,
                             error: "User skipped backup",
                           );
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => WalletScreen(pairedWalletId: widget.walletId),

@@ -49,10 +49,10 @@ dependencies:
   share_plus: ^7.1.0
   file_picker: ^5.5.0
   dart_2_party_ecdsa:
-    path: ../silent-shard-flutter-sdk
-  #   git:
-  #     url: git@github.com:silence-laboratories/silent-shard-flutter-sdk.git
-  #     ref: feat/multi-account
+    # path: ../silent-shard-flutter-sdk # NOTE: For debugging purposes
+    git:
+      url: git@github.com:silence-laboratories/silent-shard-flutter-sdk.git
+      ref: feat/multi-account
   sign_in_with_apple: ^5.0.0
   url_launcher: ^6.2.1
   hashlib: ^1.12.0

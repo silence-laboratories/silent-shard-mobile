@@ -11,9 +11,9 @@ import 'package:silentshard/screens/sign/confirm_unpair.dart';
 import 'package:silentshard/screens/wallet/wallet_card.dart';
 
 class WalletList extends StatefulWidget {
-  const WalletList({super.key, required this.walletEntries, this.pairedWalletId = 'metamask'});
+  const WalletList({super.key, required this.walletEntries, this.pairedWalletId});
   final List<MapEntry<String, List<Keyshare>>> walletEntries;
-  final String pairedWalletId;
+  final String? pairedWalletId;
   @override
   WalletListState createState() => WalletListState();
 }
@@ -26,33 +26,38 @@ class WalletListState extends State<WalletList> {
   @override
   void initState() {
     super.initState();
-
-    for (var i = 0; i < widget.walletEntries.length; i++) {
-      if (widget.walletEntries[i].key == widget.pairedWalletId) {
-        setState(() {
-          scrolledToIndex = i;
-        });
-        break;
+    if (widget.pairedWalletId != null) {
+      for (var i = 0; i < widget.walletEntries.length; i++) {
+        if (widget.walletEntries[i].key == widget.pairedWalletId) {
+          setState(() {
+            scrolledToIndex = i;
+          });
+          break;
+        }
       }
-    }
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        (scrolledToIndex * 150.0), // Adjust this value as needed
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.easeInOut,
-      );
-    }
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          (scrolledToIndex * 150.0), // Adjust this value as needed
+          duration: const Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
 
-    setState(() {
-      isScrolled = true;
-    });
+      setState(() {
+        isScrolled = true;
+      });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(seconds: 2));
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.delayed(const Duration(seconds: 2));
+        setState(() {
+          isScrolled = false;
+        });
+      });
+    } else {
       setState(() {
         isScrolled = false;
       });
-    });
+    }
   }
 
   void _repair(String repairWalletId) async {
