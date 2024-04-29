@@ -29,10 +29,10 @@ import '../sign/sign_request_view_model.dart';
 
 class WalletScreen extends StatefulWidget {
   WalletScreen({
-    this.pairedWalletId = 'metamask',
+    this.pairedWalletId,
     super.key,
   });
-  String pairedWalletId;
+  String? pairedWalletId;
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
