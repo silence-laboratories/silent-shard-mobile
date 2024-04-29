@@ -39,8 +39,10 @@ class AndroidSecureStorage implements SecureStorageService {
     return Future.value();
   }
 
-  SecureStorageEntry? _convert(PasswordCredential credential) {
-    if (credential.username == null || credential.password == null) return null;
-    return SecureStorageEntry(credential.username!, credential.password!);
+  SecureStorageEntry? _convert(Credentials credential) {
+    String? username = credential.passwordCredential?.username;
+    String? password = credential.passwordCredential?.password;
+    if (username == null || password == null) return null;
+    return SecureStorageEntry(username, password);
   }
 }

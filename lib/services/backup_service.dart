@@ -61,6 +61,9 @@ class BackupService extends ChangeNotifier {
     try {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
+        if (entry.key != key) {
+          throw ArgumentError(CANNOT_VERIFY_BACKUP);
+        }
         final appBackup = AppBackup.fromString(entry.value);
         _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
         return appBackup;
@@ -160,9 +163,6 @@ class BackupService extends ChangeNotifier {
     try {
       final backup = await readBackupFromStorage(null);
       if (backup != null) {
-        if (backup.walletBackup.accounts.firstOrNull?.address != address) {
-          throw ArgumentError(CANNOT_VERIFY_BACKUP);
-        }
         backupToStorageDidSave(backup);
       } else if (info.passwordManager.status == BackupStatus.done) {
         info.passwordManager = BackupCheck(BackupStatus.missing);
