@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:silentshard/constants.dart';
 
 import 'secure_storage_service.dart';
 
@@ -19,8 +20,15 @@ class AndroidSecureStorage implements SecureStorageService {
 
   @override
   Future<SecureStorageEntry?> read(String? key) {
-    if (key != null) return Future.error(ArgumentError("AndroidSecureStorage: key must be null"));
-    return credentialManager.getPasswordCredentials().then(_convert);
+    return credentialManager.getPasswordCredentials().then(_convert).then((value) {
+      if (value == null) {
+        return null;
+      }
+      if (value.key != key) {
+        throw ArgumentError(CANNOT_VERIFY_BACKUP);
+      }
+      return value;
+    });
   }
 
   @override
