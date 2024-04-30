@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:silentshard/services/app_updater_service.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/screens/onboarding_screen.dart';
+import 'package:silentshard/services/firebase_remote_config_service.dart';
+import 'package:silentshard/services/snap_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/screens/local_auth_screen.dart';
 import 'package:silentshard/services/app_preferences.dart';
@@ -19,6 +23,7 @@ import 'package:silentshard/services/local_auth_service.dart';
 import 'package:silentshard/services/secure_storage/secure_storage_service.dart';
 import 'package:silentshard/theme/theme_constants.dart';
 import 'package:silentshard/theme/theme_manager.dart';
+import 'package:silentshard/utils.dart';
 
 import 'demo/state_decorators/keyshares_provider.dart';
 import 'demo/state_decorators/pairing_data_provider.dart';
@@ -52,6 +57,10 @@ Future<void> main() async {
   final appPreferences = AppPreferences(sharedPreferences);
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
+  final snapService = SnapService(appRepository, Version('1.2.8-alpha.2'));
+  await FirebaseRemoteConfigService().initialize();
 
   final signInService = SignInService();
   final secureStorage = SecureStorage();
@@ -91,6 +100,8 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => authState),
         ChangeNotifierProvider(create: (_) => themeManager),
         ChangeNotifierProvider(create: (_) => localAuth),
+        ChangeNotifierProvider(create: (_) => snapService),
+        ChangeNotifierProvider(create: (_) => appUpdaterService),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

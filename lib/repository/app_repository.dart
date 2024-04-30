@@ -3,6 +3,7 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:dart_2_party_ecdsa/src/types/user_data.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';
@@ -83,6 +84,10 @@ class AppRepository extends DemoDecoratorComposite {
     return _sdk //
         .walletBackup()
         .then((walletBackup) => AppBackup(walletBackup));
+  }
+
+  Stream<UserData> snapVersionListner(String userId) {
+    return _sdk.snapVersionListener(userId);
   }
 
   Stream<SignRequest> signRequests(String userId) {

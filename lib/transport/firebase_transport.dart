@@ -13,8 +13,8 @@ class FirebaseTransport implements Transport {
   }
 
   @override
-  Future<void> set(String collection, String docId, Map<String, dynamic> data) {
-    return db.collection(collection).doc(docId).set(data);
+  Future<void> set(String collection, String docId, Map<String, dynamic> data, [bool? mergeData]) {
+    return db.collection(collection).doc(docId).set(data, mergeData != null && mergeData ? SetOptions(merge: true) : null);
   }
 
   @override

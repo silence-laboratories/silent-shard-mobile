@@ -60,3 +60,30 @@ extension PlatformUtils on Platform {
 String parseCredentialExceptionMessage(Object error) {
   return error is CredentialException ? 'Code: ${error.code}, Message: ${error.message}\n ${error.details}' : error.toString();
 }
+
+class Version {
+  final String _version;
+
+  Version(this._version);
+
+  String get version => _version;
+
+  List<int> split() {
+    final dotSplit = _version.split('.');
+    final parsePatchVersion = dotSplit[2].split('-');
+    dotSplit[2] = parsePatchVersion[0];
+    final versionArray = dotSplit.map((e) => int.parse(e)).toList();
+    if (versionArray.length < 4) versionArray.add(0);
+    return versionArray;
+  }
+
+  int compareTo(Version v) {
+    final versionArray = split();
+    final secondVersionArray = v.split();
+    for (int i = 0; i < 4; i++) {
+      if (versionArray[i] < secondVersionArray[i]) return -1;
+      if (versionArray[i] > secondVersionArray[i]) return 1;
+    }
+    return 0;
+  }
+}

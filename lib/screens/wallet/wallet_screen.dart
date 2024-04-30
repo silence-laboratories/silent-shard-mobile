@@ -13,7 +13,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/screens/components/updater.dart';
 import 'package:silentshard/services/chain_loader.dart';
+import 'package:silentshard/services/firebase_remote_config_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
@@ -217,6 +219,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
             ),
           ),
         ),
+        const Updater(),
         if (_notificationAlertState == SignScreenNotificationAlertState.showing)
           Consumer<LocalAuth>(builder: (context, localAuth, _) {
             final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
