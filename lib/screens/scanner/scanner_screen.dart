@@ -291,6 +291,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    bool isRecovery = widget.isRePairing == true || widget.backup != null;
     return Consumer<AppRepository>(
       builder: (context, appRepository, _) => Consumer<AuthState>(
         builder: (context, authState, _) => Stack(children: [
@@ -313,11 +314,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
                   margin: const EdgeInsets.only(top: defaultSpacing * 0.5),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text(
-                      "Pair with desktop",
+                      isRecovery ? "Scan the QR code" : "Pair with desktop",
                       style: textTheme.displayLarge,
                     ),
                     const Gap(defaultSpacing),
-                    if (widget.isRePairing == true) ...<Bullet>[
+                    if (isRecovery) ...<Bullet>[
                       Bullet(
                         child: RichText(
                           text: TextSpan(
@@ -488,8 +489,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 AnimatedOpacity(
                   opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
                   duration: const Duration(milliseconds: 500),
-                  child: const Wrap(children: [
-                    Loader(text: 'Pairing with snap...'),
+                  child: Wrap(children: [
+                    isRecovery
+                        ? Loader(text: 'Recovering with ${widget.repairWalletId.capitalize()}...')
+                        : const Loader(text: 'Pairing with snap...'),
                   ]),
                 ),
               ]),

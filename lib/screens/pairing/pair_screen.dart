@@ -99,10 +99,25 @@ class _PairState extends State<PairScreen> {
       FirebaseCrashlytics.instance.log('Fetching backup, soure: $source');
       setState(() => _pairingState = PairingState.fetchingBackup);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final backup = await backupService.fetchBackup(source, key);
-      if (backup != null) {
+      final (backupDestination, backup) = await backupService.fetchBackup(source, key);
+      if (backup != null && backupDestination != null) {
         FirebaseCrashlytics.instance.log('Backup fetched');
-        _recoverFromBackup(backup, source);
+        String repairWalletId = "Metamask";
+
+        switch (source) {
+          case BackupSource.secureStorage:
+            if (backupDestination.contains("-")) {
+              repairWalletId = backupDestination.split("-").first;
+            }
+            break;
+          case BackupSource.fileSystem:
+            final tokens = backupDestination.split("-");
+            if (!tokens[tokens.length - 2].contains("wallet")) {
+              repairWalletId = tokens[tokens.length - 2];
+            }
+            break;
+        }
+        _recoverFromBackup(backup, source, repairWalletId);
       } else {
         FirebaseCrashlytics.instance.log('No backup found');
         _showNoBackupFound(source);
@@ -167,11 +182,11 @@ class _PairState extends State<PairScreen> {
     );
   }
 
-  void _recoverFromBackup(AppBackup backup, BackupSource source) {
+  void _recoverFromBackup(AppBackup backup, BackupSource source, String repairWalletId) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ScannerScreen(backup: backup, source: source),
+        builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
       ),
     );
   }

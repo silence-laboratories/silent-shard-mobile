@@ -62,7 +62,6 @@ class WalletListState extends State<WalletList> {
 
   void _repair(String repairWalletId) async {
     FirebaseCrashlytics.instance.log('Initiated repair');
-    print('repairWalletId: $repairWalletId');
     Navigator.push(
       context,
       MaterialPageRoute(
