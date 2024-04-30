@@ -32,14 +32,14 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Read --------------------
 
-  Future<AppBackup?> fetchBackup(BackupSource source, String? key) {
+  Future<(String?, AppBackup?)> fetchBackup(BackupSource source, String? key) {
     return switch (source) {
       BackupSource.fileSystem => readBackupFromFile(),
       BackupSource.secureStorage => readBackupFromStorage(key),
     };
   }
 
-  Future<AppBackup?> readBackupFromFile() async {
+  Future<(String?, AppBackup?)> readBackupFromFile() async {
     late String? backupDestination;
     try {
       final (file, filePickerId) = await _fileService.selectFile();
@@ -48,22 +48,22 @@ class BackupService extends ChangeNotifier {
         final fileContent = await file.readAsString();
         final appBackup = AppBackup.fromString(fileContent);
         _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
-        return appBackup;
+        return (file.path, appBackup);
       }
     } catch (error) {
       _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
       rethrow;
     }
-    return null;
+    return (null, null);
   }
 
-  Future<AppBackup?> readBackupFromStorage(String? key) async {
+  Future<(String?, AppBackup?)> readBackupFromStorage(String? key) async {
     try {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
         final appBackup = AppBackup.fromString(entry.value);
         _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
-        return appBackup;
+        return (entry.key, appBackup);
       }
     } catch (error) {
       _analyticManager.trackRecoverBackupSystem(
@@ -72,7 +72,7 @@ class BackupService extends ChangeNotifier {
           error: parseCredentialExceptionMessage(error));
       rethrow;
     }
-    return null;
+    return (null, null);
   }
 
   // -------------------- Save --------------------
@@ -126,7 +126,8 @@ class BackupService extends ChangeNotifier {
 
     if (Platform.isIOS && !(_hasCheckedKeychain[address] ?? false)) {
       _hasCheckedKeychain[address] = true;
-      readBackupFromStorage(address).then((backup) {
+      readBackupFromStorage(address).then((backupTuple) {
+        final backup = backupTuple.$2;
         if (backup != null) {
           info.keychain = BackupCheck(BackupStatus.done, backup.time);
           _setBackupInfo(info);
@@ -153,7 +154,7 @@ class BackupService extends ChangeNotifier {
     final info = _preferences.backupInfo(address);
 
     try {
-      final backup = await readBackupFromStorage(null);
+      final (_, backup) = await readBackupFromStorage(null);
       if (backup != null) {
         if (backup.walletBackup.accounts.firstOrNull?.address != address) {
           throw ArgumentError(CANNOT_VERIFY_BACKUP);
