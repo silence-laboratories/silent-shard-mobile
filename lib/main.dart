@@ -59,7 +59,7 @@ Future<void> main() async {
   firebaseMessaging.start();
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
-  final snapService = SnapService(appRepository, Version('1.2.8-alpha.2'));
+  final snapService = SnapService(appRepository);
   await FirebaseRemoteConfigService().initialize();
 
   final signInService = SignInService();

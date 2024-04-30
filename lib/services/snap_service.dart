@@ -5,11 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:silentshard/repository/app_repository.dart';
+import 'package:silentshard/services/firebase_remote_config_service.dart';
 import 'package:silentshard/utils.dart';
 
 class SnapService extends ChangeNotifier {
   final AppRepository _appRepository;
-  final Version _leastSnapVersionSupported;
   Version? _snapVersion;
   bool? forceUpdateSnap;
   bool _showSnapUpdateSuccessful = false;
@@ -18,7 +18,7 @@ class SnapService extends ChangeNotifier {
 
   Version? get snapVersion => _snapVersion;
 
-  SnapService(this._appRepository, this._leastSnapVersionSupported) {
+  SnapService(this._appRepository) {
     init();
   }
 
@@ -43,12 +43,14 @@ class SnapService extends ChangeNotifier {
   bool get showSnapUpdateSuccessful => _showSnapUpdateSuccessful;
 
   Future<void> handleSnapVersionChange(String? snapVersion) async {
+    final minimumSnapVersionRequired = Version(FirebaseRemoteConfigService().minimumSnapVersionRequired);
     if (snapVersion != null) {
       _snapVersion = Version(snapVersion);
-      if (_snapVersion == null) {
-        forceUpdateSnap = false;
-        _streamSubscription?.cancel();
-      } else if (_snapVersion!.compareTo(_leastSnapVersionSupported) < 0) {
+      // if (_snapVersion == null) {
+      //   forceUpdateSnap = false;
+      //   _streamSubscription?.cancel();
+      // } else
+      if (_snapVersion == null || _snapVersion!.compareTo(minimumSnapVersionRequired) < 0) {
         forceUpdateSnap = true;
         willShowSnapUpdateSuccessful = true;
       } else {

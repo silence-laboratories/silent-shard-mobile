@@ -286,7 +286,7 @@ class _PairState extends State<PairScreen> {
                     ),
                   ),
                 ),
-                const Updater(),
+                const Updater(showSnapUpdate: false),
                 if (_pairingState == PairingState.fetchingBackup) ...[
                   const AlertDialog(
                     backgroundColor: secondaryColor,

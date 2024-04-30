@@ -12,7 +12,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 
 class Updater extends StatefulWidget {
-  const Updater({super.key});
+  final bool showSnapUpdate;
+  const Updater({super.key, this.showSnapUpdate = true});
 
   @override
   State<Updater> createState() => _UpdaterState();
@@ -46,9 +47,9 @@ class _UpdaterState extends State<Updater> {
         if (appUpdaterService.forceUpdateApp != null) {
           return switch ((
             appUpdaterService.forceUpdateApp!,
-            snapService.forceUpdateSnap ?? false,
-            showSnapUpdateGuide,
-            snapService.showSnapUpdateSuccessful
+            widget.showSnapUpdate && (snapService.forceUpdateSnap ?? false),
+            widget.showSnapUpdate && showSnapUpdateGuide,
+            widget.showSnapUpdate && snapService.showSnapUpdateSuccessful
           )) {
             (false, true, false, false) => SnapUpdateAlert(
                 textTheme: textTheme,
