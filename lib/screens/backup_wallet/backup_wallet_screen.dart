@@ -16,12 +16,12 @@ import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.da
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
-import 'package:silentshard/screens/wallet/wallet_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/services/backup_use_cases.dart';
+import 'package:silentshard/types/wallet_highlight_provider.dart';
 import 'package:silentshard/utils.dart';
 
 import '../error/error_handler.dart';
@@ -116,6 +116,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           Navigator.of(context).pop();
         }
         if (context.mounted) {
+          context.read<WalletHighlightProvider>().setPairedWalletId(widget.walletId);
+          context.read<WalletHighlightProvider>().setScrolledTemporarily();
           Navigator.of(context).pop();
         }
       } catch (error) {

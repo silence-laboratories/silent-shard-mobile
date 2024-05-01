@@ -24,7 +24,6 @@ import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_scr
 import 'package:silentshard/screens/error/wrong_password_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
-import 'package:silentshard/screens/wallet/wallet_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet/backup_wallet_screen.dart';
@@ -35,6 +34,7 @@ import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
 import "package:silentshard/extensions/string_extension.dart";
 import 'package:silentshard/types/support_wallet.dart';
+import 'package:silentshard/types/wallet_highlight_provider.dart';
 import '../../auth_state.dart';
 import '../../services/backup_service.dart';
 import '../../types/app_backup.dart';
@@ -160,6 +160,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
         backupService.backupToStorageDidSave(widget.backup!);
       }
       if (walletId == 'metamask') {
+        context.read<WalletHighlightProvider>().setPairedWalletId(walletId);
+        context.read<WalletHighlightProvider>().setScrolledTemporarily();
         Navigator.of(context).pop();
       }
     }
@@ -578,7 +580,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                         ),
                                       ),
                                       Button(
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          context.read<WalletHighlightProvider>().setPairedWalletId(widget.repairWalletId);
+                                          context.read<WalletHighlightProvider>().setScrolledTemporarily();
                                           Navigator.of(context).pop();
                                         },
                                         child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
