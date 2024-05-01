@@ -184,23 +184,41 @@ class _PairState extends State<PairScreen> {
   }
 
   void _recoverFromBackup(AppBackup backup, BackupSource source, String repairWalletId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
-      ),
-    );
+    if (widget.fromWalletScreen) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
+        ),
+      );
+    }
   }
 
   void _goToScannerScreen() {
     FirebaseCrashlytics.instance.log('Create new account');
     analyticManager.trackConnectNewAccount();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ScannerScreen(),
-      ),
-    );
+    if (widget.fromWalletScreen) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ScannerScreen(),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ScannerScreen(),
+        ),
+      );
+    }
   }
 
   void _showBackupSourcePicker() {

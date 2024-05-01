@@ -73,7 +73,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addObserver(this);
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);

@@ -116,11 +116,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           Navigator.of(context).pop();
         }
         if (context.mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => WalletScreen(pairedWalletId: widget.walletId),
-            ),
-          );
+          Navigator.of(context).pop();
         }
       } catch (error) {
         FirebaseCrashlytics.instance.log('Error in saving backup: $error, ${parseCredentialExceptionMessage(error)}');
@@ -294,12 +290,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                             source: PageSource.onboarding,
                             error: "User skipped backup",
                           );
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => WalletScreen(pairedWalletId: widget.walletId),
-                            ),
-                          );
+                          int count = 0;
+                          Navigator.of(context).popUntil((_) => count++ >= 2);
                         }),
                       ],
                     ),
@@ -314,5 +306,3 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
     );
   }
 }
-
-// 
