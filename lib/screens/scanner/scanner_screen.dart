@@ -160,13 +160,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         backupService.backupToStorageDidSave(widget.backup!);
       }
       if (walletId == 'metamask') {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => WalletScreen(
-              pairedWalletId: walletId,
-            ),
-          ),
-        );
+        Navigator.of(context).pop();
       }
     }
   }
@@ -585,13 +579,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                       ),
                                       Button(
                                         onPressed: () {
-                                          Navigator.of(context).pushReplacement(
-                                            MaterialPageRoute(
-                                              builder: (context) => WalletScreen(
-                                                pairedWalletId: widget.repairWalletId,
-                                              ),
-                                            ),
-                                          );
+                                          Navigator.of(context).pop();
                                         },
                                         child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
                                       ),
