@@ -68,6 +68,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
   );
   late AnalyticManager analyticManager;
   bool showRemindEnterPassword = false;
+  bool isRecovery = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      isRecovery = widget.isRePairing == true || widget.backup != null;
+    });
+    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+  }
 
   @override
   void dispose() {
@@ -97,12 +107,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
         torchEnabled: false,
       );
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
   }
 
   void _handleDetect(AppRepository sdk, AuthState authState, BarcodeCapture capture) {
@@ -181,8 +185,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     final hasBackupAlready = widget.backup != null;
     final showBackupScreen = !hasBackupAlready && !isRePair;
+    final isScanningWithSameWallet = qrMessage.walletId == widget.repairWalletId;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
-    if ((hasBackupAlready || isRePair) && widget.repairWalletId != 'metamask' && qrMessage.walletId == widget.repairWalletId) {
+    if (isRecovery && isScanningWithSameWallet && widget.repairWalletId != 'metamask') {
       await Future.delayed(const Duration(milliseconds: 1500));
       setState(() {
         showRemindEnterPassword = true;
@@ -217,7 +222,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ),
           ),
         );
-      } else if (widget.repairWalletId != qrMessage.walletId) {
+      } else if (isRecovery && !isScanningWithSameWallet) {
         SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.repairWalletId]!);
         SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
         Navigator.of(context).push(
@@ -228,8 +233,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
               newWalletId: qrMessage.walletId,
               newWalletIcon: newWallet.icon,
               onContinue: () {
-                _updateScannerState(ScannerState.scanning);
+                _pairingOperation?.cancel();
                 _updatePairingState(ScannerScreenPairingState.ready);
+                _resetPairing();
               },
             ),
           ),
@@ -323,7 +329,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    bool isRecovery = widget.isRePairing == true || widget.backup != null;
     SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.repairWalletId] ?? {});
 
     return Consumer<AppRepository>(

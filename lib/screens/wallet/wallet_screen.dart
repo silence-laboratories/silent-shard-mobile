@@ -209,6 +209,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   }
 
   Future<void> _handleSignRequest(SignRequest requst) async {
+    print("New sign requestNew sign requestNew sign requestNew sign request");
     FirebaseCrashlytics.instance.log('New sign request, chainId: ${requst.chainId}');
     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
     final chainLoader = Provider.of<ChainLoader>(context, listen: false);
