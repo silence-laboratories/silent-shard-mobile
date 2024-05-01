@@ -3,10 +3,15 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/button.dart';
 
-class RemindBackupDappModal extends StatelessWidget {
-  const RemindBackupDappModal({
+class RemindEnterPasswordModal extends StatelessWidget {
+  const RemindEnterPasswordModal({
     super.key,
+    required this.walletName,
+    this.isScanning = false,
   });
+
+  final String walletName;
+  final bool isScanning;
 
   @override
   Widget build(BuildContext context) {
@@ -15,16 +20,17 @@ class RemindBackupDappModal extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             const Gap(defaultSpacing),
             Text(
-              'Please set a Password for your <WalletName> wallet on Desktop',
+              'Please ${isScanning == true ? "enter" : "set"} a Password for your $walletName wallet on Desktop',
               style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(defaultSpacing * 2),
             Container(
                 padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 4),
                 decoration: BoxDecoration(
+                  color: const Color(0xFF111112),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: const Color(0xFF343A46),
@@ -46,16 +52,20 @@ class RemindBackupDappModal extends StatelessWidget {
                     ),
                     const Gap(defaultSpacing),
                     Text(
-                      "This password will be used when recovering this wallet on your Browser/Desktop.",
+                      isScanning == true
+                          ? "Waiting for password on Desktop to complete your recovery"
+                          : "This password will be used when recovering this wallet on your Browser/Desktop.",
                       style: textTheme.bodySmall,
                     ),
                   ],
                 )),
-            const Gap(defaultSpacing * 5),
-            Button(
-              onPressed: () => {Navigator.of(context).pop()},
-              child: Text('Got it', style: textTheme.displayMedium),
-            ),
+            if (isScanning == false) ...[
+              const Gap(defaultSpacing * 5),
+              Button(
+                onPressed: () => {Navigator.of(context).pop()},
+                child: Text('Got it', style: textTheme.displayMedium),
+              )
+            ],
             const Gap(defaultSpacing * 3),
           ]),
         )

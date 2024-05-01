@@ -8,10 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/extensions/string_extension.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
-import 'package:silentshard/screens/backup_wallet/remind_backup_dapp_modal.dart';
+import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
@@ -70,7 +71,9 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
       context: context,
-      builder: (context) => const RemindBackupDappModal(),
+      builder: (context) => RemindEnterPasswordModal(
+        walletName: widget.walletId.capitalize(),
+      ),
     );
   }
 

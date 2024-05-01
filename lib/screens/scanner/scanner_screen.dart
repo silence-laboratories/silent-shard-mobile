@@ -7,12 +7,17 @@ import 'package:async/async.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/components/bullet.dart';
+import 'package:silentshard/screens/components/copy_button.dart';
+import 'package:silentshard/screens/components/padded_container.dart';
+import 'package:silentshard/screens/error/multi_wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
@@ -29,6 +34,7 @@ import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
 import "package:silentshard/extensions/string_extension.dart";
+import 'package:silentshard/types/support_wallet.dart';
 import '../../auth_state.dart';
 import '../../services/backup_service.dart';
 import '../../types/app_backup.dart';
@@ -39,8 +45,9 @@ class ScannerScreen extends StatefulWidget {
   final BackupSource? source;
   final bool? isRePairing;
   final String repairWalletId;
+  final String repairAddress;
 
-  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing, this.repairWalletId = 'metamask'});
+  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing, this.repairWalletId = 'metamask', this.repairAddress = ''});
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -52,22 +59,21 @@ enum ScannerScreenPairingState { ready, inProgress, succeeded, failed }
 
 class _ScannerScreenState extends State<ScannerScreen> {
   ScannerState _scannerState = ScannerState.scanning;
+  ScannerScreenPairingState _pairingState = ScannerScreenPairingState.ready;
+  CancelableOperation<dynamic>? _pairingOperation;
   MobileScannerController scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
     torchEnabled: false,
   );
   late AnalyticManager analyticManager;
+  bool showRemindEnterPassword = false;
 
   @override
   void dispose() {
     scannerController.dispose();
     super.dispose();
   }
-
-  ScannerScreenPairingState _pairingState = ScannerScreenPairingState.ready;
-
-  CancelableOperation<dynamic>? _pairingOperation;
 
   void _updateScannerState(ScannerState newState) {
     setState(() {
@@ -149,13 +155,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => WalletScreen(
-            pairedWalletId: walletId,
+      if (walletId == 'metamask') {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => WalletScreen(
+              pairedWalletId: walletId,
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -174,6 +182,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final hasBackupAlready = widget.backup != null;
     final showBackupScreen = !hasBackupAlready && !isRePair;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
+    if ((hasBackupAlready || isRePair) && widget.repairWalletId != 'metamask' && qrMessage.walletId == widget.repairWalletId) {
+      await Future.delayed(const Duration(milliseconds: 1500));
+      setState(() {
+        showRemindEnterPassword = true;
+      });
+    }
+
     _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
         type: isRePair
@@ -198,6 +213,23 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 _pairingOperation?.cancel();
                 _updatePairingState(ScannerScreenPairingState.ready);
                 _resetPairing();
+              },
+            ),
+          ),
+        );
+      } else if (widget.repairWalletId != qrMessage.walletId) {
+        SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.repairWalletId]!);
+        SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => MultiWalletMismatchScreen(
+              oldWalletId: widget.repairWalletId,
+              oldWalletIcon: oldWallet.icon,
+              newWalletId: qrMessage.walletId,
+              newWalletIcon: newWallet.icon,
+              onContinue: () {
+                _updateScannerState(ScannerState.scanning);
+                _updatePairingState(ScannerScreenPairingState.ready);
               },
             ),
           ),
@@ -292,6 +324,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     bool isRecovery = widget.isRePairing == true || widget.backup != null;
+    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.repairWalletId] ?? {});
+
     return Consumer<AppRepository>(
       builder: (context, appRepository, _) => Consumer<AuthState>(
         builder: (context, authState, _) => Stack(children: [
@@ -370,7 +404,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
                             },
                           );
                         },
-                        // Icon from assets
                         icon: const Icon(Icons.import_contacts_outlined),
                         label: const Text(
                           'Guide me',
@@ -478,24 +511,93 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
           if (_scannerState == ScannerState.scanned)
             AlertDialog(
-              content: Stack(children: [
-                AnimatedOpacity(
-                  opacity: (_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                  duration: const Duration(milliseconds: 500),
-                  child: const Wrap(children: [
-                    Check(text: 'Paired successfully!'),
-                  ]),
-                ),
-                AnimatedOpacity(
-                  opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                  duration: const Duration(milliseconds: 500),
-                  child: Wrap(children: [
-                    isRecovery
-                        ? Loader(text: 'Recovering with ${widget.repairWalletId.capitalize()}...')
-                        : const Loader(text: 'Pairing with snap...'),
-                  ]),
-                ),
-              ]),
+              content: !isRecovery
+                  ? Stack(children: [
+                      AnimatedOpacity(
+                        opacity: (_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
+                        duration: const Duration(milliseconds: 500),
+                        child: const Wrap(children: [
+                          Check(text: 'Successfully paired!'),
+                        ]),
+                      ),
+                      AnimatedOpacity(
+                        opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
+                        duration: const Duration(milliseconds: 500),
+                        child: const Wrap(children: [
+                          Loader(text: 'Pairing with snap...'),
+                        ]),
+                      ),
+                    ])
+                  : Stack(children: [
+                      showRemindEnterPassword == true
+                          ? AnimatedOpacity(
+                              opacity: showRemindEnterPassword == true ? 1 : 0,
+                              duration: const Duration(milliseconds: 500),
+                              child: !(_pairingState == ScannerScreenPairingState.succeeded)
+                                  ? RemindEnterPasswordModal(isScanning: true, walletName: widget.repairWalletId.capitalize())
+                                  : Column(mainAxisSize: MainAxisSize.min, children: [
+                                      const Check(text: 'Account already present on App'),
+                                      const Gap(defaultSpacing * 2),
+                                      Container(
+                                        margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
+                                        padding: const EdgeInsets.all(defaultSpacing * 1.5),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(width: 1, color: backgroundSecondaryColor2),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            PaddedContainer(
+                                                child: Image.asset(
+                                              walletInfo.icon,
+                                              height: 28,
+                                            )),
+                                            const Gap(defaultSpacing),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(children: [
+                                                  Text(
+                                                    widget.repairAddress.isNotEmpty
+                                                        ? '${widget.repairAddress.substring(0, 5)}...${widget.repairAddress.substring(widget.repairAddress.length - 5)}'
+                                                        : '',
+                                                    style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+                                                  ),
+                                                  const Gap(defaultSpacing),
+                                                  CopyButton(onCopy: () async {
+                                                    await Clipboard.setData(ClipboardData(text: widget.repairAddress));
+                                                  }),
+                                                  const SizedBox(width: 24),
+                                                ]),
+                                                Text(
+                                                  walletInfo.name,
+                                                  style: textTheme.displaySmall?.copyWith(fontSize: 12),
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Button(
+                                        onPressed: () {
+                                          Navigator.of(context).pushReplacement(
+                                            MaterialPageRoute(
+                                              builder: (context) => WalletScreen(
+                                                pairedWalletId: widget.repairWalletId,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
+                                      ),
+                                    ]),
+                            )
+                          : AnimatedOpacity(
+                              opacity: showRemindEnterPassword == false ? 1 : 0,
+                              duration: const Duration(milliseconds: 500),
+                              child: Wrap(children: [Loader(text: 'Recovering with ${widget.repairWalletId.capitalize()}...')]),
+                            ),
+                    ]),
               insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
             ),
         ]),
