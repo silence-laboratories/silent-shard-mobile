@@ -19,6 +19,7 @@ import 'package:silentshard/services/local_auth_service.dart';
 import 'package:silentshard/services/secure_storage/secure_storage_service.dart';
 import 'package:silentshard/theme/theme_constants.dart';
 import 'package:silentshard/theme/theme_manager.dart';
+import 'package:silentshard/types/wallet_highlight_provider.dart';
 
 import 'demo/state_decorators/keyshares_provider.dart';
 import 'demo/state_decorators/pairing_data_provider.dart';
@@ -62,6 +63,7 @@ Future<void> main() async {
   final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();
   final chainLoader = ChainLoader();
+  final walletIdProvider = WalletHighlightProvider();
 
   // Initiate the anonymous sign in process
   FirebaseCrashlytics.instance.log("Initiate anonymous login");
@@ -91,6 +93,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => authState),
         ChangeNotifierProvider(create: (_) => themeManager),
         ChangeNotifierProvider(create: (_) => localAuth),
+        ChangeNotifierProvider(create: (_) => walletIdProvider)
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -126,17 +129,13 @@ class _MyAppState extends State<MyApp> {
                 FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
 
-                print("isLocalAuthRequired: ${pairingDataProvider.pairingData}");
-                print("keysharesProvider.keyshares.isNotEmpty: ${keysharesProvider.keyshares.entries}");
-                print("keysharesProvider.keyshares.isNotEmpty: ${keysharesProvider.keyshares.isNotEmpty}");
-
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),
                   pairingDataProvider.pairingData,
                   keysharesProvider.keyshares.isNotEmpty
                 )) {
-                  (false, true, _, _) => WalletScreen(),
+                  (false, true, _, _) => const WalletScreen(),
                   (false, true, _, false) => PairScreen(),
                   (false, false, _, _) => const OnboardingScreen(),
                   (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),

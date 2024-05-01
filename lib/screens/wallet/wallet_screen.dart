@@ -26,11 +26,9 @@ import 'package:silentshard/services/local_auth_service.dart';
 import '../sign/sign_request_view_model.dart';
 
 class WalletScreen extends StatefulWidget {
-  WalletScreen({
-    this.pairedWalletId,
+  const WalletScreen({
     super.key,
   });
-  String? pairedWalletId;
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
@@ -166,7 +164,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                     Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                       return Expanded(
                           child: WalletList(
-                        pairedWalletId: widget.pairedWalletId,
                         walletEntries: keysharesProvider.keyshares.entries.toList(),
                       ));
                     }),
