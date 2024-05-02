@@ -67,7 +67,7 @@ class WalletListState extends State<WalletList> {
     }
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
-        (scrolledToIndex * 150.0), // Adjust this value as needed
+        (scrolledToIndex * 150.0),
         duration: const Duration(milliseconds: 1000),
         curve: Curves.easeInOut,
       );
@@ -78,14 +78,11 @@ class WalletListState extends State<WalletList> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () => setState(() {
-              context.read<WalletHighlightProvider>().setScrolled(false);
-            }),
+    return Scrollbar(
+        controller: _scrollController,
         child: Consumer<WalletHighlightProvider>(builder: (context, walletIdProvider, child) {
           var scrolledToIndex = _scrollToListener(walletIdProvider.pairedWalletId);
           return ListView.builder(
-            controller: _scrollController,
             itemCount: widget.walletEntries.length,
             itemBuilder: (context, index) {
               final walletEntry = widget.walletEntries[index];

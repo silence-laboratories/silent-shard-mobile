@@ -196,9 +196,11 @@ packages:
   dart_2_party_ecdsa:
     dependency: "direct main"
     description:
-      path: "../silent-shard-flutter-sdk"
-      relative: true
-    source: path
+      path: "."
+      ref: "feat/multi-account"
+      resolved-ref: e2cd029e80a1a5e3f4259a6fb54c55b698080914
+      url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
+    source: git
     version: "0.0.1"
   device_info_plus:
     dependency: "direct main"
