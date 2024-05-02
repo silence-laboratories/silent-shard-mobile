@@ -130,6 +130,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
             _showUnableToSaveBackupScreen(context);
           }
         } else if (context.mounted) {
+          debugPrint('Error in saving backup: $error');
           _showErrorScreen(context);
         }
         analyticManager.trackSaveBackupSystem(

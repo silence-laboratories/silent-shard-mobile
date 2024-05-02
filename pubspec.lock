@@ -198,7 +198,7 @@ packages:
     description:
       path: "."
       ref: "feat/multi-account"
-      resolved-ref: e2cd029e80a1a5e3f4259a6fb54c55b698080914
+      resolved-ref: "2a527b4ffa57d67f75f7bb6af3ff75280f0a53f0"
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
