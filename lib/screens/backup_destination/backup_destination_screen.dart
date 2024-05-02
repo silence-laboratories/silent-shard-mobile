@@ -171,6 +171,7 @@ class BackupDestinationWidget extends StatelessWidget {
           );
         }
       } else if (context.mounted) {
+        debugPrint('Error in verifying backup: $error');
         _showErrorScreen(
           context,
           retryAction: () => _performBackup(context, destination),
