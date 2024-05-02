@@ -548,7 +548,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                           ? AnimatedOpacity(
                               opacity: showRemindEnterPassword == true ? 1 : 0,
                               duration: const Duration(milliseconds: 500),
-                              child: !(_pairingState == ScannerScreenPairingState.succeeded)
+                              child: !(_pairingState == ScannerScreenPairingState.succeeded && recoverAddress.isNotEmpty)
                                   ? RemindEnterPasswordModal(isScanning: true, walletName: widget.repairWalletId.capitalize())
                                   : Column(mainAxisSize: MainAxisSize.min, children: [
                                       const Check(text: 'Account already present on App'),
