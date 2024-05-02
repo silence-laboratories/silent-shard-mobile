@@ -69,12 +69,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
   late AnalyticManager analyticManager;
   bool showRemindEnterPassword = false;
   bool isRecovery = false;
+  String recoverAddress = '';
 
   @override
   void initState() {
     super.initState();
     setState(() {
       isRecovery = widget.isRePairing == true || widget.backup != null;
+    });
+    setState(() {
+      recoverAddress = widget.repairAddress;
     });
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
   }
@@ -159,6 +163,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
+      if (widget.backup != null) {
+        setState(() {
+          recoverAddress = widget.backup!.walletBackup.accounts.firstOrNull?.address ?? '';
+        });
+      }
       if (walletId == 'metamask') {
         context.read<WalletHighlightProvider>().setPairedWalletId(walletId);
         context.read<WalletHighlightProvider>().setScrolledTemporarily();
@@ -232,6 +241,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 _pairingOperation?.cancel();
                 _updatePairingState(ScannerScreenPairingState.ready);
                 _resetPairing();
+                Navigator.of(context).pop();
               },
             ),
           ),
@@ -559,14 +569,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                               children: [
                                                 Row(children: [
                                                   Text(
-                                                    widget.repairAddress.isNotEmpty
-                                                        ? '${widget.repairAddress.substring(0, 5)}...${widget.repairAddress.substring(widget.repairAddress.length - 5)}'
+                                                    recoverAddress.isNotEmpty
+                                                        ? '${recoverAddress.substring(0, 5)}...${recoverAddress.substring(recoverAddress.length - 5)}'
                                                         : '',
                                                     style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
                                                   ),
                                                   const Gap(defaultSpacing),
                                                   CopyButton(onCopy: () async {
-                                                    await Clipboard.setData(ClipboardData(text: widget.repairAddress));
+                                                    await Clipboard.setData(ClipboardData(text: recoverAddress));
                                                   }),
                                                   const SizedBox(width: 24),
                                                 ]),
