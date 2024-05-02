@@ -70,6 +70,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   bool showRemindEnterPassword = false;
   bool isRecovery = false;
   String recoverAddress = '';
+  String pairingWalletId = '';
 
   @override
   void initState() {
@@ -177,6 +178,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   Future<void> _startPairing(BuildContext context, AppRepository appRepository, AuthState authState, QRMessage qrMessage, bool isRePair) async {
+    setState(() {
+      pairingWalletId = qrMessage.walletId;
+    });
     final userId = authState.user?.uid;
     if (userId == null) throw StateError('Attempt to pair when anauthenticated');
     if (_pairingState != ScannerScreenPairingState.ready) return;
@@ -192,7 +196,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final showBackupScreen = !hasBackupAlready && !isRePair;
     final isScanningWithSameWallet = qrMessage.walletId == widget.repairWalletId;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
-    if (isRecovery && isScanningWithSameWallet && widget.repairWalletId != 'metamask') {
+    if (isRecovery && isScanningWithSameWallet && qrMessage.walletId != 'metamask') {
       await Future.delayed(const Duration(milliseconds: 1500));
       setState(() {
         showRemindEnterPassword = true;
@@ -534,8 +538,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       AnimatedOpacity(
                         opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
                         duration: const Duration(milliseconds: 500),
-                        child: const Wrap(children: [
-                          Loader(text: 'Pairing with snap...'),
+                        child: Wrap(children: [
+                          Loader(text: 'Pairing with ${pairingWalletId.capitalize()}...'),
                         ]),
                       ),
                     ])
