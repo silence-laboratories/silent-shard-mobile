@@ -1,16 +1,17 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'dart:ui';
+
 import 'package:credential_manager/credential_manager.dart';
-import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
-import 'package:silentshard/screens/components/loader.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
+import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import '../../constants.dart';
 import '../../services/backup_service.dart';
@@ -37,9 +38,11 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    Stream<BackupMessage> backupMessageStream = walletId != "metamask"
-        ? Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address)
-        : const Stream.empty();
+    if (walletId != "metamask") {
+      Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address).listen((event) {
+        Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(address, event.isBackedUp);
+      });
+    }
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -68,17 +71,12 @@ class BackupDestinationScreen extends StatelessWidget {
                 ),
                 if (walletId != "metamask") ...[
                   const Gap(3 * defaultSpacing),
-                  StreamBuilder(
-                      stream: backupMessageStream,
-                      builder: (ctx, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.active) {
-                          bool isBackedUp = snapshot.data?.isBackedUp ?? false;
-                          return isBackedUp
-                              ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                              : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
-                        }
-                        return const Loader(text: 'Fetching remote backup status...');
-                      })
+                  Consumer<AppPreferences>(builder: (context, appPreferences, _) {
+                    bool isPasswordReady = appPreferences.getIsPasswordReady(address);
+                    return isPasswordReady
+                        ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                        : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
+                  }),
                 ],
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(
@@ -234,51 +232,62 @@ class BackupDestinationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return InkWell(
-      onTap: () => _performBackup(context, destination),
-      child: Container(
-        padding: const EdgeInsets.all(defaultSpacing),
-        child: Column(children: [
-          Row(children: [
-            PaddedContainer(
-              padding: const EdgeInsets.all(1.5 * defaultSpacing),
-              child: icon,
-            ),
-            const Gap(defaultSpacing),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, maxLines: 2, textAlign: TextAlign.left, style: textTheme.displaySmall),
-                  if (subtitle != null) ...[
-                    const Gap(defaultSpacing),
-                    Text(subtitle!, maxLines: 3, style: textTheme.bodySmall),
-                  ],
+    final isPasswordReady = Provider.of<AppPreferences>(context).getIsPasswordReady(address);
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () => _performBackup(context, destination),
+          child: Container(
+            padding: const EdgeInsets.all(defaultSpacing),
+            child: Column(children: [
+              Row(children: [
+                PaddedContainer(
+                  padding: const EdgeInsets.all(1.5 * defaultSpacing),
+                  child: icon,
+                ),
+                const Gap(defaultSpacing),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, maxLines: 2, textAlign: TextAlign.left, style: textTheme.displaySmall),
+                      if (subtitle != null) ...[
+                        const Gap(defaultSpacing),
+                        Text(subtitle!, maxLines: 3, style: textTheme.bodySmall),
+                      ],
+                    ],
+                  ),
+                ),
+                if (label != null) ...[
+                  const Gap(4 * defaultSpacing),
+                  LabelWidget(label!),
                 ],
-              ),
+              ]),
+              Gap(defaultSpacing * check.status.distanceFactor),
+              StatusWidget(check: check, destination: destination),
+              if (Platform.isAndroid && destination == BackupDestination.secureStorage && check.status == BackupStatus.done) ...[
+                const Gap(defaultSpacing),
+                Row(children: [
+                  const Gap(6 * defaultSpacing),
+                  Button(
+                    type: ButtonType.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0),
+                    buttonColor: primaryColor,
+                    onPressed: () => _verifyBackup(context),
+                    child: Text('Verify backup', style: textTheme.displaySmall),
+                  ),
+                ])
+              ],
+            ]),
+          ),
+        ),
+        if (!isPasswordReady && walletId != 'metamask')
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
             ),
-            if (label != null) ...[
-              const Gap(4 * defaultSpacing),
-              LabelWidget(label!),
-            ],
-          ]),
-          Gap(defaultSpacing * check.status.distanceFactor),
-          StatusWidget(check: check, destination: destination),
-          if (Platform.isAndroid && destination == BackupDestination.secureStorage && check.status == BackupStatus.done) ...[
-            const Gap(defaultSpacing),
-            Row(children: [
-              const Gap(6 * defaultSpacing),
-              Button(
-                type: ButtonType.primary,
-                padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0),
-                buttonColor: primaryColor,
-                onPressed: () => _verifyBackup(context),
-                child: Text('Verify backup', style: textTheme.displaySmall),
-              ),
-            ])
-          ],
-        ]),
-      ),
+          )
+      ],
     );
   }
 }
