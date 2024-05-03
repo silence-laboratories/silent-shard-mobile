@@ -33,6 +33,16 @@ class AppPreferences extends ChangeNotifier {
     notifyListeners();
   }
 
+// isLocalAuthRequired
+  bool getIsPasswordReady(String address) {
+    return _sharedPreferences.getBool('isPasswordReady_$address') ?? false;
+  }
+
+  void setIsPasswordReady(String address, bool value) {
+    _sharedPreferences.setBool('isPasswordReady_$address', value);
+    notifyListeners();
+  }
+
   BackupInfo backupInfo(String address) {
     final jsonString = _sharedPreferences.getString(address);
     final json = jsonString != null ? jsonDecode(jsonString) : null;
