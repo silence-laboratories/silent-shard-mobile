@@ -49,7 +49,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                     ),
                     const TabBar(
                       tabs: [
-                        Tab(text: 'Meta Mask'),
+                        Tab(text: 'MetaMask'),
                         Tab(text: 'Other wallet'),
                       ],
                       labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: primaryColor2),
