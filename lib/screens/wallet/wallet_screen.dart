@@ -192,7 +192,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => PairScreen(fromWalletScreen: true),
+                    builder: (context) => const PairScreen(),
                   ),
                 );
               },

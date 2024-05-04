@@ -43,11 +43,11 @@ import '../../repository/app_repository.dart';
 class ScannerScreen extends StatefulWidget {
   final AppBackup? backup;
   final BackupSource? source;
-  final bool? isRePairing;
+  final bool isRePairing;
   final String repairWalletId;
   final String repairAddress;
 
-  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing, this.repairWalletId = 'metamask', this.repairAddress = ''});
+  const ScannerScreen({super.key, this.backup, this.source, this.isRePairing = false, this.repairWalletId = 'metamask', this.repairAddress = ''});
 
   @override
   State<ScannerScreen> createState() => _ScannerScreenState();
@@ -68,6 +68,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   );
   late AnalyticManager analyticManager;
   bool showRemindEnterPassword = false;
+  bool isRecovering = false;
   bool isRecovery = false;
   String recoverAddress = '';
   String pairingWalletId = '';
@@ -76,11 +77,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
   void initState() {
     super.initState();
     setState(() {
-      isRecovery = widget.isRePairing == true || widget.backup != null;
+      isRecovering = widget.backup != null;
+      isRecovery = widget.backup != null || widget.isRePairing;
     });
-    setState(() {
-      recoverAddress = widget.repairAddress;
-    });
+
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
   }
 
@@ -121,14 +121,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (message != null) {
       FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message.pairingId}');
       analyticManager.trackPairingDevice(
-          type: widget.isRePairing ?? false
+          type: widget.isRePairing
               ? PairingDeviceType.repaired
               : widget.backup?.walletBackup != null
                   ? PairingDeviceType.recovered
                   : PairingDeviceType.new_account,
           status: PairingDeviceStatus.qr_scanned);
       _updateScannerState(ScannerState.scanned);
-      _startPairing(context, sdk, authState, message, widget.isRePairing ?? false);
+      _startPairing(context, sdk, authState, message);
     } else {
       _updateScannerState(ScannerState.scanned);
       Navigator.of(context).push(
@@ -141,14 +141,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(bool showBackupScreen, bool isRePair, AppRepository appRepository, String walletId) async {
-    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: $showBackupScreen');
+  Future<void> _finish(AppRepository appRepository, String walletId) async {
+    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
     await Future.delayed(const Duration(seconds: 2), () {});
     if (!mounted) return;
 
-    if (showBackupScreen) {
+    if (!isRecovery) {
       await appRepository.keygen(walletId);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -160,42 +160,49 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToFileDidSave(widget.backup!); // update backup status
       }
-      if (!isRePair && widget.backup != null && widget.source == BackupSource.secureStorage) {
+      if (!widget.isRePairing && widget.backup != null && widget.source == BackupSource.secureStorage) {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
-      }
-      if (widget.backup != null) {
-        setState(() {
-          recoverAddress = widget.backup!.walletBackup.accounts.firstOrNull?.address ?? '';
-        });
-      }
-      if (walletId == 'metamask') {
-        context.read<WalletHighlightProvider>().setPairedWalletId(walletId);
-        context.read<WalletHighlightProvider>().setScrolledTemporarily();
-        Navigator.of(context).pop();
       }
     }
   }
 
-  Future<void> _startPairing(BuildContext context, AppRepository appRepository, AuthState authState, QRMessage qrMessage, bool isRePair) async {
-    setState(() {
-      pairingWalletId = qrMessage.walletId;
-    });
+  Future<void> _startPairing(BuildContext context, AppRepository appRepository, AuthState authState, QRMessage qrMessage) async {
     final userId = authState.user?.uid;
     if (userId == null) throw StateError('Attempt to pair when anauthenticated');
     if (_pairingState != ScannerScreenPairingState.ready) return;
     _updatePairingState(ScannerScreenPairingState.inProgress);
+    final isWalletExisted = appRepository.keysharesProvider.keyshares.containsKey(qrMessage.walletId);
+    if (isWalletExisted) {
+      setState(() {
+        isRecovery = true;
+      });
+    }
 
-    if (isRePair) {
+    if (widget.backup != null) {
+      setState(() {
+        recoverAddress = widget.backup!.walletBackup.accounts.firstOrNull?.address ?? '';
+      });
+    } else if (isWalletExisted || widget.isRePairing) {
+      setState(() {
+        final keyshare = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
+        recoverAddress = keyshare?.firstOrNull?.ethAddress ?? '';
+      });
+    }
+
+    if (widget.isRePairing == true || (isWalletExisted && !isRecovering)) {
       _pairingOperation = appRepository.repair(qrMessage, userId);
     } else {
       _pairingOperation = appRepository.pair(qrMessage, userId, widget.backup?.walletBackup);
     }
+    setState(() {
+      pairingWalletId = qrMessage.walletId;
+    });
 
     final hasBackupAlready = widget.backup != null;
-    final showBackupScreen = !hasBackupAlready && !isRePair;
-    final isScanningWithSameWallet = qrMessage.walletId == widget.repairWalletId;
-    FirebaseCrashlytics.instance.log('Start pairing, isRepair: $isRePair, hasBackupAlready: $hasBackupAlready');
+
+    FirebaseCrashlytics.instance.log('Start pairing, isRepair: ${widget.isRePairing}, hasBackupAlready: $hasBackupAlready');
+    final isScanningWithSameWallet = qrMessage.walletId == widget.repairWalletId || isWalletExisted;
     if (isRecovery && isScanningWithSameWallet && qrMessage.walletId != 'metamask') {
       await Future.delayed(const Duration(milliseconds: 1500));
       setState(() {
@@ -205,7 +212,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
-        type: isRePair
+        type: widget.isRePairing
             ? PairingDeviceType.repaired
             : hasBackupAlready
                 ? PairingDeviceType.recovered
@@ -220,7 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
                 FirebaseCrashlytics.instance.log('Continue with new account');
-                _finish(showBackupScreen, isRePair, appRepository, qrMessage.walletId);
+                _finish(appRepository, qrMessage.walletId);
               },
               onBack: () {
                 FirebaseCrashlytics.instance.log('Cancel pairing');
@@ -251,12 +258,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
         );
       } else {
-        _finish(showBackupScreen, isRePair, appRepository, qrMessage.walletId);
+        _finish(appRepository, qrMessage.walletId);
       }
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
-          type: isRePair
+          type: widget.isRePairing
               ? PairingDeviceType.repaired
               : hasBackupAlready
                   ? PairingDeviceType.recovered
@@ -544,74 +551,90 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       ),
                     ])
                   : Stack(children: [
-                      showRemindEnterPassword == true
-                          ? AnimatedOpacity(
-                              opacity: showRemindEnterPassword == true ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
-                              child: !(_pairingState == ScannerScreenPairingState.succeeded && recoverAddress.isNotEmpty)
-                                  ? RemindEnterPasswordModal(isScanning: true, walletName: widget.repairWalletId.capitalize())
-                                  : Column(mainAxisSize: MainAxisSize.min, children: [
-                                      const Check(text: 'Account already present on App'),
-                                      const Gap(defaultSpacing * 2),
-                                      Container(
-                                        margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
-                                        padding: const EdgeInsets.all(defaultSpacing * 1.5),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(width: 1, color: backgroundSecondaryColor2),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            PaddedContainer(
-                                                child: Image.asset(
-                                              walletInfo.icon,
-                                              height: 28,
-                                            )),
-                                            const Gap(defaultSpacing),
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Row(children: [
-                                                  Text(
-                                                    recoverAddress.isNotEmpty
-                                                        ? '${recoverAddress.substring(0, 5)}...${recoverAddress.substring(recoverAddress.length - 5)}'
-                                                        : '',
-                                                    style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-                                                  ),
-                                                  const Gap(defaultSpacing),
-                                                  CopyButton(onCopy: () async {
-                                                    await Clipboard.setData(ClipboardData(text: recoverAddress));
-                                                  }),
-                                                  const SizedBox(width: 24),
-                                                ]),
-                                                Text(
-                                                  walletInfo.name,
-                                                  style: textTheme.displaySmall?.copyWith(fontSize: 12),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Button(
-                                        onPressed: () async {
-                                          context.read<WalletHighlightProvider>().setPairedWalletId(widget.repairWalletId);
-                                          context.read<WalletHighlightProvider>().setScrolledTemporarily();
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
-                                      ),
-                                    ]),
-                            )
-                          : AnimatedOpacity(
-                              opacity: showRemindEnterPassword == false ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
-                              child: Wrap(children: [Loader(text: 'Recovering with ${widget.repairWalletId.capitalize()}...')]),
-                            ),
+                      AnimatedOpacity(
+                          opacity: (_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
+                          duration: const Duration(milliseconds: 500),
+                          child: Visibility(
+                            visible: (_pairingState == ScannerScreenPairingState.succeeded),
+                            child: !(_pairingState == ScannerScreenPairingState.succeeded && recoverAddress.isNotEmpty) && showRemindEnterPassword
+                                ? RemindEnterPasswordModal(isScanning: true, walletName: widget.repairWalletId.capitalize())
+                                : Column(mainAxisSize: MainAxisSize.min, children: [
+                                    const Check(text: 'Account already present on App'),
+                                    const Gap(defaultSpacing * 2),
+                                    PopoverAddress(name: walletInfo.name, icon: walletInfo.icon, address: recoverAddress),
+                                    Button(
+                                      onPressed: () async {
+                                        context.read<WalletHighlightProvider>().setPairedWalletId(pairingWalletId);
+                                        context.read<WalletHighlightProvider>().setScrolledTemporarily();
+                                        _resetPairing();
+                                        _updateScannerState(ScannerState.scanning);
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
+                                    ),
+                                  ]),
+                          )),
+                      AnimatedOpacity(
+                        opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Wrap(
+                            children: [Loader(text: '${isRecovering ? 'Recovering' : 'Re-Pairing'} with ${widget.repairWalletId.capitalize()}...')]),
+                      ),
                     ]),
               insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
             ),
         ]),
+      ),
+    );
+  }
+}
+
+class PopoverAddress extends StatelessWidget {
+  PopoverAddress({super.key, required this.name, required this.icon, required this.address});
+  String name;
+  String icon;
+  String address;
+
+  @override
+  Widget build(BuildContext context) {
+    TextTheme textTheme = Theme.of(context).textTheme;
+    return Container(
+      margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
+      padding: const EdgeInsets.all(defaultSpacing * 1.5),
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: backgroundSecondaryColor2),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          PaddedContainer(
+              child: Image.asset(
+            // walletInfo.icon,
+            icon,
+            height: 28,
+          )),
+          const Gap(defaultSpacing),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Text(
+                  address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
+                  style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const Gap(defaultSpacing),
+                CopyButton(onCopy: () async {
+                  await Clipboard.setData(ClipboardData(text: address));
+                }),
+                const SizedBox(width: 24),
+              ]),
+              Text(
+                name,
+                style: textTheme.displaySmall?.copyWith(fontSize: 12),
+              )
+            ],
+          ),
+        ],
       ),
     );
   }
