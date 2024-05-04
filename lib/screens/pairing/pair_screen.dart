@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/utils.dart';
@@ -24,8 +25,7 @@ import 'backup_picker.dart';
 import 'backup_source_picker.dart';
 
 class PairScreen extends StatefulWidget {
-  PairScreen({super.key, this.fromWalletScreen = false});
-  bool fromWalletScreen;
+  const PairScreen({super.key});
   @override
   State<PairScreen> createState() => _PairState();
 }
@@ -35,6 +35,8 @@ enum PairingState { ready, fetchingBackup }
 class _PairState extends State<PairScreen> {
   PairingState _pairingState = PairingState.ready;
   late AnalyticManager analyticManager;
+  late AppRepository appRepostiory;
+  bool isWalletsNotEmpty = false;
 
   Future<void> checkAuth() async {
     try {
@@ -91,6 +93,10 @@ class _PairState extends State<PairScreen> {
   void initState() {
     super.initState();
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+    appRepostiory = Provider.of<AppRepository>(context, listen: false);
+    setState(() {
+      isWalletsNotEmpty = appRepostiory.keysharesProvider.keyshares.isNotEmpty;
+    });
     checkAuth();
   }
 
@@ -183,7 +189,7 @@ class _PairState extends State<PairScreen> {
   }
 
   void _recoverFromBackup(AppBackup backup, BackupSource source, String repairWalletId) {
-    if (widget.fromWalletScreen) {
+    if (isWalletsNotEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -203,7 +209,7 @@ class _PairState extends State<PairScreen> {
   void _goToScannerScreen() {
     FirebaseCrashlytics.instance.log('Create new account');
     analyticManager.trackConnectNewAccount();
-    if (widget.fromWalletScreen) {
+    if (isWalletsNotEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -280,7 +286,7 @@ class _PairState extends State<PairScreen> {
       child: Scaffold(
           appBar: AppBar(
               backgroundColor: Colors.black,
-              leading: widget.fromWalletScreen
+              leading: isWalletsNotEmpty
                   ? IconButton(
                       icon: const Icon(Icons.arrow_back),
                       onPressed: () {
