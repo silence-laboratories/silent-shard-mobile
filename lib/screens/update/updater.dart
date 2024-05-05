@@ -91,68 +91,67 @@ class _UpdaterState extends State<Updater> {
             (true, false, _, _) => UpdateAlertDialogState.showAppUpdateAvailble,
             (false, false, _, false) => UpdateAlertDialogState.noAlert
           };
-          return Stack(children: [
-            const IgnorePointer(
-              ignoring: false,
-              child: Opacity(
-                opacity: 0,
-                child: ModalBarrier(
-                  color: Colors.grey,
+          return Stack(
+            children: [
+              if (_updateAlertDialogState != UpdateAlertDialogState.noAlert)
+                const IgnorePointer(
+                  ignoring: false,
+                  child: Opacity(
+                    opacity: 0,
+                    child: ModalBarrier(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              FadeInOut(
+                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateGuide,
+                child: UpdateSnapGuide(
+                  textTheme: textTheme,
+                  onBack: () {
+                    _updateShowSnapUpdateGuide(false);
+                  },
+                  image: imageMap[ImageKeys.uploadLaptop]!,
                 ),
               ),
-            ),
-            Stack(
-              children: [
-                FadeInOut(
-                  visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateGuide,
-                  child: UpdateSnapGuide(
+              FadeInOut(
+                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateAvailable,
+                child: SnapUpdate(
+                  textTheme: textTheme,
+                  onPressSnapGuide: () {
+                    _updateShowSnapUpdateGuide(true);
+                  },
+                  image: imageMap[ImageKeys.uploadRocket]!,
+                ),
+              ),
+              FadeInOut(
+                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateSuccessful,
+                child: SnapUpdatedSuccesfully(
                     textTheme: textTheme,
-                    onBack: () {
-                      _updateShowSnapUpdateGuide(false);
-                    },
-                    image: imageMap[ImageKeys.uploadLaptop]!,
-                  ),
+                    onContinue: () {
+                      snapService.showSnapUpdateSuccessful = false;
+                    }),
+              ),
+              FadeInOut(
+                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapAndAppUpdateAvailable,
+                child: SnapAndAppUpdate(
+                  textTheme: textTheme,
+                  onAppUpdate: _handleAppUpdate,
+                  onPressSnapGuide: () {
+                    _updateShowSnapUpdateGuide(true);
+                  },
+                  image: imageMap[ImageKeys.uploadRocket]!,
                 ),
-                FadeInOut(
-                  visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateAvailable,
-                  child: SnapUpdate(
-                    textTheme: textTheme,
-                    onPressSnapGuide: () {
-                      _updateShowSnapUpdateGuide(true);
-                    },
-                    image: imageMap[ImageKeys.uploadRocket]!,
-                  ),
+              ),
+              FadeInOut(
+                visible: _updateAlertDialogState == UpdateAlertDialogState.showAppUpdateAvailble,
+                child: AppUpdate(
+                  textTheme: textTheme,
+                  onAppUpdate: _handleAppUpdate,
+                  image: imageMap[ImageKeys.uploadRocket]!,
                 ),
-                FadeInOut(
-                  visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateSuccessful,
-                  child: SnapUpdatedSuccesfully(
-                      textTheme: textTheme,
-                      onContinue: () {
-                        snapService.showSnapUpdateSuccessful = false;
-                      }),
-                ),
-                FadeInOut(
-                  visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapAndAppUpdateAvailable,
-                  child: SnapAndAppUpdate(
-                    textTheme: textTheme,
-                    onAppUpdate: _handleAppUpdate,
-                    onPressSnapGuide: () {
-                      _updateShowSnapUpdateGuide(true);
-                    },
-                    image: imageMap[ImageKeys.uploadRocket]!,
-                  ),
-                ),
-                FadeInOut(
-                  visible: _updateAlertDialogState == UpdateAlertDialogState.showAppUpdateAvailble,
-                  child: AppUpdate(
-                    textTheme: textTheme,
-                    onAppUpdate: _handleAppUpdate,
-                    image: imageMap[ImageKeys.uploadRocket]!,
-                  ),
-                ),
-              ],
-            ),
-          ]);
+              ),
+            ],
+          );
         } else {
           return Container();
         }
