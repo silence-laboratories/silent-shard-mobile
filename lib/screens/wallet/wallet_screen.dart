@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/screens/components/updater.dart';
+import 'package:silentshard/screens/update/updater.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
