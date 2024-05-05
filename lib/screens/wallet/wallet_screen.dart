@@ -15,7 +15,6 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/screens/components/updater.dart';
 import 'package:silentshard/services/chain_loader.dart';
-import 'package:silentshard/services/firebase_remote_config_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';

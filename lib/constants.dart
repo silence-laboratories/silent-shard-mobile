@@ -33,4 +33,6 @@ const doneIconColor = Color(0xFF86EFAD);
 
 const defaultPadding = 8.0;
 
+const fadeInOutDuration = Duration(milliseconds: 500);
+
 const CANNOT_VERIFY_BACKUP = 'Cannot verify backup with different address';

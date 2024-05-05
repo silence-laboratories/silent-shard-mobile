@@ -13,12 +13,13 @@ class SnapService extends ChangeNotifier {
   Version? _snapVersion;
   bool? forceUpdateSnap;
   bool _showSnapUpdateSuccessful = false;
-  bool willShowSnapUpdateSuccessful = false;
+  bool _willShowSnapUpdateSuccessful = false;
+  bool _deprecateNullSnap;
   StreamSubscription<UserData>? _streamSubscription;
 
   Version? get snapVersion => _snapVersion;
 
-  SnapService(this._appRepository) {
+  SnapService(this._appRepository, [this._deprecateNullSnap = false]) {
     init();
   }
 
@@ -46,21 +47,25 @@ class SnapService extends ChangeNotifier {
     final minimumSnapVersionRequired = Version(FirebaseRemoteConfigService().minimumSnapVersionRequired);
     if (snapVersion != null) {
       _snapVersion = Version(snapVersion);
-      // if (_snapVersion == null) {
-      //   forceUpdateSnap = false;
-      //   _streamSubscription?.cancel();
-      // } else
-      if (_snapVersion == null || _snapVersion!.compareTo(minimumSnapVersionRequired) < 0) {
+      if (_snapVersion!.compareTo(minimumSnapVersionRequired) < 0) {
         forceUpdateSnap = true;
-        willShowSnapUpdateSuccessful = true;
+        _willShowSnapUpdateSuccessful = true;
       } else {
         forceUpdateSnap = false;
-        showSnapUpdateSuccessful = willShowSnapUpdateSuccessful;
+        showSnapUpdateSuccessful = _willShowSnapUpdateSuccessful;
         _streamSubscription?.cancel();
       }
-
-      notifyListeners();
+    } else {
+      if (_deprecateNullSnap) {
+        forceUpdateSnap = true;
+        _willShowSnapUpdateSuccessful = true;
+      } else {
+        forceUpdateSnap = false;
+        _streamSubscription?.cancel();
+      }
     }
+
+    notifyListeners();
   }
 
   void cancel() {

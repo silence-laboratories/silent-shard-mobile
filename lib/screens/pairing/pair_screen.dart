@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/screens/components/updater.dart';
+import 'package:silentshard/screens/update/updater.dart';
 import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/utils.dart';
