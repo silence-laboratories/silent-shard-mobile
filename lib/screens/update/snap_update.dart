@@ -22,31 +22,31 @@ class SnapUpdate extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+      insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             image,
-            const Gap(defaultPadding * 3),
+            const Gap(defaultSpacing * 3),
             Text(
               'Seems like you are using an outdated Snap version',
               style: textTheme.displayLarge,
               textAlign: TextAlign.center,
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               'Your Silent Shard App is shiny new and can’t really comprehend what the old version of MetaMask Snap is saying.',
               style: textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            const Gap(defaultPadding * 2),
+            const Gap(defaultSpacing * 2),
             Text(
               'Update your Snap now to keep everything running smoothly and securely.',
               style: textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            const Gap(defaultPadding * 4),
+            const Gap(defaultSpacing * 4),
             Button(
                 type: ButtonType.secondary,
                 onPressed: onPressSnapGuide,

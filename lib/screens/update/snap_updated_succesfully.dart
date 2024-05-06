@@ -21,25 +21,25 @@ class SnapUpdatedSuccesfully extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+      insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset('assets/images/check.png', height: 100),
-            const Gap(defaultPadding * 3),
+            const Gap(defaultSpacing * 3),
             Text(
               'Your Silent Shard Snap has been successfully updated!',
               style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               'Now make seamless transactions with enhanced security.',
               style: textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
-            const Gap(defaultPadding * 4),
+            const Gap(defaultSpacing * 4),
             Button(
                 activeColor: Colors.red,
                 onPressed: onContinue,
