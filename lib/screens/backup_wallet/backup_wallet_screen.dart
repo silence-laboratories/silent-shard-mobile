@@ -17,6 +17,7 @@ import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.da
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
+import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
@@ -58,6 +59,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
         _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
             .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress, userId: userId)
             .map((event) {
+          Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(ethAddress, event.isBackedUp);
           setState(() {
             _isRemoteBackedUpReady = event.isBackedUp;
           });
