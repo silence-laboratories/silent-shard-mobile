@@ -109,22 +109,22 @@ class _PairState extends State<PairScreen> {
       final (backupDestination, backup) = await backupService.fetchBackup(source, key);
       if (backup != null && backupDestination != null) {
         FirebaseCrashlytics.instance.log('Backup fetched');
-        String repairWalletId = "Metamask";
+        String walletId = "Metamask";
 
         switch (source) {
           case BackupSource.secureStorage:
             if (backupDestination.contains("-")) {
-              repairWalletId = backupDestination.split("-").first;
+              walletId = backupDestination.split("-").first;
             }
             break;
           case BackupSource.fileSystem:
             final tokens = backupDestination.split("-");
             if (!tokens[tokens.length - 2].contains("wallet")) {
-              repairWalletId = tokens[tokens.length - 2];
+              walletId = tokens[tokens.length - 2];
             }
             break;
         }
-        _recoverFromBackup(backup, source, repairWalletId);
+        _recoverFromBackup(backup, source, walletId);
       } else {
         FirebaseCrashlytics.instance.log('No backup found');
         _showNoBackupFound(source);
@@ -189,19 +189,19 @@ class _PairState extends State<PairScreen> {
     );
   }
 
-  void _recoverFromBackup(AppBackup backup, BackupSource source, String repairWalletId) {
+  void _recoverFromBackup(AppBackup backup, BackupSource source, String walletId) {
     if (isWalletsNotEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
+          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
         ),
       );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ScannerScreen(backup: backup, source: source, repairWalletId: repairWalletId),
+          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
         ),
       );
     }

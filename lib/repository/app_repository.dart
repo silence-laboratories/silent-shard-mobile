@@ -73,7 +73,7 @@ class AppRepository extends DemoDecoratorComposite {
     if (isDemoActive) {
       return CancelableOperation.fromValue((null));
     }
-
+    _sdk.unpairIfNoKeyshares();
     return _sdk.startRePairing(qrMessage, userId);
   }
 

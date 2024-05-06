@@ -26,7 +26,7 @@ class WalletListState extends State<WalletList> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ScannerScreen(isRePairing: true, repairWalletId: repairWalletId, repairAddress: repairAddress),
+        builder: (context) => ScannerScreen(isRePairing: true, recoveryWalletId: repairWalletId, repairAddress: repairAddress),
       ),
     );
   }

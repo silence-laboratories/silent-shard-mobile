@@ -6,8 +6,8 @@ class SupportWallet {
 
   factory SupportWallet.fromJson(Map<String, String> json) {
     return SupportWallet(
-      name: json['name'] ?? (throw ArgumentError('support wallet name is null')),
-      icon: json['icon'] ?? (throw ArgumentError('support wallet icon is null')),
+      name: json['name'] ?? '',
+      icon: json['icon'] ?? '',
     );
   }
 }
