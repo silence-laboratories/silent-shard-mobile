@@ -128,6 +128,7 @@ class _MyAppState extends State<MyApp> {
                 final ethAddress = keysharesProvider.keyshares["metamask"]?.firstOrNull?.ethAddress ?? '';
                 FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
+
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
                   appPreferences.getIsOnboardingCompleted(),
@@ -135,9 +136,9 @@ class _MyAppState extends State<MyApp> {
                   keysharesProvider.keyshares.isNotEmpty
                 )) {
                   (false, true, _, true) => const WalletScreen(),
-                  (false, true, _, false) => PairScreen(),
+                  (false, true, _, false) => const PairScreen(),
                   (false, false, _, _) => const OnboardingScreen(),
-                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
+                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth), // -> WalletScreen
                 };
               }),
             ),

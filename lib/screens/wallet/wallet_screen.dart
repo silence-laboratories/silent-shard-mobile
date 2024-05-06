@@ -163,9 +163,16 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                     ],
                     Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                       return Expanded(
-                          child: WalletList(
-                        walletEntries: keysharesProvider.keyshares.entries.toList(),
-                      ));
+                          child: AnimatedOpacity(
+                              opacity:
+                                  !(_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined)
+                                      ? 1
+                                      : 0,
+                              duration: const Duration(milliseconds: 500),
+                              child: Visibility(
+                                  visible: !(_notificationStatus == AuthorizationStatus.denied ||
+                                      _notificationStatus == AuthorizationStatus.notDetermined),
+                                  child: const WalletList())));
                     }),
                   ],
                 ),
