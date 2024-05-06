@@ -141,7 +141,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(AppRepository appRepository, String walletId) async {
+  Future<void> _finish(AppRepository appRepository, String walletId, String userId) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
     _updatePairingState(ScannerScreenPairingState.succeeded);
 
@@ -149,7 +149,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (!mounted) return;
 
     if (!isRecovery) {
-      await appRepository.keygen(walletId);
+      await appRepository.keygen(walletId, userId);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => BackupWalletScreen(walletId: walletId),
@@ -227,7 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             builder: (context) => WalletMismatchScreen(
               onContinue: () {
                 FirebaseCrashlytics.instance.log('Continue with new account');
-                _finish(appRepository, qrMessage.walletId);
+                _finish(appRepository, qrMessage.walletId, userId);
               },
               onBack: () {
                 FirebaseCrashlytics.instance.log('Cancel pairing');
@@ -258,7 +258,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
           ),
         );
       } else {
-        _finish(appRepository, qrMessage.walletId);
+        _finish(appRepository, qrMessage.walletId, userId);
       }
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');

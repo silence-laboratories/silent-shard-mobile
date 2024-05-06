@@ -8,6 +8,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
@@ -38,8 +39,12 @@ class BackupDestinationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    if (walletId != "metamask") {
-      Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(walletId: walletId, accountAddress: address).listen((event) {
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    if (walletId != "metamask" && userId != null) {
+      Provider.of<AppRepository>(context, listen: false)
+          .listenRemoteBackupMessage(walletId: walletId, accountAddress: address, userId: userId)
+          .listen((event) {
         Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(address, event.isBackedUp);
       });
     }

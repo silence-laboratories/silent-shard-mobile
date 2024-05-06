@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/extensions/string_extension.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
@@ -51,9 +52,11 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       final appRepository = Provider.of<AppRepository>(context, listen: false);
       final keyshareProvider = appRepository.keysharesProvider;
       final ethAddress = keyshareProvider.keyshares[widget.walletId]?.firstOrNull?.ethAddress;
-      if (ethAddress != null) {
+      final authState = Provider.of<AuthState>(context, listen: false);
+      final userId = authState.user?.uid;
+      if (ethAddress != null && userId != null) {
         _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
-            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress)
+            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress, userId: userId)
             .map((event) {
           setState(() {
             _isRemoteBackedUpReady = event.isBackedUp;

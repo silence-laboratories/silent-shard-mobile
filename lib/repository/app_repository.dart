@@ -39,13 +39,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Future<Keyshare2> keygen(String walletId) async {
+  Future<Keyshare2> keygen(String walletId, String userId) async {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-      final keyshare = await _sdk.startKeygen(walletName).value;
-      final keyshare = await _sdk.startKeygen(userId).value;
+      final keyshare = await _sdk.startKeygen(walletId, userId).value;
       if (walletId == 'metamask') {
-        _sdk.fetchRemoteBackup(keyshare.ethAddress).value;
+        _sdk.fetchRemoteBackup(keyshare.ethAddress, userId).value;
       }
       _analyticManager.trackDistributedKeyGen(
           type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
@@ -57,12 +56,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress}) {
+  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress, required String userId}) {
     if (isDemoActive) {
       return CancelableCompleter<BackupMessage>().operation.asStream();
     }
 
-    return _sdk.listenRemoteBackup(walletId: walletId, accountAddress);
+    return _sdk.listenRemoteBackup(accountAddress, userId, walletId: walletId);
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
