@@ -40,9 +40,11 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Expanded(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset(
-                'assets/images/lockClosed.png',
-                width: MediaQuery.of(context).size.width / 2,
+              Expanded(
+                child: Image.asset(
+                  'assets/images/lockClosed.png',
+                  width: MediaQuery.of(context).size.width / 2,
+                ),
               ),
               const Gap(defaultSpacing * 2),
               Text(
@@ -56,6 +58,7 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
               ),
             ]),
           ),
+          const Gap(defaultSpacing * 2),
           Button(
               onPressed: () async {
                 final response = await widget.localAuth.authenticate();
