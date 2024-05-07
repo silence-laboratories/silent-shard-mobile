@@ -124,7 +124,7 @@ class BackupService extends ChangeNotifier {
   Future<BackupInfo> getBackupInfo(String address, {String walletId = ''}) async {
     final info = _preferences.backupInfo(address);
     if (Platform.isIOS) return info;
-    if (walletId == "metamask") {
+    if (walletId == METAMASK_WALLET_ID) {
       Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
       for (var key in backupEntries.keys) {
         if (!(_hasCheckedKeychain[key] ?? false)) {

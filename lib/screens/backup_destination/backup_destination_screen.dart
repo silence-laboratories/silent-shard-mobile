@@ -41,7 +41,7 @@ class BackupDestinationScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final authState = Provider.of<AuthState>(context, listen: false);
     final userId = authState.user?.uid;
-    if (walletId != "metamask" && userId != null) {
+    if (walletId != METAMASK_WALLET_ID && userId != null) {
       Provider.of<AppRepository>(context, listen: false)
           .listenRemoteBackupMessage(walletId: walletId, accountAddress: address, userId: userId)
           .listen((event) {
@@ -74,7 +74,7 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
-                if (walletId != "metamask") ...[
+                if (walletId != METAMASK_WALLET_ID) ...[
                   const Gap(3 * defaultSpacing),
                   Consumer<AppPreferences>(builder: (context, appPreferences, _) {
                     bool isPasswordReady = appPreferences.getIsPasswordReady(address);
@@ -302,7 +302,7 @@ class BackupDestinationWidget extends StatelessWidget {
             ]),
           ),
         ),
-        if (!isPasswordReady && walletId != 'metamask')
+        if (!isPasswordReady && walletId != METAMASK_WALLET_ID)
           Positioned.fill(
             child: Container(
               color: Colors.black.withOpacity(0.5),

@@ -224,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     final hasBackupAlready = widget.backup != null;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: ${widget.isRePairing}, hasBackupAlready: $hasBackupAlready');
-    if (isRecovery && qrMessage.walletId != 'metamask') {
+    if (isRecovery && qrMessage.walletId != METAMASK_WALLET_ID) {
       await Future.delayed(const Duration(milliseconds: 1500));
       setState(() {
         showRemindEnterPassword = true;
@@ -300,7 +300,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     _resetScannerController();
   }
 
-  void _cancelPairing(bool showTryAgain, [dynamic error, String walletId = 'metamask']) {
+  void _cancelPairing(bool showTryAgain, [dynamic error, String walletId = METAMASK_WALLET_ID]) {
     _pairingOperation?.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
     if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
@@ -314,7 +314,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     } else if (error is StateError && error.toString().contains('INVALID_BACKUP_DATA')) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => walletId == 'metamask'
+          builder: (context) => walletId == METAMASK_WALLET_ID
               ? WrongMetaMaskWalletForRecoveryScreen(onPress: () {
                   _resetPairing();
                 })

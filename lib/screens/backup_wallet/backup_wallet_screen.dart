@@ -44,7 +44,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.walletId != "metamask") {
+    if (widget.walletId != METAMASK_WALLET_ID) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!_isRemoteBackedUpReady) {
           _showWaitingSetupDialog();
@@ -101,7 +101,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (!_isRemoteBackedUpReady && widget.walletId != "metamask") {
+    if (!_isRemoteBackedUpReady && widget.walletId != METAMASK_WALLET_ID) {
       _showWaitingSetupDialog();
     } else {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -266,7 +266,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               ),
             ),
             const Gap(defaultSpacing * 2),
-            if (widget.walletId != "metamask")
+            if (widget.walletId != METAMASK_WALLET_ID)
               StreamBuilder(
                   stream: _backupMessageStream,
                   builder: (ctx, snapshot) {

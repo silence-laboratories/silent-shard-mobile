@@ -3,7 +3,7 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
-import 'package:dart_2_party_ecdsa/src/types/user_data.dart';
+import 'package:silentshard/constants.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';
@@ -43,7 +43,7 @@ class AppRepository extends DemoDecoratorComposite {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
       final keyshare = await _sdk.startKeygen(walletId, userId).value;
-      if (walletId == 'metamask') {
+      if (walletId == METAMASK_WALLET_ID) {
         _sdk.fetchRemoteBackup(keyshare.ethAddress, userId).value;
       }
       _analyticManager.trackDistributedKeyGen(

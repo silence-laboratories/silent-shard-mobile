@@ -40,6 +40,7 @@ import 'screens/pairing/pair_screen.dart' show PairScreen;
 import 'services/sign_in_service.dart';
 import 'transport/firebase_transport.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:silentshard/constants.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -136,7 +137,7 @@ class _MyAppState extends State<MyApp> {
               builder: (context, pairingDataProvider, _) => Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
                 // TODO: Identify crashlytics and mixpanel user by wallet's public key
-                final ethAddress = keysharesProvider.keyshares["metamask"]?.firstOrNull?.ethAddress ?? '';
+                final ethAddress = keysharesProvider.keyshares[METAMASK_WALLET_ID]?.firstOrNull?.ethAddress ?? '';
                 FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
 

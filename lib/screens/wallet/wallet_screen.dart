@@ -185,7 +185,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                 ),
               ),
               Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                bool isMetaMaskWallet = keysharesProvider.keyshares.containsKey('metamask');
+                bool isMetaMaskWallet = keysharesProvider.keyshares.containsKey(METAMASK_WALLET_ID);
                 return UpdaterDialog(
                   showSnapUpdate: isMetaMaskWallet,
                 );

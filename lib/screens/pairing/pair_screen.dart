@@ -109,7 +109,7 @@ class _PairState extends State<PairScreen> {
       final (backupDestination, backup) = await backupService.fetchBackup(source, key);
       if (backup != null && backupDestination != null) {
         FirebaseCrashlytics.instance.log('Backup fetched');
-        String walletId = "Metamask";
+        String walletId = METAMASK_WALLET_ID;
 
         switch (source) {
           case BackupSource.secureStorage:

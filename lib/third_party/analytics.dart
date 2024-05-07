@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
+import 'package:silentshard/constants.dart';
 
 enum PageSource { sign_in, onboarding_backup, onboarding, homepage, get_started, backup_page }
 
@@ -199,7 +200,7 @@ class AnalyticManager {
 
   String? _getWalletAddress() {
     // TODO: Implement _getWalletAddress by wallet
-    return _keysharesProvider.keyshares["metamask"]?.firstOrNull?.ethAddress;
+    return _keysharesProvider.keyshares[METAMASK_WALLET_ID]?.firstOrNull?.ethAddress;
   }
 
   String _getBackupSystem() {
