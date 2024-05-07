@@ -26,15 +26,15 @@ class ImageKeys {
   static const String uploadLaptop = 'uploadLaptop';
 }
 
-class UpdateDialog extends StatefulWidget {
+class UpdaterDialog extends StatefulWidget {
   final bool showSnapUpdate;
-  const UpdateDialog({super.key, this.showSnapUpdate = true});
+  const UpdaterDialog({super.key, this.showSnapUpdate = true});
 
   @override
-  State<UpdateDialog> createState() => _UpdaterState();
+  State<UpdaterDialog> createState() => _UpdaterState();
 }
 
-class _UpdaterState extends State<UpdateDialog> {
+class _UpdaterState extends State<UpdaterDialog> {
   bool showSnapUpdateGuide = false;
   bool showSnapUpdateSuccessful = false;
   int imageLoading = 2; // Load 2 images

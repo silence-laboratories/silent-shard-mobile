@@ -184,7 +184,12 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                   ],
                 ),
               ),
-              const UpdateDialog(),
+              Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
+                bool isMetaMaskWallet = keysharesProvider.keyshares.containsKey('metamask');
+                return UpdaterDialog(
+                  showSnapUpdate: isMetaMaskWallet,
+                );
+              }),
               if (_notificationAlertState == AllowNotificationAlertState.showing)
                 Consumer<LocalAuth>(builder: (context, localAuth, _) {
                   return AllowNotificationAlert(

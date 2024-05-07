@@ -332,7 +332,7 @@ class _PairState extends State<PairScreen> {
                     ),
                   ),
                 ),
-                const UpdateDialog(showSnapUpdate: false),
+                const UpdaterDialog(showSnapUpdate: false),
                 if (_pairingState == PairingState.fetchingBackup) ...[
                   const AlertDialog(
                     content: Wrap(children: [Loader(text: 'Fetching backup...')]),
