@@ -58,9 +58,9 @@ Future<void> main() async {
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
-  final snapService = SnapService(appRepository, Version('1.2.8-alpha.2'));
   await FirebaseRemoteConfigService().initialize();
+  final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
+  final snapService = SnapService(appRepository, true); // Production: false, until no force update is required.
 
   final signInService = SignInService();
   final secureStorage = SecureStorage();

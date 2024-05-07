@@ -19,7 +19,7 @@ class FirebaseRemoteConfigService {
 
   Future<void> _setDefaults() async => _remoteConfig.setDefaults(
         const {
-          FirebaseRemoteConfigKeys.latestAppVersion: '1.2.2',
+          FirebaseRemoteConfigKeys.minimumSnapVersionRequired: '1.2.6',
           FirebaseRemoteConfigKeys.minimumAppVersionRequired: '1.2.0',
         },
       );
@@ -40,11 +40,11 @@ class FirebaseRemoteConfigService {
     await fetchAndActivate();
   }
 
-  String get latestAppVersion => _remoteConfig.getString(FirebaseRemoteConfigKeys.latestAppVersion);
+  String get minimumSnapVersionRequired => _remoteConfig.getString(FirebaseRemoteConfigKeys.minimumSnapVersionRequired);
   String get minimumAppVersionRequired => _remoteConfig.getString(FirebaseRemoteConfigKeys.minimumAppVersionRequired);
 }
 
 class FirebaseRemoteConfigKeys {
-  static const String latestAppVersion = 'latestAppVersion';
+  static const String minimumSnapVersionRequired = 'minimumSnapVersionRequired';
   static const String minimumAppVersionRequired = 'minimumAppVersionRequired';
 }
