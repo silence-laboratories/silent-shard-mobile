@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/screens/update/updater_dailog.dart';
+import 'package:silentshard/screens/update/updater_dialog.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -218,7 +218,7 @@ class _SignScreenState extends State<SignScreen> with WidgetsBindingObserver {
             ),
           ),
         ),
-        const UpdaterDailog(),
+        const UpdateDialog(),
         if (_notificationAlertState == SignScreenNotificationAlertState.showing)
           Consumer<LocalAuth>(builder: (context, localAuth, _) {
             final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
