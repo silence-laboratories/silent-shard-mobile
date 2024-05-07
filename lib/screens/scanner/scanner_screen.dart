@@ -68,10 +68,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
   );
   late AnalyticManager analyticManager;
   bool showRemindEnterPassword = false;
-  bool isRecovery = false;
-  bool isScanningSameExistWallet = false;
-  String recoverAddress = '';
-  String pairingWalletId = '';
+  bool showAccountAlreadyPresent = false;
+  bool isRecovery = false; // for cases: repair, recover with backup, pair with existed wallet
+  String recoveryAddress = '';
+  String scanningWalletId = '';
   SupportWallet? walletInfo;
 
   @override
@@ -165,7 +165,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
-      if (!isScanningSameExistWallet) {
+      if (!showAccountAlreadyPresent) {
         _toWalletScreen();
       }
       setState(() {
@@ -178,7 +178,9 @@ class _ScannerScreenState extends State<ScannerScreen> {
     final userId = authState.user?.uid;
     if (userId == null) throw StateError('Attempt to pair when unauthenticated');
     if (_pairingState != ScannerScreenPairingState.ready) return;
+
     _updatePairingState(ScannerScreenPairingState.inProgress);
+
     final isExist = appRepository.keysharesProvider.keyshares.containsKey(qrMessage.walletId);
     if (isExist) {
       setState(() {
@@ -187,12 +189,22 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
     final keyshare = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
     final currentAddress = keyshare?.firstOrNull?.ethAddress ?? '';
+    bool isPairingExistWallet = widget.backup == null && widget.isRePairing == false && isExist;
+    bool isRePairingExistWallet = widget.isRePairing == true && widget.recoveryWalletId == qrMessage.walletId;
 
-    if (widget.backup == null && widget.isRePairing == false && isExist ||
-        widget.isRePairing == true && widget.recoveryWalletId == qrMessage.walletId) {
+    if (widget.backup != null) {
+      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
+      bool isBackupSameAccount = widget.recoveryWalletId == qrMessage.walletId && backupAddress == currentAddress;
       setState(() {
-        isScanningSameExistWallet = true;
-        recoverAddress = currentAddress;
+        showAccountAlreadyPresent = isBackupSameAccount;
+        recoveryAddress = backupAddress;
+      });
+    }
+
+    if (isPairingExistWallet || isRePairingExistWallet) {
+      setState(() {
+        showAccountAlreadyPresent = true;
+        recoveryAddress = currentAddress;
       });
       if (!widget.isRePairing) {
         setState(() {
@@ -200,20 +212,14 @@ class _ScannerScreenState extends State<ScannerScreen> {
         });
       }
     }
-    if (widget.backup != null) {
-      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
-      setState(() {
-        isScanningSameExistWallet = widget.recoveryWalletId == qrMessage.walletId && backupAddress == currentAddress;
-        recoverAddress = backupAddress;
-      });
-    }
-    if (widget.isRePairing == true || (isExist && widget.backup == null)) {
+
+    if (widget.isRePairing == true || isPairingExistWallet) {
       _pairingOperation = appRepository.repair(qrMessage, userId);
     } else {
       _pairingOperation = appRepository.pair(qrMessage, userId, widget.backup?.walletBackup);
     }
     setState(() {
-      pairingWalletId = qrMessage.walletId;
+      scanningWalletId = qrMessage.walletId;
     });
 
     final hasBackupAlready = widget.backup != null;
@@ -363,7 +369,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     await Future.delayed(const Duration(milliseconds: 500), () {});
     _resetPairing();
     _updateScannerState(ScannerState.scanning);
-    context.read<WalletHighlightProvider>().setPairedWalletId(pairingWalletId);
+    context.read<WalletHighlightProvider>().setPairedWalletId(scanningWalletId);
     context.read<WalletHighlightProvider>().setScrolledTemporarily();
   }
 
@@ -567,7 +573,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                         opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
                         duration: const Duration(milliseconds: 500),
                         child: Wrap(children: [
-                          Loader(text: 'Pairing with ${pairingWalletId.capitalize()}...'),
+                          Loader(text: 'Pairing with ${scanningWalletId.capitalize()}...'),
                         ]),
                       ),
                     ])
@@ -575,19 +581,19 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       children: showRemindEnterPassword
                           ? [
                               AnimatedOpacity(
-                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && !isScanningSameExistWallet ? 1 : 0,
+                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && !showAccountAlreadyPresent ? 1 : 0,
                                 duration: const Duration(milliseconds: 500),
                                 child: Wrap(children: [Check(text: '${widget.backup != null ? 'Recovering' : 'Re-Pairing'} successfully!')]),
                               ),
                               AnimatedOpacity(
-                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && isScanningSameExistWallet ? 1 : 0,
+                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && showAccountAlreadyPresent ? 1 : 0,
                                 duration: const Duration(milliseconds: 500),
                                 child: Visibility(
-                                    visible: _pairingState == ScannerScreenPairingState.succeeded && isScanningSameExistWallet,
+                                    visible: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
                                     child: Column(mainAxisSize: MainAxisSize.min, children: [
                                       const Check(text: 'Account already present on App'),
                                       const Gap(defaultSpacing * 2),
-                                      PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoverAddress),
+                                      PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
                                       Button(
                                         onPressed: () {
                                           _toWalletScreen();
@@ -606,19 +612,19 @@ class _ScannerScreenState extends State<ScannerScreen> {
                             ]
                           : [
                               AnimatedOpacity(
-                                opacity: _pairingState == ScannerScreenPairingState.succeeded && !isScanningSameExistWallet ? 1 : 0,
+                                opacity: _pairingState == ScannerScreenPairingState.succeeded && !showAccountAlreadyPresent ? 1 : 0,
                                 duration: const Duration(milliseconds: 500),
                                 child: Wrap(children: [Check(text: '${widget.backup != null ? 'Recovering' : 'Re-Pairing'} successfully!')]),
                               ),
                               AnimatedOpacity(
-                                  opacity: _pairingState == ScannerScreenPairingState.succeeded && isScanningSameExistWallet ? 1 : 0,
+                                  opacity: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent ? 1 : 0,
                                   duration: const Duration(milliseconds: 500),
                                   child: Visibility(
-                                      visible: _pairingState == ScannerScreenPairingState.succeeded && isScanningSameExistWallet,
+                                      visible: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
                                       child: Column(mainAxisSize: MainAxisSize.min, children: [
                                         const Check(text: 'Account already present on App'),
                                         const Gap(defaultSpacing * 2),
-                                        PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoverAddress),
+                                        PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
                                         Button(
                                           onPressed: () {
                                             _toWalletScreen();
