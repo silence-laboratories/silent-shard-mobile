@@ -66,25 +66,37 @@ class BackupStatusWidget extends StatelessWidget {
   final String address;
   final BackupSource source;
   final Image image;
+  final String walletId;
 
   const BackupStatusWidget({
     super.key,
     required this.address,
     required this.source,
     required this.image,
+    required this.walletId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Consumer<BackupService>(
-      builder: (context, service, _) => Row(
-        children: [
-          StatusIndicator(
-            status: getBackupCheck(service.getBackupInfo(address), source).status,
-            image: image,
-          ),
-        ],
-      ),
+      builder: (context, service, _) {
+        return FutureBuilder(
+          future: service.getBackupInfo(address, walletId: walletId),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              debugPrint('Error in getting backup info: ${snapshot.error}');
+            }
+            return Row(
+              children: [
+                StatusIndicator(
+                  status: getBackupCheck(snapshot.data as BackupInfo, source).status,
+                  image: image,
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -128,6 +140,7 @@ class BackupStatusDashboard extends StatelessWidget {
           ]),
           const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
+            walletId: walletId,
             address: address,
             source: BackupSource.secureStorage,
             image: Image.asset(
@@ -137,6 +150,7 @@ class BackupStatusDashboard extends StatelessWidget {
           ),
           const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
+            walletId: walletId,
             address: address,
             source: BackupSource.fileSystem,
             image: Image.asset(

@@ -121,28 +121,59 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Info --------------------
 
-  BackupInfo getBackupInfo(String address) {
+  Future<BackupInfo> getBackupInfo(String address, {String walletId = ''}) async {
     final info = _preferences.backupInfo(address);
+    if (Platform.isIOS) return info;
+    if (walletId == "metamask") {
+      Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
+      for (var key in backupEntries.keys) {
+        if (!(_hasCheckedKeychain[key] ?? false)) {
+          _hasCheckedKeychain[key] = true;
+          try {
+            final (_, backup) = await readBackupFromStorage(key);
+            if (backup != null) {
+              backupEntries[key] = backup;
+            }
+          } catch (e) {
+            backupEntries[key] = null;
+          }
+        }
 
-    if (Platform.isIOS && !(_hasCheckedKeychain[address] ?? false)) {
-      _hasCheckedKeychain[address] = true;
-      readBackupFromStorage(address).then((backupTuple) {
-        final backup = backupTuple.$2;
-        if (backup != null) {
-          info.keychain = BackupCheck(BackupStatus.done, backup.time);
-          _setBackupInfo(info);
-        } else if (info.keychain.status == BackupStatus.done) {
-          // TODO: auto-save backup on iOS
-          info.keychain = BackupCheck(BackupStatus.missing);
-          _setBackupInfo(info);
+        for (var key in backupEntries.keys) {
+          final backup = backupEntries[key];
+          if (backup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, backup.time);
+            _setBackupInfo(info);
+            return info;
+          } else if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
         }
-      }, onError: (e) {
-        if (info.keychain.status == BackupStatus.done) {
-          // TODO: auto-save backup on iOS
-          info.keychain = BackupCheck(BackupStatus.missing);
-          _setBackupInfo(info);
-        }
-      });
+      }
+    } else {
+      var key = '$walletId-$address';
+      if (!(_hasCheckedKeychain[key] ?? false)) {
+        _hasCheckedKeychain[key] = true;
+        readBackupFromStorage(key).then((result) {
+          final backup = result.$2;
+          if (backup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, backup.time);
+            _setBackupInfo(info);
+          } else if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        }, onError: (e) {
+          if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        });
+      }
     }
 
     return info;

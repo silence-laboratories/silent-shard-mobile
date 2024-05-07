@@ -84,31 +84,47 @@ class BackupDestinationScreen extends StatelessWidget {
                   }),
                 ],
                 const Gap(9 * defaultSpacing),
-                Consumer<BackupService>(
-                    builder: (context, backupService, _) => BackupDestinationWidget(
-                          address: address,
-                          icon: _cloudIcon,
-                          title: "Backup to $_cloudTitle",
-                          label: "Recommended",
-                          // check: BackupCheck(BackupStatus.done),
-                          check: backupService.getBackupInfo(address).cloud,
-                          destination: BackupDestination.secureStorage,
-                          walletId: walletId,
-                        )),
+                Consumer<BackupService>(builder: (context, backupService, _) {
+                  return FutureBuilder(
+                    future: backupService.getBackupInfo(address),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasError) {
+                        debugPrint('Error in getting backup info: ${snapshot.error}');
+                      }
+                      return BackupDestinationWidget(
+                        address: address,
+                        icon: _cloudIcon,
+                        title: "Backup to $_cloudTitle",
+                        label: "Recommended",
+                        check: (snapshot.data as BackupInfo).cloud,
+                        destination: BackupDestination.secureStorage,
+                        walletId: walletId,
+                      );
+                    },
+                  );
+                }),
                 const Gap(4 * defaultSpacing),
                 const Divider(),
                 const Gap(4 * defaultSpacing),
-                Consumer<BackupService>(
-                    builder: (context, backupService, _) => BackupDestinationWidget(
-                          address: address,
-                          icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
-                          title: "Export wallet",
-                          subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
-                          // check: BackupCheck(BackupStatus.pending),
-                          check: backupService.getBackupInfo(address).file,
-                          destination: BackupDestination.fileSystem,
-                          walletId: walletId,
-                        )),
+                Consumer<BackupService>(builder: (context, backupService, _) {
+                  return FutureBuilder(
+                    future: backupService.getBackupInfo(address),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasError) {
+                        debugPrint('Error in getting backup info: ${snapshot.error}');
+                      }
+                      return BackupDestinationWidget(
+                        address: address,
+                        icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
+                        title: "Export wallet",
+                        subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
+                        check: (snapshot.data as BackupInfo).file,
+                        destination: BackupDestination.fileSystem,
+                        walletId: walletId,
+                      );
+                    },
+                  );
+                })
               ],
             ),
           ),

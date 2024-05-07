@@ -113,8 +113,9 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       onPressed: () async {
                         if (_checkboxState == CheckBoxState.checked) {
                           final backupService = context.read<BackupService>();
-                          final backupSystemStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.secureStorage).status;
-                          final backupFileStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.fileSystem).status;
+                          final backupInfo = await backupService.getBackupInfo(widget.address);
+                          final backupSystemStatus = getBackupCheck(backupInfo, BackupSource.secureStorage).status;
+                          final backupFileStatus = getBackupCheck(backupInfo, BackupSource.fileSystem).status;
                           analyticManager.trackDeleteAccount(
                             status: DeleteAccountStatus.success,
                             backupFile: backupFileStatus == BackupStatus.done,
