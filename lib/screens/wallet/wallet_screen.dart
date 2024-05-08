@@ -42,6 +42,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   StreamSubscription<SignRequest>? _signRequestsSubscription;
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
+  bool showWalletList = false;
   _updateNotificationAlertState(AllowNotificationAlertState value) {
     setState(() {
       _notificationAlertState = value;
@@ -72,6 +73,13 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 5));
+      setState(() {
+        showWalletList = true;
+      });
+    });
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     final authState = Provider.of<AuthState>(context, listen: false);
@@ -171,15 +179,9 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                     Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                       return Expanded(
                           child: AnimatedOpacity(
-                              opacity:
-                                  !(_notificationStatus == AuthorizationStatus.denied || _notificationStatus == AuthorizationStatus.notDetermined)
-                                      ? 1
-                                      : 0,
+                              opacity: showWalletList ? 1 : 0,
                               duration: const Duration(milliseconds: 500),
-                              child: Visibility(
-                                  visible: !(_notificationStatus == AuthorizationStatus.denied ||
-                                      _notificationStatus == AuthorizationStatus.notDetermined),
-                                  child: const WalletList())));
+                              child: Visibility(visible: showWalletList, child: const WalletList())));
                     }),
                   ],
                 ),

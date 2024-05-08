@@ -144,13 +144,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   Future<void> _finish(AppRepository appRepository, String walletId, String userId) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
-    _updatePairingState(ScannerScreenPairingState.succeeded);
-
-    await Future.delayed(const Duration(seconds: 2), () {});
     if (!mounted) return;
 
     if (!isRecovery) {
       final result = await appRepository.keygen(walletId, userId);
+      _updatePairingState(ScannerScreenPairingState.succeeded);
+      await Future.delayed(const Duration(seconds: 2), () {});
       final address = result.ethAddress;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -166,6 +165,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
+      _updatePairingState(ScannerScreenPairingState.succeeded);
+      await Future.delayed(const Duration(seconds: 2), () {});
       if (!showAccountAlreadyPresent) {
         _toWalletScreenAfterRecovery();
       }
