@@ -226,6 +226,27 @@ class _ScannerScreenState extends State<ScannerScreen> {
       });
     }
 
+    if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
+      _pairingOperation?.cancel();
+      _resetPairing();
+      SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
+      SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => MultiWalletMismatchScreen(
+            oldWalletId: widget.recoveryWalletId,
+            oldWalletIcon: oldWallet.icon,
+            newWalletId: qrMessage.walletId,
+            newWalletIcon: newWallet.icon,
+            onContinue: () {
+              _updatePairingState(ScannerScreenPairingState.ready);
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      );
+    }
+
     _pairingOperation?.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
         type: widget.isRePairing
@@ -236,28 +257,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.success,
       );
       FirebaseCrashlytics.instance.log('Pairing done');
-      if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
-        SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
-        SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => MultiWalletMismatchScreen(
-              oldWalletId: widget.recoveryWalletId,
-              oldWalletIcon: oldWallet.icon,
-              newWalletId: qrMessage.walletId,
-              newWalletIcon: newWallet.icon,
-              onContinue: () {
-                _pairingOperation?.cancel();
-                _updatePairingState(ScannerScreenPairingState.ready);
-                _resetPairing();
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        );
-      } else {
-        _finish(appRepository, qrMessage.walletId, userId);
-      }
+      _finish(appRepository, qrMessage.walletId, userId);
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
@@ -343,7 +343,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   void _toWalletScreenAfterRecovery() async {
     Navigator.of(context).pop();
-    await Future.delayed(const Duration(milliseconds: 500), () {});
     _resetPairing();
     _updateScannerState(ScannerState.scanning);
     context.read<WalletHighlightProvider>().setPairedAddress(widget.repairAddress);
