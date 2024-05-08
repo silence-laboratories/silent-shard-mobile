@@ -1,4 +1,3 @@
-import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +10,7 @@ import 'package:silentshard/screens/scanner/scanner_screen.dart';
 import 'package:silentshard/screens/sign/confirm_unpair.dart';
 import 'package:silentshard/screens/wallet/wallet_card.dart';
 import 'package:silentshard/types/wallet_highlight_provider.dart';
+import 'package:silentshard/types/wallet_list_item.dart';
 
 class WalletList extends StatefulWidget {
   const WalletList({super.key});
@@ -52,15 +52,15 @@ class WalletListState extends State<WalletList> {
         builder: (context) => ConfirmUnpair(walletId: walletId, address: address, onUnpair: _signOut));
   }
 
-  Future<void> _signOut(String walletId) async {
+  Future<void> _signOut(String walletId, String address) async {
     FirebaseCrashlytics.instance.log('Signing out');
-    Provider.of<AppRepository>(context, listen: false).reset(walletId);
+    Provider.of<AppRepository>(context, listen: false).reset(walletId, address);
   }
 
-  int _scrollToListener(String pairedWalletId, List<MapEntry<String, List<Keyshare>>> walletEntries) {
+  int _scrollToListener(String pairedAddress, List<WalletListItem> walletEntries) {
     int scrolledToIndex = 0;
     for (var i = 0; i < walletEntries.length; i++) {
-      if (walletEntries[i].key == pairedWalletId) {
+      if (walletEntries[i].address == pairedAddress) {
         scrolledToIndex = i;
         break;
       }
@@ -82,15 +82,23 @@ class WalletListState extends State<WalletList> {
         controller: _scrollController,
         child: Consumer<KeysharesProvider>(
             builder: (context, keysharesProvider, _) => Consumer<WalletHighlightProvider>(builder: (context, walletIdProvider, child) {
-                  var walletEntries = keysharesProvider.keyshares.entries.toList();
-                  var scrolledToIndex = _scrollToListener(walletIdProvider.pairedWalletId, walletEntries);
+                  var walletMapEntries = keysharesProvider.keyshares.entries.toList();
+                  List<WalletListItem> walletItems = [];
+                  for (var entry in walletMapEntries) {
+                    var walletId = entry.key;
+                    var keyshareList = entry.value;
+                    for (var keyshare in keyshareList) {
+                      var address = keyshare.ethAddress;
+                      walletItems.add(WalletListItem(walletId: walletId, address: address));
+                    }
+                  }
+                  var scrolledToIndex = _scrollToListener(walletIdProvider.pairedAddress, walletItems);
                   return ListView.builder(
-                    itemCount: walletEntries.length,
+                    itemCount: walletItems.length,
                     itemBuilder: (context, index) {
-                      final walletEntry = walletEntries[index];
-                      final walletId = walletEntry.key;
-                      final keyshareList = walletEntry.value;
-                      final address = keyshareList.firstOrNull?.ethAddress ?? "";
+                      final item = walletItems[index];
+                      final walletId = item.walletId;
+                      final address = item.address;
                       return Container(
                         margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
                         decoration: (index == scrolledToIndex && walletIdProvider.scrolled)
@@ -119,7 +127,7 @@ class WalletListState extends State<WalletList> {
                           onTap: () {},
                           borderRadius: BorderRadius.circular(8.0),
                           child: WalletCard(
-                            key: Key(walletId),
+                            key: Key(address),
                             walletId: walletId,
                             onRepair: () {
                               _repair(walletId, address);
