@@ -83,9 +83,6 @@ class AppRepository extends DemoDecoratorComposite {
       return CancelableOperation.fromValue(AppBackup(demoBackup));
     }
 
-    print(_sdk.backupState.walletBackupMap[walletId]?.accounts.length);
-    print(_sdk.keygenState.keysharesMap[walletId]?.length);
-
     return _sdk //
         .walletBackup(walletId)
         .then((walletBackup) => AppBackup(walletBackup));
@@ -116,8 +113,6 @@ class AppRepository extends DemoDecoratorComposite {
 
   void reset(String walletId, String address) {
     stopDemoMode();
-    print(_sdk.backupState.walletBackupMap[walletId]?.accounts);
-    print(_sdk.keygenState.keysharesMap[walletId]?.length);
     _sdk.reset(walletId, address);
   }
 

@@ -225,10 +225,10 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
 
     final requestModel = SignRequestViewModel(requst, chain);
     analyticManager.trackSignInitiated();
-    _showConfirmationDialog(requst.walletId ?? "", requestModel, requst.accountId);
+    _showConfirmationDialog(requst.walletId ?? "", requestModel, requst.from);
   }
 
-  void _showConfirmationDialog(String walletId, SignRequestViewModel requestModel, int accountId) {
+  void _showConfirmationDialog(String walletId, SignRequestViewModel requestModel, String address) {
     showModalBottomSheet(
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
@@ -239,7 +239,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
       backgroundColor: sheetBackgroundColor,
       context: context,
       builder: (context) => ApproveTransactionScreen(
-        accountId: accountId,
+        address: address,
         walletId: walletId,
         requestModel: requestModel,
         resumeSignRequestSubscription: () {

@@ -23,14 +23,14 @@ class ApproveTransactionScreen extends StatefulWidget {
   final SignRequestViewModel requestModel;
   final VoidCallback resumeSignRequestSubscription;
   final String walletId;
-  final int accountId;
+  final String address;
 
   const ApproveTransactionScreen(
       {super.key, //
       required this.requestModel,
       required this.resumeSignRequestSubscription,
       required this.walletId,
-      required this.accountId});
+      required this.address});
 
   @override
   State<ApproveTransactionScreen> createState() => _ApproveTransactionScreenState();
@@ -123,7 +123,7 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
           child: Stack(children: [
             if (_transactionState == TransactionState.readyToSign)
               TransactionDetailsWidget(
-                  accountId: widget.accountId, walletId: widget.walletId, requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
+                  address: widget.address, walletId: widget.walletId, requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
             if (_transactionState == TransactionState.signing || _transactionState == TransactionState.signed) ...[
               AnimatedOpacity(
                 opacity: _transactionState == TransactionState.signing ? 1.0 : 0.0,
