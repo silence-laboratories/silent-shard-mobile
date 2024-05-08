@@ -15,7 +15,7 @@ import '../components/backup_status_dashboard.dart';
 class ConfirmUnpair extends StatefulWidget {
   final String address;
   final String walletId;
-  final Future<void> Function(String walletId) onUnpair;
+  final Future<void> Function(String walletId, String address) onUnpair;
 
   const ConfirmUnpair({
     super.key,
@@ -121,7 +121,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                             backupFile: backupFileStatus == BackupStatus.done,
                             backupSystem: backupSystemStatus == BackupStatus.done,
                           );
-                          await widget.onUnpair(widget.walletId);
+                          await widget.onUnpair(widget.walletId, widget.address);
                           analyticManager.trackLogOut();
                           if (mounted) Navigator.of(context).pop();
                         }
