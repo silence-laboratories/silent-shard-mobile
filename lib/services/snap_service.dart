@@ -14,12 +14,11 @@ class SnapService extends ChangeNotifier {
   bool? forceUpdateSnap;
   bool _showSnapUpdateSuccessful = false;
   bool _willShowSnapUpdateSuccessful = false;
-  final bool _deprecateNullSnapVersion;
   StreamSubscription<UserData>? _streamSubscription;
 
   Version? get snapVersion => _snapVersion;
 
-  SnapService(this._appRepository, [this._deprecateNullSnapVersion = false]) {
+  SnapService(this._appRepository) {
     init();
   }
 
@@ -53,14 +52,6 @@ class SnapService extends ChangeNotifier {
       } else {
         forceUpdateSnap = false;
         showSnapUpdateSuccessful = _willShowSnapUpdateSuccessful;
-        _streamSubscription?.cancel();
-      }
-    } else {
-      if (_deprecateNullSnapVersion) {
-        forceUpdateSnap = true;
-        _willShowSnapUpdateSuccessful = true;
-      } else {
-        forceUpdateSnap = false;
         _streamSubscription?.cancel();
       }
     }
