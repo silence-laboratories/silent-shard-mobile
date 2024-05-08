@@ -20,12 +20,14 @@ class TransactionDetailsWidget extends StatelessWidget {
   final SignRequestViewModel requestModel;
   final void Function(bool approved, SignRequestViewModel requestModel, {Function? onErrorCb}) handleSignResponse;
   final String walletId;
+  final int accountId;
 
   const TransactionDetailsWidget(
       {super.key, //
       required this.requestModel,
       required this.handleSignResponse,
-      required this.walletId});
+      required this.walletId,
+      required this.accountId});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,8 @@ class TransactionDetailsWidget extends StatelessWidget {
               child: Row(
                 children: [
                   Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                    var address = keysharesProvider.keyshares[walletId]?.firstOrNull?.ethAddress;
+                    print("accountId $accountId");
+                    var address = keysharesProvider.keyshares[walletId]?.elementAt(accountId - 1).ethAddress;
                     return WalletAddressWidget(
                       title: 'From wallet',
                       displayText: address ?? "Unknown address",
