@@ -91,15 +91,17 @@ class BackupDestinationScreen extends StatelessWidget {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
                       }
-                      return BackupDestinationWidget(
-                        address: address,
-                        icon: _cloudIcon,
-                        title: "Backup to $_cloudTitle",
-                        label: "Recommended",
-                        check: (snapshot.data as BackupInfo).cloud,
-                        destination: BackupDestination.secureStorage,
-                        walletId: walletId,
-                      );
+                      return snapshot.data != null
+                          ? BackupDestinationWidget(
+                              address: address,
+                              icon: _cloudIcon,
+                              title: "Backup to $_cloudTitle",
+                              label: "Recommended",
+                              check: (snapshot.data as BackupInfo).cloud,
+                              destination: BackupDestination.secureStorage,
+                              walletId: walletId,
+                            )
+                          : const SizedBox();
                     },
                   );
                 }),
@@ -113,15 +115,17 @@ class BackupDestinationScreen extends StatelessWidget {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
                       }
-                      return BackupDestinationWidget(
-                        address: address,
-                        icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
-                        title: "Export wallet",
-                        subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
-                        check: (snapshot.data as BackupInfo).file,
-                        destination: BackupDestination.fileSystem,
-                        walletId: walletId,
-                      );
+                      return snapshot.data != null
+                          ? BackupDestinationWidget(
+                              address: address,
+                              icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
+                              title: "Export wallet",
+                              subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
+                              check: (snapshot.data as BackupInfo).file,
+                              destination: BackupDestination.fileSystem,
+                              walletId: walletId,
+                            )
+                          : const SizedBox();
                     },
                   );
                 })

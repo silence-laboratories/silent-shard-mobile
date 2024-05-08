@@ -89,7 +89,7 @@ class BackupStatusWidget extends StatelessWidget {
             return Row(
               children: [
                 StatusIndicator(
-                  status: getBackupCheck(snapshot.data as BackupInfo, source).status,
+                  status: snapshot.data != null ? getBackupCheck(snapshot.data, source).status : BackupStatus.pending,
                   image: image,
                 ),
               ],
