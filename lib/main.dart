@@ -60,7 +60,7 @@ Future<void> main() async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
   await FirebaseRemoteConfigService().initialize();
   final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
-  final snapService = SnapService(appRepository, true); // Production: false, until no force update is required.
+  final snapService = SnapService(appRepository);
 
   final signInService = SignInService();
   final secureStorage = SecureStorage();
