@@ -69,12 +69,12 @@ class AppRepository extends DemoDecoratorComposite {
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
-  CancelableOperation<PairingData?> repair(QRMessage qrMessage, String userId) {
+  CancelableOperation<PairingData?> repair(QRMessage qrMessage, String address, String userId) {
     if (isDemoActive) {
       return CancelableOperation.fromValue((null));
     }
     _sdk.unpairIfNoKeyshares();
-    return _sdk.startRePairing(qrMessage, userId);
+    return _sdk.startRePairing(qrMessage, address, userId);
   }
 
   CancelableOperation<AppBackup> appBackup(String walletId) {
@@ -111,9 +111,9 @@ class AppRepository extends DemoDecoratorComposite {
     _sdk.decline(request);
   }
 
-  void reset(String walletId) {
+  void reset(String walletId, String address) {
     stopDemoMode();
-    _sdk.reset(walletId);
+    _sdk.reset(walletId, address);
   }
 
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);

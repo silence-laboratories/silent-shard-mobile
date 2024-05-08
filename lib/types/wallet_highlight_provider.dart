@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 
 class WalletHighlightProvider with ChangeNotifier {
-  String _walletId = '';
+  String _address = '';
   bool _isScrolled = false;
 
-  String get pairedWalletId => _walletId;
+  String get pairedAddress => _address;
 
   bool get scrolled => _isScrolled;
 
-  void setPairedWalletId(String newValue) {
-    _walletId = newValue;
+  void setPairedAddress(String newValue) {
+    _address = newValue;
     notifyListeners();
   }
 

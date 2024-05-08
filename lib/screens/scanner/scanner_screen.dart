@@ -69,7 +69,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   late AnalyticManager analyticManager;
   bool showRemindEnterPassword = false;
   bool showAccountAlreadyPresent = false;
-  bool isRecovery = false; // for cases: repair, recover with backup, pair with existed wallet
+  bool isRecovery = false; // for cases: repair, recover with backup
   String recoveryAddress = '';
   String scanningWalletId = '';
   SupportWallet? walletInfo;
@@ -144,16 +144,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
   Future<void> _finish(AppRepository appRepository, String walletId, String userId) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
-    _updatePairingState(ScannerScreenPairingState.succeeded);
-
-    await Future.delayed(const Duration(seconds: 2), () {});
     if (!mounted) return;
 
     if (!isRecovery) {
-      await appRepository.keygen(walletId, userId);
+      final result = await appRepository.keygen(walletId, userId);
+      _updatePairingState(ScannerScreenPairingState.succeeded);
+      await Future.delayed(const Duration(seconds: 2), () {});
+      final address = result.ethAddress;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => BackupWalletScreen(walletId: walletId),
+          builder: (context) => BackupWalletScreen(walletId: walletId, address: address),
         ),
       );
     } else {
@@ -165,8 +165,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
         final backupService = Provider.of<BackupService>(context, listen: false);
         backupService.backupToStorageDidSave(widget.backup!);
       }
+      _updatePairingState(ScannerScreenPairingState.succeeded);
+      await Future.delayed(const Duration(seconds: 2), () {});
       if (!showAccountAlreadyPresent) {
-        _toWalletScreen();
+        _toWalletScreenAfterRecovery();
       }
       setState(() {
         showRemindEnterPassword = false;
@@ -181,15 +183,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _updatePairingState(ScannerScreenPairingState.inProgress);
 
-    final isExist = appRepository.keysharesProvider.keyshares.containsKey(qrMessage.walletId);
-    if (isExist) {
-      setState(() {
-        isRecovery = true;
-      });
-    }
     final keyshare = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
     final currentAddress = keyshare?.firstOrNull?.ethAddress ?? '';
-    bool isPairingExistWallet = widget.backup == null && widget.isRePairing == false && isExist;
     bool isRePairingExistWallet = widget.isRePairing == true && widget.recoveryWalletId == qrMessage.walletId;
 
     if (widget.backup != null) {
@@ -201,7 +196,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       });
     }
 
-    if (isPairingExistWallet || isRePairingExistWallet) {
+    if (isRePairingExistWallet) {
       setState(() {
         showAccountAlreadyPresent = true;
         recoveryAddress = currentAddress;
@@ -213,8 +208,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
       }
     }
 
-    if (widget.isRePairing == true || isPairingExistWallet) {
-      _pairingOperation = appRepository.repair(qrMessage, userId);
+    if (widget.isRePairing == true) {
+      _pairingOperation = appRepository.repair(qrMessage, widget.repairAddress, userId);
     } else {
       _pairingOperation = appRepository.pair(qrMessage, userId, widget.backup?.walletBackup);
     }
@@ -241,25 +236,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.success,
       );
       FirebaseCrashlytics.instance.log('Pairing done');
-      if (pairingResponse is PairingData && pairingResponse.remark == 'WALLET_MISMATCH') {
-        FirebaseCrashlytics.instance.log('Wallet mismatch');
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => WalletMismatchScreen(
-              onContinue: () {
-                FirebaseCrashlytics.instance.log('Continue with new account');
-                _finish(appRepository, qrMessage.walletId, userId);
-              },
-              onBack: () {
-                FirebaseCrashlytics.instance.log('Cancel pairing');
-                _pairingOperation?.cancel();
-                _updatePairingState(ScannerScreenPairingState.ready);
-                _resetPairing();
-              },
-            ),
-          ),
-        );
-      } else if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
+      if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
         SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
         SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
         Navigator.of(context).push(
@@ -364,12 +341,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  void _toWalletScreen() async {
+  void _toWalletScreenAfterRecovery() async {
     Navigator.of(context).pop();
     await Future.delayed(const Duration(milliseconds: 500), () {});
     _resetPairing();
     _updateScannerState(ScannerState.scanning);
-    context.read<WalletHighlightProvider>().setPairedWalletId(scanningWalletId);
+    context.read<WalletHighlightProvider>().setPairedAddress(widget.repairAddress);
     context.read<WalletHighlightProvider>().setScrolledTemporarily();
   }
 
@@ -596,7 +573,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                       PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
                                       Button(
                                         onPressed: () {
-                                          _toWalletScreen();
+                                          _toWalletScreenAfterRecovery();
                                         },
                                         child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
                                       ),
@@ -627,7 +604,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                         PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
                                         Button(
                                           onPressed: () {
-                                            _toWalletScreen();
+                                            _toWalletScreenAfterRecovery();
                                           },
                                           child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
                                         ),

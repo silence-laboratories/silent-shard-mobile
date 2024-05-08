@@ -75,7 +75,7 @@ class WalletInfo extends StatelessWidget {
               const SizedBox(width: 24),
             ]),
             Text(
-              walletInfo.name ?? "Unknown",
+              walletInfo.name,
               style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],

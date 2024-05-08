@@ -29,9 +29,10 @@ import 'package:silentshard/utils.dart';
 import '../error/error_handler.dart';
 
 class BackupWalletScreen extends StatefulWidget {
-  const BackupWalletScreen({super.key, required this.walletId});
+  const BackupWalletScreen({super.key, required this.walletId, required this.address});
 
   final String walletId;
+  final String address;
 
   @override
   State<BackupWalletScreen> createState() => _BackupWalletScreenState();
@@ -40,6 +41,7 @@ class BackupWalletScreen extends StatefulWidget {
 class _BackupWalletScreenState extends State<BackupWalletScreen> {
   late Stream<BackupMessage> _backupMessageStream;
   bool _isRemoteBackedUpReady = false;
+  String address = '';
 
   @override
   void initState() {
@@ -50,16 +52,14 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           _showWaitingSetupDialog();
         }
       });
-      final appRepository = Provider.of<AppRepository>(context, listen: false);
-      final keyshareProvider = appRepository.keysharesProvider;
-      final ethAddress = keyshareProvider.keyshares[widget.walletId]?.firstOrNull?.ethAddress;
+
       final authState = Provider.of<AuthState>(context, listen: false);
       final userId = authState.user?.uid;
-      if (ethAddress != null && userId != null) {
+      if (userId != null) {
         _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
-            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: ethAddress, userId: userId)
+            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
             .map((event) {
-          Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(ethAddress, event.isBackedUp);
+          Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
           setState(() {
             _isRemoteBackedUpReady = event.isBackedUp;
           });
@@ -121,7 +121,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           Navigator.of(context).pop();
         }
         if (context.mounted) {
-          context.read<WalletHighlightProvider>().setPairedWalletId(widget.walletId);
+          context.read<WalletHighlightProvider>().setPairedAddress(widget.address);
           context.read<WalletHighlightProvider>().setScrolledTemporarily();
           Navigator.of(context).pop();
         }
@@ -299,6 +299,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                             error: "User skipped backup",
                           );
                           int count = 0;
+                          context.read<WalletHighlightProvider>().setPairedAddress(widget.address);
+                          context.read<WalletHighlightProvider>().setScrolledTemporarily();
                           Navigator.of(context).popUntil((_) => count++ >= 2);
                         }),
                       ],
