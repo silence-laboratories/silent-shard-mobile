@@ -342,11 +342,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _toWalletScreenAfterRecovery() async {
-    Navigator.of(context).pop();
+    context.read<WalletHighlightProvider>().setPairedAddress(recoveryAddress);
+    context.read<WalletHighlightProvider>().setScrolledTemporarily();
     _resetPairing();
     _updateScannerState(ScannerState.scanning);
-    context.read<WalletHighlightProvider>().setPairedAddress(widget.repairAddress);
-    context.read<WalletHighlightProvider>().setScrolledTemporarily();
+    Navigator.of(context).pop();
   }
 
   @override
