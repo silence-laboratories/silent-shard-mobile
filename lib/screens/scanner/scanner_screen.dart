@@ -259,7 +259,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
             ),
           ),
         );
-      } else if ((widget.backup != null || widget.isRePairing && widget.recoveryWalletId != qrMessage.walletId)) {
+      } else if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
         SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
         SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
         Navigator.of(context).push(
