@@ -41,7 +41,6 @@ class BackupWalletScreen extends StatefulWidget {
 class _BackupWalletScreenState extends State<BackupWalletScreen> {
   late Stream<BackupMessage> _backupMessageStream;
   bool _isRemoteBackedUpReady = false;
-  String address = '';
 
   @override
   void initState() {

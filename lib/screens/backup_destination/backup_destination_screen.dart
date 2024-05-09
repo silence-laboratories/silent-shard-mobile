@@ -1,6 +1,7 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:credential_manager/credential_manager.dart';
@@ -23,31 +24,49 @@ import '../components/button.dart';
 import '../components/padded_container.dart';
 import '../components/message_widget.dart';
 import '../error/error_handler.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
-class BackupDestinationScreen extends StatelessWidget {
+class BackupDestinationScreen extends StatefulWidget {
   final String address;
   final String walletId;
 
   const BackupDestinationScreen({super.key, required this.address, required this.walletId});
 
+  @override
+  State<BackupDestinationScreen> createState() => _BackupDestinationScreenState();
+}
+
+class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   String get _cloudIconName => Platform.isAndroid ? "socialGoogle.png" : "socialApple.png";
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
-
   String get _cloudTitle => Platform.isAndroid ? "Google Password Manager" : "iCloud Keychain";
   String get _storageTitle => Platform.isAndroid ? "Google" : "iCloud";
+  StreamSubscription<BackupMessage>? _backupMessageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    if (widget.walletId != METAMASK_WALLET_ID && userId != null) {
+      _backupMessageSubscription = Provider.of<AppRepository>(context, listen: false)
+          .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
+          .listen((event) {
+        Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _backupMessageSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final authState = Provider.of<AuthState>(context, listen: false);
-    final userId = authState.user?.uid;
-    if (walletId != METAMASK_WALLET_ID && userId != null) {
-      Provider.of<AppRepository>(context, listen: false)
-          .listenRemoteBackupMessage(walletId: walletId, accountAddress: address, userId: userId)
-          .listen((event) {
-        Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(address, event.isBackedUp);
-      });
-    }
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -74,10 +93,10 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
-                if (walletId != METAMASK_WALLET_ID) ...[
+                if (widget.walletId != METAMASK_WALLET_ID) ...[
                   const Gap(3 * defaultSpacing),
                   Consumer<AppPreferences>(builder: (context, appPreferences, _) {
-                    bool isPasswordReady = appPreferences.getIsPasswordReady(address);
+                    bool isPasswordReady = appPreferences.getIsPasswordReady(widget.address);
                     return isPasswordReady
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                         : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
@@ -86,20 +105,20 @@ class BackupDestinationScreen extends StatelessWidget {
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(builder: (context, backupService, _) {
                   return FutureBuilder(
-                    future: backupService.getBackupInfo(address),
+                    future: backupService.getBackupInfo(widget.address),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
                       }
                       return snapshot.data != null
                           ? BackupDestinationWidget(
-                              address: address,
+                              address: widget.address,
                               icon: _cloudIcon,
                               title: "Backup to $_cloudTitle",
                               label: "Recommended",
                               check: (snapshot.data as BackupInfo).cloud,
                               destination: BackupDestination.secureStorage,
-                              walletId: walletId,
+                              walletId: widget.walletId,
                             )
                           : const SizedBox();
                     },
@@ -110,20 +129,20 @@ class BackupDestinationScreen extends StatelessWidget {
                 const Gap(4 * defaultSpacing),
                 Consumer<BackupService>(builder: (context, backupService, _) {
                   return FutureBuilder(
-                    future: backupService.getBackupInfo(address),
+                    future: backupService.getBackupInfo(widget.address),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
                       }
                       return snapshot.data != null
                           ? BackupDestinationWidget(
-                              address: address,
+                              address: widget.address,
                               icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
                               title: "Export wallet",
                               subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
                               check: (snapshot.data as BackupInfo).file,
                               destination: BackupDestination.fileSystem,
-                              walletId: walletId,
+                              walletId: widget.walletId,
                             )
                           : const SizedBox();
                     },
