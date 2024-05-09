@@ -13,26 +13,24 @@ import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.dart';
+import 'package:silentshard/extensions/string_extension.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/screens/error/multi_wallet_mismatch_screen.dart';
-import 'package:silentshard/screens/error/wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_password_recovery_screen.dart';
 import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
+import 'package:silentshard/screens/scanner/scanner_pair_status_dialog.dart';
+import 'package:silentshard/screens/scanner/scanner_recovery_status_dialog.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet/backup_wallet_screen.dart';
 import 'package:silentshard/screens/components/button.dart';
-import 'package:silentshard/screens/components/loader.dart';
-import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/error/something_went_wrong_screen.dart';
 import 'package:silentshard/screens/error/wrong_qr_code_screen.dart';
-import "package:silentshard/extensions/string_extension.dart";
 import 'package:silentshard/types/support_wallet.dart';
 import 'package:silentshard/types/wallet_highlight_provider.dart';
 import '../../auth_state.dart';
@@ -183,13 +181,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     _updatePairingState(ScannerScreenPairingState.inProgress);
 
-    final keyshare = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
-    final currentAddress = keyshare?.firstOrNull?.ethAddress ?? '';
+    final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
     bool isRePairingExistWallet = widget.isRePairing == true && widget.recoveryWalletId == qrMessage.walletId;
 
     if (widget.backup != null) {
       final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
-      bool isBackupSameAccount = widget.recoveryWalletId == qrMessage.walletId && backupAddress == currentAddress;
+      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
       setState(() {
         showAccountAlreadyPresent = isBackupSameAccount;
         recoveryAddress = backupAddress;
@@ -199,7 +196,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (isRePairingExistWallet) {
       setState(() {
         showAccountAlreadyPresent = true;
-        recoveryAddress = currentAddress;
+        recoveryAddress = widget.repairAddress;
       });
       if (!widget.isRePairing) {
         setState(() {
@@ -537,85 +534,20 @@ class _ScannerScreenState extends State<ScannerScreen> {
           if (_scannerState == ScannerState.scanned)
             AlertDialog(
               content: !isRecovery
-                  ? Stack(children: [
-                      AnimatedOpacity(
-                        opacity: (_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                        duration: const Duration(milliseconds: 500),
-                        child: const Wrap(children: [
-                          Check(text: 'Successfully paired!'),
-                        ]),
-                      ),
-                      AnimatedOpacity(
-                        opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                        duration: const Duration(milliseconds: 500),
-                        child: Wrap(children: [
-                          Loader(text: 'Pairing with ${scanningWalletId.capitalize()}...'),
-                        ]),
-                      ),
-                    ])
-                  : Stack(
-                      children: showRemindEnterPassword
-                          ? [
-                              AnimatedOpacity(
-                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && !showAccountAlreadyPresent ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: Wrap(children: [Check(text: '${widget.backup != null ? 'Recovering' : 'Re-Pairing'} successfully!')]),
-                              ),
-                              AnimatedOpacity(
-                                opacity: (_pairingState == ScannerScreenPairingState.succeeded) && showAccountAlreadyPresent ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: Visibility(
-                                    visible: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
-                                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                                      const Check(text: 'Account already present on App'),
-                                      const Gap(defaultSpacing * 2),
-                                      PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
-                                      Button(
-                                        onPressed: () {
-                                          _toWalletScreenAfterRecovery();
-                                        },
-                                        child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
-                                      ),
-                                    ])),
-                              ),
-                              AnimatedOpacity(
-                                opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: Visibility(
-                                    visible: !(_pairingState == ScannerScreenPairingState.succeeded),
-                                    child: RemindEnterPasswordModal(isScanning: true, walletName: walletInfo?.name ?? "")),
-                              ),
-                            ]
-                          : [
-                              AnimatedOpacity(
-                                opacity: _pairingState == ScannerScreenPairingState.succeeded && !showAccountAlreadyPresent ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: Wrap(children: [Check(text: '${widget.backup != null ? 'Recovering' : 'Re-Pairing'} successfully!')]),
-                              ),
-                              AnimatedOpacity(
-                                  opacity: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent ? 1 : 0,
-                                  duration: const Duration(milliseconds: 500),
-                                  child: Visibility(
-                                      visible: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
-                                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                                        const Check(text: 'Account already present on App'),
-                                        const Gap(defaultSpacing * 2),
-                                        PopoverAddress(name: walletInfo?.name ?? "", icon: walletInfo?.icon ?? "", address: recoveryAddress),
-                                        Button(
-                                          onPressed: () {
-                                            _toWalletScreenAfterRecovery();
-                                          },
-                                          child: Text('Continue', style: Theme.of(context).textTheme.displaySmall),
-                                        ),
-                                      ]))),
-                              AnimatedOpacity(
-                                opacity: !(_pairingState == ScannerScreenPairingState.succeeded) ? 1 : 0,
-                                duration: const Duration(milliseconds: 500),
-                                child: Wrap(children: [
-                                  Loader(text: '${widget.backup != null ? 'Recovering' : 'Re-Pairing'} with ${walletInfo?.name ?? ""}...')
-                                ]),
-                              ),
-                            ]),
+                  ? ScannerPairStatusDialog(
+                      isNotSucceed: !(_pairingState == ScannerScreenPairingState.succeeded),
+                      walletName: scanningWalletId.capitalize(),
+                    )
+                  : ScannerRecoveryStatusDialog(
+                      isSucceedWithNewAccount: _pairingState == ScannerScreenPairingState.succeeded && !showAccountAlreadyPresent,
+                      isSucceedWithPresentAccount: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
+                      isRecoverWithBackup: widget.backup != null,
+                      showRemindEnterPassword: showRemindEnterPassword,
+                      isNotSucceed: !(_pairingState == ScannerScreenPairingState.succeeded),
+                      walletInfo: walletInfo,
+                      recoveryAddress: recoveryAddress,
+                      toWalletScreenAfterRecovery: _toWalletScreenAfterRecovery,
+                    ),
               insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
             ),
         ]),

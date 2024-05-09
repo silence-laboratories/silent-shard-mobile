@@ -1,6 +1,3 @@
-// final walletId = walletEntry.key;
-// final address = keyshareList.firstOrNull?.ethAddress ?? "";
-
 class WalletListItem {
   WalletListItem({
     required this.walletId,
