@@ -187,7 +187,7 @@ class BackupDestinationWidget extends StatelessWidget {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
         BackupDestination.secureStorage => SaveBackupToStorageUseCase(context),
       };
-      await useCase.execute(walletId);
+      await useCase.execute(walletId, address);
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: true, source: PageSource.backup_page);

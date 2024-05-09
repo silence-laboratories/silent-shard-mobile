@@ -12,7 +12,7 @@ import '../types/file_name.dart';
 import '../utils.dart';
 
 abstract interface class UseCase<R> {
-  Future<R> execute(String walletId);
+  Future<R> execute(String walletId, String address);
 }
 
 class SaveBackupToStorageUseCase extends UseCase {
@@ -21,7 +21,7 @@ class SaveBackupToStorageUseCase extends UseCase {
   SaveBackupToStorageUseCase(this.context);
 
   @override
-  Future<void> execute(String walletId) async {
+  Future<void> execute(String walletId, String address) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -30,7 +30,7 @@ class SaveBackupToStorageUseCase extends UseCase {
     final backupService = Provider.of<BackupService>(context, listen: false);
 
     return appRepository
-        .appBackup(walletId)
+        .appBackup(walletId, address)
         .value //
         .then((appBackup) => backupService.saveBackupToStorage(walletId, appBackup));
   }
@@ -41,7 +41,7 @@ class ExportBackupUseCase extends UseCase {
   ExportBackupUseCase(this.context);
 
   @override
-  Future<void> execute(String walletId) async {
+  Future<void> execute(String walletId, String address) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -50,7 +50,7 @@ class ExportBackupUseCase extends UseCase {
     try {
       final appRepository = Provider.of<AppRepository>(context, listen: false);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final appBackup = await appRepository.appBackup(walletId).value;
+      final appBackup = await appRepository.appBackup(walletId, address).value;
 
       if (appBackup.walletBackup.accounts.isEmpty) {
         return Future.error(StateError('Cannot export backup: empty wallet'));

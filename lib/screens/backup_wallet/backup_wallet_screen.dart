@@ -106,7 +106,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
       FirebaseCrashlytics.instance.log('Saving backup');
       try {
-        await SaveBackupToStorageUseCase(context).execute(widget.walletId);
+        await SaveBackupToStorageUseCase(context).execute(widget.walletId, widget.address);
         FirebaseCrashlytics.instance.log('Backup saved');
         analyticManager.trackSaveBackupSystem(
           success: true,

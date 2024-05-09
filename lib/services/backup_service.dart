@@ -181,9 +181,7 @@ class BackupService extends ChangeNotifier {
 
   Future<void> verifyBackup(String address) async {
     if (!Platform.isAndroid) return;
-
     final info = _preferences.backupInfo(address);
-
     try {
       final (_, backup) = await readBackupFromStorage(null);
       if (backup != null) {
