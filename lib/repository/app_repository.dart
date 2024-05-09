@@ -3,7 +3,6 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
-import 'package:silentshard/constants.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';

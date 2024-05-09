@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/utils.dart';
-
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'app_preferences.dart';
 import '../types/backup_info.dart';
 import 'file_service.dart';

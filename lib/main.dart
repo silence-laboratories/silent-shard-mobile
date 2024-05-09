@@ -40,7 +40,6 @@ import 'screens/pairing/pair_screen.dart' show PairScreen;
 import 'services/sign_in_service.dart';
 import 'transport/firebase_transport.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:silentshard/constants.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

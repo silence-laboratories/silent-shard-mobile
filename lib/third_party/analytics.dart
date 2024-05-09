@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
-import 'package:silentshard/constants.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
 enum PageSource { sign_in, onboarding_backup, onboarding, homepage, get_started, backup_page }
 

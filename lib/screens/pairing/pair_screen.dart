@@ -24,6 +24,7 @@ import '../../services/backup_service.dart';
 import '../../services/secure_storage/secure_storage_service.dart';
 import 'backup_picker.dart';
 import 'backup_source_picker.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
 class PairScreen extends StatefulWidget {
   const PairScreen({super.key});
