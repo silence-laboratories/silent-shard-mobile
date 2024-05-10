@@ -4,9 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/extensions/string_extension.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/components/padded_container.dart';
+import 'package:silentshard/utils.dart';
 
 class MultiWalletMismatchScreen extends StatelessWidget {
   final VoidCallback onContinue;

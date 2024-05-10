@@ -9,7 +9,6 @@ import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/extensions/string_extension.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';

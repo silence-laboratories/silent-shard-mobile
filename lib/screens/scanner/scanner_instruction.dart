@@ -1,10 +1,11 @@
-// stateless
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:flutter/material.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 
-class BulletList extends StatelessWidget {
-  const BulletList({super.key, required this.isOtherWalletInstructor, this.isRePairing = false});
+class ScannerInstruction extends StatelessWidget {
+  const ScannerInstruction({super.key, required this.isOtherWalletInstructor, this.isRePairing = false});
 
   final bool isOtherWalletInstructor;
   final bool? isRePairing;

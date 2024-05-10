@@ -1,8 +1,11 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/button.dart';
-import 'package:silentshard/screens/scanner/bullet_list.dart';
+import 'package:silentshard/screens/scanner/scanner_instruction.dart';
 import 'package:silentshard/screens/scanner/support_wallets_list.dart';
 import 'package:silentshard/types/support_wallet.dart';
 
@@ -79,7 +82,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                                   ],
                                 ),
                                 const Gap(defaultSpacing * 2),
-                                BulletList(isOtherWalletInstructor: false, isRePairing: widget.isRePairing)
+                                ScannerInstruction(isOtherWalletInstructor: false, isRePairing: widget.isRePairing)
                               ]),
                             ),
                           ),
@@ -97,7 +100,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                                   },
                                 ),
                                 const Gap(defaultSpacing * 2),
-                                const BulletList(isOtherWalletInstructor: true)
+                                const ScannerInstruction(isOtherWalletInstructor: true)
                               ]),
                             ),
                           ),
