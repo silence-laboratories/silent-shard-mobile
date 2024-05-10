@@ -12,7 +12,7 @@ import 'package:silentshard/screens/scanner/scanner_screen.dart';
 import 'package:silentshard/types/support_wallet.dart';
 
 class ScannerRecoveryStatusDialog extends StatelessWidget {
-  ScannerRecoveryStatusDialog(
+  const ScannerRecoveryStatusDialog(
       {super.key,
       required this.isSucceedWithNewAccount,
       required this.isSucceedWithPresentAccount,
@@ -23,14 +23,14 @@ class ScannerRecoveryStatusDialog extends StatelessWidget {
       required this.recoveryAddress,
       required this.toWalletScreenAfterRecovery});
 
-  bool isSucceedWithNewAccount;
-  bool isSucceedWithPresentAccount;
-  bool isRecoverWithBackup;
-  bool showRemindEnterPassword;
-  bool isNotSucceed;
-  SupportWallet? walletInfo;
-  String recoveryAddress;
-  Function toWalletScreenAfterRecovery;
+  final bool isSucceedWithNewAccount;
+  final bool isSucceedWithPresentAccount;
+  final bool isRecoverWithBackup;
+  final bool showRemindEnterPassword;
+  final bool isNotSucceed;
+  final SupportWallet? walletInfo;
+  final String recoveryAddress;
+  final Function toWalletScreenAfterRecovery;
 
   @override
   Widget build(BuildContext context) {

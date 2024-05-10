@@ -140,7 +140,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finish(AppRepository appRepository, String walletId, String userId) async {
+  Future<void> _finishPairing(AppRepository appRepository, String walletId, String userId) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
     if (!mounted) return;
 
@@ -254,7 +254,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.success,
       );
       FirebaseCrashlytics.instance.log('Pairing done');
-      _finish(appRepository, qrMessage.walletId, userId);
+      _finishPairing(appRepository, qrMessage.walletId, userId);
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(

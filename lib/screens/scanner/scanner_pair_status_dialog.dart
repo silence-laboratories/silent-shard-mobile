@@ -6,14 +6,14 @@ import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/loader.dart';
 
 class ScannerPairStatusDialog extends StatelessWidget {
-  ScannerPairStatusDialog({
+  const ScannerPairStatusDialog({
     super.key,
     required this.isNotSucceed,
     required this.walletName,
   });
 
-  bool isNotSucceed;
-  String walletName;
+  final bool isNotSucceed;
+  final String walletName;
 
   @override
   Widget build(BuildContext context) {
