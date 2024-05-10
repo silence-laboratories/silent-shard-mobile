@@ -26,12 +26,6 @@ extension BackupStatusUtils on BackupStatus {
         BackupStatus.done => Image.asset("assets/images/checkmark-circle_light.png", height: iconHeight, color: doneIconColor),
         BackupStatus.missing => Image.asset("assets/images/checkmark-triangle_light.png", height: iconHeight, color: errorColor),
       };
-
-  // String get statusDetails => switch (this) {
-  //       BackupStatus.pending => "Action pending",
-  //       BackupStatus.done => "Backup valid",
-  //       BackupStatus.missing => "Backup not found. Backup now!",
-  //     };
 }
 
 BackupCheck getBackupCheck(BackupInfo info, BackupSource source) =>

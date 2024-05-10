@@ -149,7 +149,7 @@ class _MyAppState extends State<MyApp> {
                   (false, true, _, true) => const WalletScreen(),
                   (false, true, _, false) => const PairScreen(),
                   (false, false, _, _) => const OnboardingScreen(),
-                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth), // -> WalletScreen
+                  (true, _, _, _) => LocalAuthScreen(localAuth: localAuth),
                 };
               }),
             ),
