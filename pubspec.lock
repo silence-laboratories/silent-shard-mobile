@@ -197,8 +197,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "feat/multi-account"
-      resolved-ref: "82236530861281316411145663f68d809605dc4b"
+      ref: main
+      resolved-ref: bdbf8be0810bfa3876be794d963fb920d89568b9
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
