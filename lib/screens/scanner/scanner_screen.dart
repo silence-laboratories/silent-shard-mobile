@@ -58,7 +58,7 @@ enum ScannerScreenPairingState { ready, inProgress, succeeded, failed }
 class _ScannerScreenState extends State<ScannerScreen> {
   ScannerState _scannerState = ScannerState.scanning;
   ScannerScreenPairingState _pairingState = ScannerScreenPairingState.ready;
-  CancelableOperation<dynamic>? _pairingOperation;
+  CancelableOperation<PairingData?> _pairingOperation = CancelableOperation<PairingData?>.fromFuture(Future.value(null));
   MobileScannerController scannerController = MobileScannerController(
     detectionSpeed: DetectionSpeed.normal,
     facing: CameraFacing.back,
@@ -140,12 +140,12 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
-  Future<void> _finishPairing(AppRepository appRepository, String walletId, String userId) async {
+  Future<void> _finishPairing(AppRepository appRepository, String walletId, String userId, PairingData pairingData) async {
     FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
     if (!mounted) return;
 
     if (!isRecovery) {
-      final result = await appRepository.keygen(walletId, userId);
+      final result = await appRepository.keygen(walletId, userId, pairingData);
       _updatePairingState(ScannerScreenPairingState.succeeded);
       await Future.delayed(const Duration(seconds: 2), () {});
       final address = result.ethAddress;
@@ -224,7 +224,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
 
     if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
-      _pairingOperation?.cancel();
+      _pairingOperation.cancel();
       _resetPairing();
       SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
       SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
@@ -244,7 +244,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       );
     }
 
-    _pairingOperation?.value.then((pairingResponse) {
+    _pairingOperation.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
         type: widget.isRePairing
             ? PairingDeviceType.repaired
@@ -254,7 +254,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.success,
       );
       FirebaseCrashlytics.instance.log('Pairing done');
-      _finishPairing(appRepository, qrMessage.walletId, userId);
+      if (pairingResponse == null) {
+        throw StateError('Pairing response is null');
+      }
+      _finishPairing(appRepository, qrMessage.walletId, userId, pairingResponse);
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
@@ -275,7 +278,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _cancelPairing(bool showTryAgain, [dynamic error, String walletId = METAMASK_WALLET_ID]) {
-    _pairingOperation?.cancel();
+    _pairingOperation.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
     if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
       Navigator.of(context).push(

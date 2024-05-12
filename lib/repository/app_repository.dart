@@ -38,10 +38,10 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Future<Keyshare2> keygen(String walletId, String userId) async {
+  Future<Keyshare2> keygen(String walletId, String userId, PairingData pairingData) async {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-      final keyshare = await _sdk.startKeygen(walletId, userId).value;
+      final keyshare = await _sdk.startKeygen(walletId, userId, pairingData).value;
       if (walletId == METAMASK_WALLET_ID) {
         _sdk.fetchRemoteBackup(keyshare.ethAddress, userId).value;
       }
@@ -64,7 +64,6 @@ class AppRepository extends DemoDecoratorComposite {
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
-    _sdk.unpairIfNoKeyshares();
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
@@ -72,7 +71,6 @@ class AppRepository extends DemoDecoratorComposite {
     if (isDemoActive) {
       return CancelableOperation.fromValue((null));
     }
-    _sdk.unpairIfNoKeyshares();
     return _sdk.startRePairing(qrMessage, address, userId);
   }
 
