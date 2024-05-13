@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/scanner/scanner_instruction.dart';
-import 'package:silentshard/screens/scanner/support_wallets_list.dart';
 import 'package:silentshard/types/support_wallet.dart';
 
 class GuideMeTabController extends StatefulWidget {
@@ -28,96 +27,89 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return showSupportWallets
-        ? SupportWalletList(
-            supportWallets: supportWallets,
-            onBack: () {
-              setState(() {
-                showSupportWallets = false;
-              });
-            })
-        : DefaultTabController(
-            length: 2,
-            child: SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(defaultSpacing * 2),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const Gap(defaultSpacing),
-                    Text(
-                      'How to connect wallet using',
-                      style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const TabBar(
-                      tabs: [
-                        Tab(text: 'MetaMask'),
-                        Tab(text: 'Other wallet'),
-                      ],
-                      labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: primaryColor2),
-                      dividerColor: Color(0x804A408D),
-                      indicatorColor: primaryColor2,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                    ),
-                    SizedBox(
-                      height: 375,
-                      child: TabBarView(
-                        children: [
-                          SingleChildScrollView(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Row(
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: Image.asset(
-                                        'assets/images/metamaskIcon.png',
-                                        height: 18,
-                                      ),
-                                    ),
-                                    const Gap(defaultSpacing),
-                                    Text('MetaMask Snap', style: textTheme.displaySmall?.copyWith(color: textGrey))
-                                  ],
-                                ),
-                                const Gap(defaultSpacing * 2),
-                                ScannerInstruction(isOtherWalletInstructor: false, isRePairing: widget.isRePairing)
-                              ]),
-                            ),
-                          ),
-                          // Other wallet
-                          SingleChildScrollView(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                CheckWalletButton(
-                                  supportWalletsCount: supportWallets.length,
-                                  onShowSupportWallets: () {
-                                    setState(() {
-                                      showSupportWallets = true;
-                                    });
-                                  },
-                                ),
-                                const Gap(defaultSpacing * 2),
-                                const ScannerInstruction(isOtherWalletInstructor: true)
-                              ]),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Button(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text('Back to scanning', style: textTheme.displayMedium),
-                    ),
-                    // Add space
-                  ],
+    return DefaultTabController(
+        length: 2,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(defaultSpacing * 2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Gap(defaultSpacing),
+                Text(
+                  'How to connect wallet using',
+                  style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
-              ),
-            ));
+                const TabBar(
+                  tabs: [
+                    Tab(text: 'MetaMask'),
+                    Tab(text: 'Other wallet'),
+                  ],
+                  labelStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: backgroundPrimaryColor),
+                  unselectedLabelColor: Color(0xFF5B616E),
+                  dividerColor: Color(0x804A408D),
+                  indicatorColor: Color(0xFF4A408D),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                ),
+                SizedBox(
+                  height: 375,
+                  child: TabBarView(
+                    children: [
+                      SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: Image.asset(
+                                    'assets/images/metamaskIcon.png',
+                                    height: 18,
+                                  ),
+                                ),
+                                const Gap(defaultSpacing),
+                                Text('MetaMask Snap', style: textTheme.displaySmall?.copyWith(color: textGrey))
+                              ],
+                            ),
+                            const Gap(defaultSpacing * 2),
+                            ScannerInstruction(isOtherWalletInstructor: false, isRePairing: widget.isRePairing)
+                          ]),
+                        ),
+                      ),
+                      // Other wallet
+                      SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            CheckWalletButton(
+                              supportWalletsCount: supportWallets.length,
+                              onShowSupportWallets: () {
+                                setState(() {
+                                  showSupportWallets = true;
+                                });
+                              },
+                            ),
+                            const Gap(defaultSpacing * 2),
+                            const ScannerInstruction(isOtherWalletInstructor: true)
+                          ]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Button(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Back to scanning', style: textTheme.displayMedium),
+                ),
+                // Add space
+              ],
+            ),
+          ),
+        ));
   }
 }
 
@@ -125,47 +117,6 @@ class CheckWalletButton extends StatelessWidget {
   const CheckWalletButton({super.key, required this.onShowSupportWallets, required this.supportWalletsCount});
   final Function onShowSupportWallets;
   final int supportWalletsCount;
-
-  Widget overlapped() {
-    const overlap = 20.0;
-    final items = [
-      CircleAvatar(
-        maxRadius: 12,
-        backgroundColor: Colors.white,
-        child: Image.asset(
-          'assets/images/biconomy.png',
-          height: 18,
-        ),
-      ),
-      CircleAvatar(
-        maxRadius: 12,
-        backgroundColor: Colors.white,
-        child: Image.asset(
-          'assets/images/stackup.png',
-          height: 18,
-        ),
-      ),
-      CircleAvatar(
-        maxRadius: 12,
-        backgroundColor: Colors.white,
-        child: Image.asset(
-          'assets/images/zerodev.png',
-          height: 18,
-        ),
-      ),
-    ];
-
-    List<Widget> stackLayers = List<Widget>.generate(items.length, (index) {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(index.toDouble() * overlap, 0, 0, 0),
-        child: items[index],
-      );
-    });
-
-    return Stack(
-      children: stackLayers.reversed.toList(),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,30 +130,23 @@ class CheckWalletButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: defaultSpacing, horizontal: defaultSpacing * 1.5),
         ),
-        onPressed: () {
-          onShowSupportWallets();
-        },
+        onPressed: () {},
         child: SizedBox(
           width: double.infinity,
           child: Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.spaceBetween,
             children: [
-              Text('Check all support wallet', style: textTheme.displaySmall?.copyWith(color: textGrey)),
+              Text('Supported Wallets (coming soon)', style: textTheme.displaySmall?.copyWith(color: const Color(0xFF8E95A2))),
               Container(
                   margin: const EdgeInsets.only(left: defaultSpacing),
-                  child: Wrap(
+                  child: const Wrap(
                     alignment: WrapAlignment.end,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      overlapped(),
-                      Padding(
-                        padding: const EdgeInsets.only(right: defaultSpacing, left: defaultSpacing / 2),
-                        child: Text('+$supportWalletsCount', style: textTheme.displayMedium?.copyWith(color: textGrey)),
-                      ),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward,
-                        color: Color(0xFFB1BBC8),
+                        color: Color(0xFF5B616E),
                       )
                     ],
                   )),
