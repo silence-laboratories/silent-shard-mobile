@@ -70,9 +70,9 @@ class WalletListState extends State<WalletList> {
     }
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
-        (scrolledToIndex * 150.0),
-        duration: const Duration(milliseconds: 1000),
-        curve: Curves.easeInOut,
+        (scrolledToIndex * 175.0),
+        duration: const Duration(milliseconds: 1500),
+        curve: Curves.fastOutSlowIn,
       );
     }
 
@@ -97,6 +97,7 @@ class WalletListState extends State<WalletList> {
                   }
                   var scrolledToIndex = _scrollToListener(walletIdProvider.pairedAddress, walletItems);
                   return ListView.builder(
+                    controller: _scrollController,
                     itemCount: walletItems.length,
                     itemBuilder: (context, index) {
                       final item = walletItems[index];
