@@ -24,12 +24,12 @@ class UpdateSnapGuide extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10)),
       ),
-      insetPadding: const EdgeInsets.all(defaultPadding * 1.5),
+      insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
       content: SingleChildScrollView(
         child: Column(
           children: [
             image,
-            const Gap(defaultPadding * 3),
+            const Gap(defaultSpacing * 3),
             Bullet(
               child: RichText(
                 text: TextSpan(
@@ -76,7 +76,7 @@ class UpdateSnapGuide extends StatelessWidget {
               'Click on the Update button and follow the instructions.',
               style: textTheme.bodyMedium,
             )),
-            const Gap(defaultPadding * 4),
+            const Gap(defaultSpacing * 4),
             Button(
                 type: ButtonType.secondary,
                 onPressed: onBack,

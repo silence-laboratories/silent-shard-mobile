@@ -27,7 +27,7 @@ class NoBackupFoundScreen extends StatelessWidget {
             'You may try these steps:',
             style: textTheme.bodyMedium,
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Bullet(
               child: Text(
             'Check for any exported backup files.',
@@ -38,7 +38,7 @@ class NoBackupFoundScreen extends StatelessWidget {
             'Add any other ${Platform.isAndroid ? 'Google' : 'iCloud'} accounts previously used on this device and try again.',
             style: textTheme.bodyMedium,
           )),
-          const Gap(defaultPadding * 4),
+          const Gap(defaultSpacing * 4),
         ],
       ),
       onPressBottomButton: onPressBottomButton,

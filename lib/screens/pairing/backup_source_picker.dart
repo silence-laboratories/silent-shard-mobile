@@ -24,7 +24,7 @@ class BackupSourcePicker extends StatelessWidget {
     return Wrap(
       children: [
         Container(
-          padding: const EdgeInsets.only(left: defaultPadding * 2, right: defaultPadding * 2),
+          padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -32,7 +32,7 @@ class BackupSourcePicker extends StatelessWidget {
                 "Restore using",
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding * 5),
+              const Gap(defaultSpacing * 5),
               BackupSourceItem(
                 title: Platform.isIOS ? 'iCloud Keychain' : 'Google Password Manager',
                 icon: Platform.isIOS
@@ -43,7 +43,7 @@ class BackupSourcePicker extends StatelessWidget {
                       ),
                 onSelected: () => onSelected(BackupSource.secureStorage),
               ),
-              const Gap(defaultPadding * 3),
+              const Gap(defaultSpacing * 3),
               BackupSourceItem(
                 title: "Choose Backup File",
                 subtitle: TextSpan(
@@ -55,7 +55,7 @@ class BackupSourcePicker extends StatelessWidget {
                       style: textTheme.displaySmall?.copyWith(fontStyle: FontStyle.italic),
                     ),
                     TextSpan(
-                      text: "silentshard-wallet-backup.txt",
+                      text: "silentshard-<WalletName>-backup.txt",
                       style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic),
                     ),
                     TextSpan(
@@ -67,7 +67,7 @@ class BackupSourcePicker extends StatelessWidget {
                 icon: const Icon(Icons.folder),
                 onSelected: () => onSelected(BackupSource.fileSystem),
               ),
-              const Gap(defaultPadding * 6),
+              const Gap(defaultSpacing * 6),
             ],
           ),
         )
@@ -101,7 +101,7 @@ class BackupSourceItem extends StatelessWidget {
             color: secondaryColor,
             child: icon,
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +111,7 @@ class BackupSourceItem extends StatelessWidget {
                   style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w500),
                 ),
                 if (subtitle != null) ...[
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   RichText(text: subtitle!),
                 ],
               ],

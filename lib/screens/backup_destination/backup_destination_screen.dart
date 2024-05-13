@@ -1,12 +1,19 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:credential_manager/credential_manager.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/repository/app_repository.dart';
+import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
+import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import '../../constants.dart';
 import '../../services/backup_service.dart';
@@ -17,21 +24,49 @@ import '../components/button.dart';
 import '../components/padded_container.dart';
 import '../components/message_widget.dart';
 import '../error/error_handler.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
-class BackupDestinationScreen extends StatelessWidget {
+class BackupDestinationScreen extends StatefulWidget {
   final String address;
+  final String walletId;
 
-  const BackupDestinationScreen({super.key, required this.address});
+  const BackupDestinationScreen({super.key, required this.address, required this.walletId});
 
+  @override
+  State<BackupDestinationScreen> createState() => _BackupDestinationScreenState();
+}
+
+class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   String get _cloudIconName => Platform.isAndroid ? "socialGoogle.png" : "socialApple.png";
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
-
   String get _cloudTitle => Platform.isAndroid ? "Google Password Manager" : "iCloud Keychain";
   String get _storageTitle => Platform.isAndroid ? "Google" : "iCloud";
+  StreamSubscription<BackupMessage>? _backupMessageSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    if (widget.walletId != METAMASK_WALLET_ID && userId != null) {
+      _backupMessageSubscription = Provider.of<AppRepository>(context, listen: false)
+          .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
+          .listen((event) {
+        Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _backupMessageSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -45,7 +80,7 @@ class BackupDestinationScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(2 * defaultPadding),
+            padding: const EdgeInsets.all(2 * defaultSpacing),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,35 +88,66 @@ class BackupDestinationScreen extends StatelessWidget {
                   "Backup wallet",
                   style: textTheme.displayLarge,
                 ),
-                const Gap(defaultPadding),
+                const Gap(defaultSpacing),
                 Text(
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
                   style: textTheme.displaySmall,
                 ),
-                const Gap(9 * defaultPadding),
-                Consumer<BackupService>(
-                    builder: (context, backupService, _) => BackupDestinationWidget(
-                          address: address,
-                          icon: _cloudIcon,
-                          title: "Backup to $_cloudTitle",
-                          label: "Recommended",
-                          // check: BackupCheck(BackupStatus.done),
-                          check: backupService.getBackupInfo(address).cloud,
-                          destination: BackupDestination.secureStorage,
-                        )),
-                const Gap(4 * defaultPadding),
+                if (widget.walletId != METAMASK_WALLET_ID) ...[
+                  const Gap(3 * defaultSpacing),
+                  Consumer<AppPreferences>(builder: (context, appPreferences, _) {
+                    bool isPasswordReady = appPreferences.getIsPasswordReady(widget.address);
+                    return isPasswordReady
+                        ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                        : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
+                  }),
+                ],
+                const Gap(9 * defaultSpacing),
+                Consumer<BackupService>(builder: (context, backupService, _) {
+                  return FutureBuilder(
+                    future: backupService.getBackupInfo(widget.address),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasError) {
+                        debugPrint('Error in getting backup info: ${snapshot.error}');
+                      }
+                      return snapshot.data != null
+                          ? BackupDestinationWidget(
+                              address: widget.address,
+                              icon: _cloudIcon,
+                              title: "Backup to $_cloudTitle",
+                              label: "Recommended",
+                              check: (snapshot.data as BackupInfo).cloud,
+                              destination: BackupDestination.secureStorage,
+                              walletId: widget.walletId,
+                            )
+                          : const SizedBox();
+                    },
+                  );
+                }),
+                const Gap(4 * defaultSpacing),
                 const Divider(),
-                const Gap(4 * defaultPadding),
-                Consumer<BackupService>(
-                    builder: (context, backupService, _) => BackupDestinationWidget(
-                          address: address,
-                          icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
-                          title: "Export wallet",
-                          subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
-                          // check: BackupCheck(BackupStatus.pending),
-                          check: backupService.getBackupInfo(address).file,
-                          destination: BackupDestination.fileSystem,
-                        )),
+                const Gap(4 * defaultSpacing),
+                Consumer<BackupService>(builder: (context, backupService, _) {
+                  return FutureBuilder(
+                    future: backupService.getBackupInfo(widget.address),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      if (snapshot.hasError) {
+                        debugPrint('Error in getting backup info: ${snapshot.error}');
+                      }
+                      return snapshot.data != null
+                          ? BackupDestinationWidget(
+                              address: widget.address,
+                              icon: Image.asset("assets/images/file-tray-full_light.png", height: 20),
+                              title: "Export wallet",
+                              subtitle: "Export and save a copy of your wallet backup to your Files or $_storageTitle Drive",
+                              check: (snapshot.data as BackupInfo).file,
+                              destination: BackupDestination.fileSystem,
+                              walletId: widget.walletId,
+                            )
+                          : const SizedBox();
+                    },
+                  );
+                })
               ],
             ),
           ),
@@ -99,6 +165,7 @@ class BackupDestinationWidget extends StatelessWidget {
   final String? label;
   final BackupCheck check;
   final BackupDestination destination;
+  final String walletId;
 
   const BackupDestinationWidget({
     super.key,
@@ -109,6 +176,7 @@ class BackupDestinationWidget extends StatelessWidget {
     required this.destination,
     this.subtitle,
     this.label,
+    required this.walletId,
   });
 
   void _performBackup(BuildContext context, BackupDestination destination) async {
@@ -119,7 +187,7 @@ class BackupDestinationWidget extends StatelessWidget {
         BackupDestination.fileSystem => ExportBackupUseCase(context),
         BackupDestination.secureStorage => SaveBackupToStorageUseCase(context),
       };
-      await useCase.execute();
+      await useCase.execute(walletId, address);
 
       if (destination == BackupDestination.secureStorage) {
         analyticManager.trackSaveBackupSystem(success: true, source: PageSource.backup_page);
@@ -145,6 +213,7 @@ class BackupDestinationWidget extends StatelessWidget {
           );
         }
       } else if (context.mounted) {
+        debugPrint('Error in verifying backup: $error');
         _showErrorScreen(
           context,
           retryAction: () => _performBackup(context, destination),
@@ -207,51 +276,62 @@ class BackupDestinationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return InkWell(
-      onTap: () => _performBackup(context, destination),
-      child: Container(
-        padding: const EdgeInsets.all(defaultPadding),
-        child: Column(children: [
-          Row(children: [
-            PaddedContainer(
-              padding: const EdgeInsets.all(1.5 * defaultPadding),
-              child: icon,
-            ),
-            const Gap(defaultPadding),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, maxLines: 2, textAlign: TextAlign.left, style: textTheme.displaySmall),
-                  if (subtitle != null) ...[
-                    const Gap(defaultPadding),
-                    Text(subtitle!, maxLines: 3, style: textTheme.bodySmall),
-                  ],
+    final isPasswordReady = Provider.of<AppPreferences>(context).getIsPasswordReady(address);
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () => _performBackup(context, destination),
+          child: Container(
+            padding: const EdgeInsets.all(defaultSpacing),
+            child: Column(children: [
+              Row(children: [
+                PaddedContainer(
+                  padding: const EdgeInsets.all(1.5 * defaultSpacing),
+                  child: icon,
+                ),
+                const Gap(defaultSpacing),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, maxLines: 2, textAlign: TextAlign.left, style: textTheme.displaySmall),
+                      if (subtitle != null) ...[
+                        const Gap(defaultSpacing),
+                        Text(subtitle!, maxLines: 3, style: textTheme.bodySmall),
+                      ],
+                    ],
+                  ),
+                ),
+                if (label != null) ...[
+                  const Gap(4 * defaultSpacing),
+                  LabelWidget(label!),
                 ],
-              ),
+              ]),
+              Gap(defaultSpacing * check.status.distanceFactor),
+              StatusWidget(check: check, destination: destination),
+              if (Platform.isAndroid && destination == BackupDestination.secureStorage && check.status == BackupStatus.done) ...[
+                const Gap(defaultSpacing),
+                Row(children: [
+                  const Gap(6 * defaultSpacing),
+                  Button(
+                    type: ButtonType.primary,
+                    padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0),
+                    buttonColor: primaryColor,
+                    onPressed: () => _verifyBackup(context),
+                    child: Text('Verify backup', style: textTheme.displaySmall),
+                  ),
+                ])
+              ],
+            ]),
+          ),
+        ),
+        if (!isPasswordReady && walletId != METAMASK_WALLET_ID)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.5),
             ),
-            if (label != null) ...[
-              const Gap(4 * defaultPadding),
-              LabelWidget(label!),
-            ],
-          ]),
-          Gap(defaultPadding * check.status.distanceFactor),
-          StatusWidget(check: check, destination: destination),
-          if (Platform.isAndroid && destination == BackupDestination.secureStorage && check.status == BackupStatus.done) ...[
-            const Gap(defaultPadding),
-            Row(children: [
-              const Gap(6 * defaultPadding),
-              Button(
-                type: ButtonType.primary,
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: 0),
-                buttonColor: primaryColor,
-                onPressed: () => _verifyBackup(context),
-                child: Text('Verify backup', style: textTheme.displaySmall),
-              ),
-            ])
-          ],
-        ]),
-      ),
+          )
+      ],
     );
   }
 }
@@ -272,9 +352,9 @@ class StatusWidget extends StatelessWidget {
     return switch (check.status) {
       BackupStatus.pending || BackupStatus.missing => MessageWidget(check.status.message, type: check.status.messageType),
       BackupStatus.done => Row(children: [
-          const Gap(6 * defaultPadding),
+          const Gap(6 * defaultSpacing),
           check.status.statusIcon,
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Expanded(child: Text(_details, style: Theme.of(context).textTheme.bodySmall)),
         ]),
     };
@@ -290,7 +370,7 @@ class LabelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: defaultPadding, vertical: 0.5 * defaultPadding),
+      padding: const EdgeInsets.symmetric(horizontal: defaultSpacing, vertical: 0.5 * defaultSpacing),
       decoration: BoxDecoration(
         color: infoBackgroundColor,
         border: Border.all(color: infoColor),

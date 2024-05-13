@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/update/updater_dialog.dart';
 import 'package:silentshard/services/sign_in_service.dart';
 import 'package:silentshard/third_party/analytics.dart';
@@ -17,16 +18,16 @@ import '../components/loader.dart';
 import '../components/padded_container.dart';
 import '../error/error_handler.dart';
 import '../error/no_backup_found_screen.dart';
-import '../scanner_screen.dart';
+import '../scanner/scanner_screen.dart';
 import '../../types/app_backup.dart';
 import '../../services/backup_service.dart';
 import '../../services/secure_storage/secure_storage_service.dart';
 import 'backup_picker.dart';
 import 'backup_source_picker.dart';
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
 class PairScreen extends StatefulWidget {
   const PairScreen({super.key});
-
   @override
   State<PairScreen> createState() => _PairState();
 }
@@ -36,6 +37,8 @@ enum PairingState { ready, fetchingBackup }
 class _PairState extends State<PairScreen> {
   PairingState _pairingState = PairingState.ready;
   late AnalyticManager analyticManager;
+  late AppRepository appRepostiory;
+  bool isWalletsNotEmpty = false;
 
   Future<void> checkAuth() async {
     try {
@@ -92,6 +95,10 @@ class _PairState extends State<PairScreen> {
   void initState() {
     super.initState();
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+    appRepostiory = Provider.of<AppRepository>(context, listen: false);
+    setState(() {
+      isWalletsNotEmpty = appRepostiory.keysharesProvider.keyshares.isNotEmpty;
+    });
     checkAuth();
   }
 
@@ -100,10 +107,25 @@ class _PairState extends State<PairScreen> {
       FirebaseCrashlytics.instance.log('Fetching backup, soure: $source');
       setState(() => _pairingState = PairingState.fetchingBackup);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final backup = await backupService.fetchBackup(source, key);
-      if (backup != null) {
+      final (backupDestination, backup) = await backupService.fetchBackup(source, key);
+      if (backup != null && backupDestination != null) {
         FirebaseCrashlytics.instance.log('Backup fetched');
-        _recoverFromBackup(backup, source);
+        String walletId = METAMASK_WALLET_ID;
+
+        switch (source) {
+          case BackupSource.secureStorage:
+            if (backupDestination.contains("-")) {
+              walletId = backupDestination.split("-").first;
+            }
+            break;
+          case BackupSource.fileSystem:
+            final tokens = backupDestination.split("-");
+            if (!tokens[tokens.length - 2].contains("wallet")) {
+              walletId = tokens[tokens.length - 2];
+            }
+            break;
+        }
+        _recoverFromBackup(backup, source, walletId);
       } else {
         FirebaseCrashlytics.instance.log('No backup found');
         _showNoBackupFound(source);
@@ -168,24 +190,42 @@ class _PairState extends State<PairScreen> {
     );
   }
 
-  void _recoverFromBackup(AppBackup backup, BackupSource source) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ScannerScreen(backup: backup, source: source),
-      ),
-    );
+  void _recoverFromBackup(AppBackup backup, BackupSource source, String walletId) {
+    if (isWalletsNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
+        ),
+      );
+    }
   }
 
   void _goToScannerScreen() {
     FirebaseCrashlytics.instance.log('Create new account');
     analyticManager.trackConnectNewAccount();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ScannerScreen(),
-      ),
-    );
+    if (isWalletsNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ScannerScreen(),
+        ),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ScannerScreen(),
+        ),
+      );
+    }
   }
 
   void _showBackupSourcePicker() {
@@ -247,8 +287,15 @@ class _PairState extends State<PairScreen> {
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.black,
-          ),
+              backgroundColor: Colors.black,
+              leading: isWalletsNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  : null),
           backgroundColor: Colors.black,
           body: Consumer<AuthState>(builder: (context, authState, _) {
             return Stack(
@@ -257,14 +304,14 @@ class _PairState extends State<PairScreen> {
                   absorbing: authState.user == null,
                   child: SingleChildScrollView(
                     child: Container(
-                      padding: const EdgeInsets.all(defaultPadding * 1.5),
-                      margin: const EdgeInsets.only(top: defaultPadding * 0.5),
+                      padding: const EdgeInsets.all(defaultSpacing * 1.5),
+                      margin: const EdgeInsets.only(top: defaultSpacing * 0.5),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Text(
                           "Let's get started",
                           style: textTheme.displayLarge,
                         ),
-                        const Gap(defaultPadding * 3),
+                        const Gap(defaultSpacing * 3),
                         PairOption(
                           type: OptionType.primary,
                           icon: const Icon(Icons.add, color: Colors.white),
@@ -273,7 +320,7 @@ class _PairState extends State<PairScreen> {
                           infoText: "For new users",
                           onPress: _goToScannerScreen,
                         ),
-                        const Gap(defaultPadding * 3),
+                        const Gap(defaultSpacing * 3),
                         PairOption(
                           type: OptionType.secondary,
                           icon: const Icon(Icons.replay, color: Colors.white),
@@ -286,24 +333,14 @@ class _PairState extends State<PairScreen> {
                     ),
                   ),
                 ),
-                const UpdateDialog(showSnapUpdate: false),
+                const UpdaterDialog(showSnapUpdate: false),
                 if (_pairingState == PairingState.fetchingBackup) ...[
                   const AlertDialog(
-                    backgroundColor: secondaryColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
                     content: Wrap(children: [Loader(text: 'Fetching backup...')]),
                   )
                 ],
                 if (authState.user == null)
                   const AlertDialog(
-                    backgroundColor: secondaryColor,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
                     content: Wrap(children: [Loader(text: 'Getting ready...')]),
                   )
               ],
@@ -340,10 +377,10 @@ class PairOption extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.only(
-          left: defaultPadding * 1.5,
-          top: defaultPadding * 2,
-          bottom: defaultPadding * 2,
-          right: defaultPadding * 1.5,
+          left: defaultSpacing * 1.5,
+          top: defaultSpacing * 2,
+          bottom: defaultSpacing * 2,
+          right: defaultSpacing * 1.5,
         ),
         backgroundColor: type == OptionType.primary ? backgroundPrimaryColor.withOpacity(0.30) : const Color(0xFF1A1A1A),
       ),
@@ -354,15 +391,15 @@ class PairOption extends StatelessWidget {
             color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor2,
             child: icon,
           ),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(title, style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500)),
-              const Gap(defaultPadding * 1.5),
+              const Gap(defaultSpacing * 1.5),
               Text(subtitle, style: textTheme.displaySmall),
-              const Gap(defaultPadding * 1.5),
+              const Gap(defaultSpacing * 1.5),
               Container(
-                padding: const EdgeInsets.all(defaultPadding),
+                padding: const EdgeInsets.all(defaultSpacing),
                 decoration: BoxDecoration(
                     border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1),
                     borderRadius: BorderRadius.circular(50)),
@@ -372,7 +409,7 @@ class PairOption extends StatelessWidget {
                     size: 16,
                     color: textPrimaryColor,
                   ),
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   Text(
                     infoText,
                     style: const TextStyle(fontSize: 12, color: textPrimaryColor),

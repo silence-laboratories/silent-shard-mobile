@@ -14,7 +14,7 @@ class PairingDataProvider extends ChangeNotifier with DemoDecorator {
   final PairingState _pairingState;
   DemoPairingData? _demoPairingData;
 
-  PairingData? get pairingData => _demoPairingData ?? _pairingState.pairingData;
+  PairingData? get pairingData => _demoPairingData ?? _pairingState.pairingDataMap["DemoAddress"];
 
   PairingDataProvider(this._pairingState, this._sodium) {
     _pairingState.addListener(() => notifyListeners());

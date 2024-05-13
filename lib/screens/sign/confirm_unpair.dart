@@ -14,12 +14,14 @@ import '../components/backup_status_dashboard.dart';
 
 class ConfirmUnpair extends StatefulWidget {
   final String address;
-  final Future<void> Function() onUnpair;
+  final String walletId;
+  final Future<void> Function(String walletId, String address) onUnpair;
 
   const ConfirmUnpair({
     super.key,
     required this.address,
     required this.onUnpair,
+    required this.walletId,
   });
 
   @override
@@ -37,7 +39,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
     return SingleChildScrollView(
       child: Container(
           // color: secondaryColor,
-          padding: const EdgeInsets.all(defaultPadding * 2),
+          padding: const EdgeInsets.all(defaultSpacing * 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -45,23 +47,23 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                 "Are you sure?",
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Center(
                   child: Image.asset(
                 'assets/images/warningRed.png',
                 height: 130,
               )),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Text(
                 "This action will delete your Silent Account from your phone. You can still restore it with your backup files.",
                 style: textTheme.displayMedium,
                 textAlign: TextAlign.center,
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               const Divider(),
-              const Gap(defaultPadding * 2),
-              BackupStatusDashboard(address: widget.address),
-              const Gap(defaultPadding * 6),
+              const Gap(defaultSpacing * 2),
+              BackupStatusDashboard(address: widget.address, walletId: widget.walletId),
+              const Gap(defaultSpacing * 6),
               Row(
                 children: [
                   SizedBox(
@@ -75,7 +77,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       },
                     ),
                   ),
-                  const Gap(defaultPadding),
+                  const Gap(defaultSpacing),
                   Flexible(
                     child: Text(
                       'I understand the risk and agree to continue',
@@ -84,7 +86,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                   ),
                 ],
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Row(
                 children: [
                   Expanded(
@@ -101,7 +103,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       ),
                     ),
                   ),
-                  const Gap(defaultPadding * 2),
+                  const Gap(defaultSpacing * 2),
                   Expanded(
                     child: Button(
                       type: ButtonType.primary,
@@ -111,14 +113,15 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                       onPressed: () async {
                         if (_checkboxState == CheckBoxState.checked) {
                           final backupService = context.read<BackupService>();
-                          final backupSystemStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.secureStorage).status;
-                          final backupFileStatus = getBackupCheck(backupService.getBackupInfo(widget.address), BackupSource.fileSystem).status;
+                          final backupInfo = await backupService.getBackupInfo(widget.address);
+                          final backupSystemStatus = getBackupCheck(backupInfo, BackupSource.secureStorage).status;
+                          final backupFileStatus = getBackupCheck(backupInfo, BackupSource.fileSystem).status;
                           analyticManager.trackDeleteAccount(
                             status: DeleteAccountStatus.success,
                             backupFile: backupFileStatus == BackupStatus.done,
                             backupSystem: backupSystemStatus == BackupStatus.done,
                           );
-                          await widget.onUnpair();
+                          await widget.onUnpair(widget.walletId, widget.address);
                           analyticManager.trackLogOut();
                           if (mounted) Navigator.of(context).pop();
                         }
@@ -131,7 +134,7 @@ class _ConfirmUnpairState extends State<ConfirmUnpair> {
                   ),
                 ],
               ),
-              const Gap(defaultPadding * 4),
+              const Gap(defaultSpacing * 4),
             ],
           )),
     );

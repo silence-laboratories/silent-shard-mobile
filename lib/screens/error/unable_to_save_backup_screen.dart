@@ -38,7 +38,7 @@ class UnableToSaveBackupScreen extends StatelessWidget {
                 "[See detailed instructions]",
                 style: textTheme.headlineSmall,
               )),
-          const Gap(10 * defaultPadding)
+          const Gap(10 * defaultSpacing)
         ],
       ),
       onPressBottomButton: onPressBottomButton,

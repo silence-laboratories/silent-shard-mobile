@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
+import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';
 import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
@@ -15,6 +16,7 @@ class WalletCard extends StatelessWidget {
   final VoidCallback onExport;
   final String address;
   final VoidCallback onCopy;
+  final String walletId;
 
   const WalletCard({
     super.key,
@@ -23,22 +25,19 @@ class WalletCard extends StatelessWidget {
     required this.onExport,
     required this.address,
     required this.onCopy,
+    required this.walletId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(defaultPadding * 1.5),
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: secondaryColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      padding: const EdgeInsets.all(defaultSpacing * 1.5),
       child: Column(
         children: [
           WalletInfo(widget: this),
-          const Gap(0.5 * defaultPadding),
+          const Gap(0.5 * defaultSpacing),
           const Divider(),
-          BackupStatusDashboard(address: address),
+          BackupStatusDashboard(address: address, walletId: walletId),
         ],
       ),
     );
@@ -52,14 +51,15 @@ class WalletInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId] ?? {});
     return Row(
       children: [
         PaddedContainer(
             child: Image.asset(
-          'assets/images/walletLightFill.png',
-          height: 27.6,
+          walletInfo.icon,
+          height: 28,
         )),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -68,25 +68,15 @@ class WalletInfo extends StatelessWidget {
                 '${widget.address.substring(0, 5)}...${widget.address.substring(widget.address.length - 5)}',
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding),
+              const Gap(defaultSpacing),
               CopyButton(onCopy: () {
                 widget.onCopy();
               }),
               const SizedBox(width: 24),
             ]),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/metamaskIcon.png',
-                  height: 18,
-                ),
-                const Gap(defaultPadding),
-                Text(
-                  'MetaMask',
-                  style: textTheme.displaySmall?.copyWith(fontSize: 12),
-                )
-              ],
+            Text(
+              walletInfo.name,
+              style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],
         ),

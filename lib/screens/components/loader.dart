@@ -18,7 +18,7 @@ class Loader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Lottie.asset('assets/lottie/MobileLoader.json', height: 100),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Text(text, style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500), textAlign: TextAlign.center),
       ],
     ));

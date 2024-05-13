@@ -10,8 +10,7 @@ import 'package:provider/provider.dart';
 import '../../constants.dart';
 import '../../types/backup_info.dart';
 import '../../services/backup_service.dart';
-import '../../utils.dart';
-import '../backup/backup_destination_screen.dart' show BackupDestinationScreen;
+import '../backup_destination/backup_destination_screen.dart' show BackupDestinationScreen;
 
 const iconHeight = 16.0;
 
@@ -26,12 +25,6 @@ extension BackupStatusUtils on BackupStatus {
         BackupStatus.pending => Image.asset("assets/images/time_light.png", height: iconHeight),
         BackupStatus.done => Image.asset("assets/images/checkmark-circle_light.png", height: iconHeight, color: doneIconColor),
         BackupStatus.missing => Image.asset("assets/images/checkmark-triangle_light.png", height: iconHeight, color: errorColor),
-      };
-
-  String get statusDetails => switch (this) {
-        BackupStatus.pending => "Action pending",
-        BackupStatus.done => "Backup valid",
-        BackupStatus.missing => "Backup not found. Backup now!",
       };
 }
 
@@ -48,7 +41,7 @@ class StatusIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 0.5 * defaultPadding),
+      padding: const EdgeInsets.symmetric(horizontal: 0.5 * defaultSpacing),
       height: height,
       decoration: BoxDecoration(
         border: Border.all(color: status.tintColor),
@@ -56,7 +49,7 @@ class StatusIndicator extends StatelessWidget {
       ),
       child: Row(children: [
         image,
-        const Gap(0.5 * defaultPadding),
+        const Gap(0.5 * defaultSpacing),
         status.statusIcon,
       ]),
     );
@@ -67,51 +60,54 @@ class BackupStatusWidget extends StatelessWidget {
   final String address;
   final BackupSource source;
   final Image image;
+  final String walletId;
 
   const BackupStatusWidget({
     super.key,
     required this.address,
     required this.source,
     required this.image,
+    required this.walletId,
   });
-
-  String _getDetails(BackupInfo info) => switch (source) {
-        BackupSource.fileSystem => info.file.status == BackupStatus.pending ? info.file.status.statusDetails : fileMessage(info.file.date),
-        BackupSource.secureStorage =>
-          Platform.isIOS || info.cloud.status == BackupStatus.pending ? info.cloud.status.statusDetails : cloudMessage(info.cloud.date),
-      };
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
     return Consumer<BackupService>(
-      builder: (context, service, _) => Row(
-        children: [
-          StatusIndicator(
-            status: getBackupCheck(service.getBackupInfo(address), source).status,
-            image: image,
-          ),
-          const Gap(defaultPadding),
-          Expanded(
-            child: Text(
-              _getDetails(service.getBackupInfo(address)),
-              style: textTheme.bodySmall,
-            ),
-          )
-        ],
-      ),
+      builder: (context, service, _) {
+        return FutureBuilder(
+          future: service.getBackupInfo(address, walletId: walletId),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              debugPrint('Error in getting backup info: ${snapshot.error}');
+            }
+            return Row(
+              children: [
+                StatusIndicator(
+                  status: snapshot.data != null ? getBackupCheck(snapshot.data, source).status : BackupStatus.pending,
+                  image: image,
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
 
 class BackupStatusDashboard extends StatelessWidget {
   final String address;
+  final String walletId;
 
-  const BackupStatusDashboard({super.key, required this.address});
+  const BackupStatusDashboard({super.key, required this.address, required this.walletId});
 
   void _showBackupDestination(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (context) => BackupDestinationScreen(address: address)),
+      MaterialPageRoute(
+          builder: (context) => BackupDestinationScreen(
+                address: address,
+                walletId: walletId,
+              )),
     );
   }
 
@@ -122,22 +118,23 @@ class BackupStatusDashboard extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => _showBackupDestination(context),
       child: Container(
-        padding: const EdgeInsets.all(0),
-        child: Column(children: [
-          const Gap(defaultPadding),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3 * defaultSpacing),
+        child: Row(children: [
+          const Gap(defaultSpacing),
           Row(children: [
             Image.asset(
               "assets/images/cloud-upload_light.png",
               height: iconHeight,
             ),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               "Backups",
               style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
             )
           ]),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
+            walletId: walletId,
             address: address,
             source: BackupSource.secureStorage,
             image: Image.asset(
@@ -145,15 +142,18 @@ class BackupStatusDashboard extends StatelessWidget {
               height: iconHeight,
             ),
           ),
-          const Gap(defaultPadding * 1.5),
+          const Gap(defaultSpacing * 1.5),
           BackupStatusWidget(
+            walletId: walletId,
             address: address,
             source: BackupSource.fileSystem,
             image: Image.asset(
               "assets/images/folder-open_light.png",
               height: iconHeight,
             ),
-          )
+          ),
+          const Spacer(),
+          const Icon(Icons.chevron_right_rounded)
         ]),
       ),
     );

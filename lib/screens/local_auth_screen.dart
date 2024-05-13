@@ -35,16 +35,18 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
         child: Container(
-      padding: const EdgeInsets.all(defaultPadding * 4),
+      padding: const EdgeInsets.all(defaultSpacing * 4),
       child: Center(
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Expanded(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset(
-                'assets/images/lockClosed.png',
-                width: MediaQuery.of(context).size.width / 2,
+              Expanded(
+                child: Image.asset(
+                  'assets/images/lockClosed.png',
+                  width: MediaQuery.of(context).size.width / 2,
+                ),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Text(
                 'Silent Shard is locked!',
                 style: textTheme.displayLarge,
@@ -56,6 +58,7 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
               ),
             ]),
           ),
+          const Gap(defaultSpacing * 2),
           Button(
               onPressed: () async {
                 final response = await widget.localAuth.authenticate();

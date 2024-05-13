@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/utils.dart';
-
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'app_preferences.dart';
 import '../types/backup_info.dart';
 import 'file_service.dart';
@@ -32,14 +32,14 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Read --------------------
 
-  Future<AppBackup?> fetchBackup(BackupSource source, String? key) {
+  Future<(String?, AppBackup?)> fetchBackup(BackupSource source, String? key) {
     return switch (source) {
       BackupSource.fileSystem => readBackupFromFile(),
       BackupSource.secureStorage => readBackupFromStorage(key),
     };
   }
 
-  Future<AppBackup?> readBackupFromFile() async {
+  Future<(String?, AppBackup?)> readBackupFromFile() async {
     late String? backupDestination;
     try {
       final (file, filePickerId) = await _fileService.selectFile();
@@ -48,22 +48,22 @@ class BackupService extends ChangeNotifier {
         final fileContent = await file.readAsString();
         final appBackup = AppBackup.fromString(fileContent);
         _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
-        return appBackup;
+        return (file.path, appBackup);
       }
     } catch (error) {
       _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
       rethrow;
     }
-    return null;
+    return (null, null);
   }
 
-  Future<AppBackup?> readBackupFromStorage(String? key) async {
+  Future<(String?, AppBackup?)> readBackupFromStorage(String? key) async {
     try {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
         final appBackup = AppBackup.fromString(entry.value);
         _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
-        return appBackup;
+        return (entry.key, appBackup);
       }
     } catch (error) {
       _analyticManager.trackRecoverBackupSystem(
@@ -72,23 +72,16 @@ class BackupService extends ChangeNotifier {
           error: parseCredentialExceptionMessage(error));
       rethrow;
     }
-    return null;
+    return (null, null);
   }
 
   // -------------------- Save --------------------
 
-  Future<void> saveBackup(AppBackup backup, BackupDestination destination) {
-    return switch (destination) {
-      BackupDestination.fileSystem => saveBackupToFile(backup),
-      BackupDestination.secureStorage => saveBackupToStorage(backup),
-    };
-  }
-
-  Future<File> saveBackupToFile(AppBackup backup) {
+  Future<File> saveBackupToFile(String walletId, AppBackup backup) {
     final ethAddress = backup.walletBackup.accounts.firstOrNull?.address;
     if (ethAddress == null) return Future.error(ArgumentError('Cannot backup wallet with no accounts'));
 
-    final filename = '${ethAddress.substring(0, 7)}-${DateTime.now().toString().substring(0, 10)}-silentshard-wallet-backup';
+    final filename = '${ethAddress.substring(0, 7)}-${DateTime.now().toString().substring(0, 10)}-$walletId-backup';
 
     return _fileService.createTemporaryFile(filename).then((file) => file.writeAsString(backup.toString()));
   }
@@ -99,8 +92,10 @@ class BackupService extends ChangeNotifier {
     });
   }
 
-  Future<void> saveBackupToStorage(AppBackup backup) {
-    final entry = SecureStorageEntry(backup.walletBackup.accounts.first.address, backup.toString());
+  Future<void> saveBackupToStorage(String walletId, AppBackup backup) {
+    final ethAddress = backup.walletBackup.accounts.firstOrNull?.address;
+    if (ethAddress == null) return Future.error(ArgumentError('Cannot backup wallet with no accounts'));
+    final entry = SecureStorageEntry('$walletId-$ethAddress', backup.toString());
     return _secureStorage //
         .write(entry)
         .then((_) => backupToStorageDidSave(backup));
@@ -126,27 +121,59 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Info --------------------
 
-  BackupInfo getBackupInfo(String address) {
+  Future<BackupInfo> getBackupInfo(String address, {String walletId = ''}) async {
     final info = _preferences.backupInfo(address);
+    if (Platform.isIOS) return info;
+    if (walletId == METAMASK_WALLET_ID) {
+      Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
+      for (var key in backupEntries.keys) {
+        if (!(_hasCheckedKeychain[key] ?? false)) {
+          _hasCheckedKeychain[key] = true;
+          try {
+            final (_, backup) = await readBackupFromStorage(key);
+            if (backup != null) {
+              backupEntries[key] = backup;
+            }
+          } catch (e) {
+            backupEntries[key] = null;
+          }
+        }
 
-    if (Platform.isIOS && !(_hasCheckedKeychain[address] ?? false)) {
-      _hasCheckedKeychain[address] = true;
-      readBackupFromStorage(address).then((backup) {
-        if (backup != null) {
-          info.keychain = BackupCheck(BackupStatus.done, backup.time);
-          _setBackupInfo(info);
-        } else if (info.keychain.status == BackupStatus.done) {
-          // TODO: auto-save backup on iOS
-          info.keychain = BackupCheck(BackupStatus.missing);
-          _setBackupInfo(info);
+        for (var key in backupEntries.keys) {
+          final backup = backupEntries[key];
+          if (backup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, backup.time);
+            _setBackupInfo(info);
+            return info;
+          } else if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
         }
-      }, onError: (e) {
-        if (info.keychain.status == BackupStatus.done) {
-          // TODO: auto-save backup on iOS
-          info.keychain = BackupCheck(BackupStatus.missing);
-          _setBackupInfo(info);
-        }
-      });
+      }
+    } else {
+      var key = '$walletId-$address';
+      if (!(_hasCheckedKeychain[key] ?? false)) {
+        _hasCheckedKeychain[key] = true;
+        readBackupFromStorage(key).then((result) {
+          final backup = result.$2;
+          if (backup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, backup.time);
+            _setBackupInfo(info);
+          } else if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        }, onError: (e) {
+          if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        });
+      }
     }
 
     return info;
@@ -154,11 +181,9 @@ class BackupService extends ChangeNotifier {
 
   Future<void> verifyBackup(String address) async {
     if (!Platform.isAndroid) return;
-
     final info = _preferences.backupInfo(address);
-
     try {
-      final backup = await readBackupFromStorage(null);
+      final (_, backup) = await readBackupFromStorage(null);
       if (backup != null) {
         if (backup.walletBackup.accounts.firstOrNull?.address != address) {
           throw ArgumentError(CANNOT_VERIFY_BACKUP);

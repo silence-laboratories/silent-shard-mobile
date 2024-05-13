@@ -3,7 +3,6 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
-import 'package:dart_2_party_ecdsa/src/types/user_data.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';
@@ -35,23 +34,17 @@ class AppRepository extends DemoDecoratorComposite {
     if (backup != null) {
       return _pair(qrMessage, userId, backup);
     } else {
-      return _pair(qrMessage, userId).then((pairingData) async {
-        final keyshare = await _keygen(userId);
-        final ethAddress = keyshare.ethAddress;
-        return (ethAddress, pairingData);
-      }).then((_) {
-        String ethAddress = _.$1;
-        PairingData pairingData = _.$2;
-        _sdk.fetchRemoteBackup(ethAddress, userId).value;
-        return pairingData;
-      });
+      return _pair(qrMessage, userId);
     }
   }
 
-  Future<Keyshare2> _keygen(String userId) async {
+  Future<Keyshare2> keygen(String walletId, String userId, PairingData pairingData) async {
     try {
       _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
-      final keyshare = await _sdk.startKeygen(userId).value;
+      final keyshare = await _sdk.startKeygen(walletId, userId, pairingData).value;
+      if (walletId == METAMASK_WALLET_ID) {
+        _sdk.fetchRemoteBackup(keyshare.ethAddress, userId).value;
+      }
       _analyticManager.trackDistributedKeyGen(
           type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
       return keyshare;
@@ -62,27 +55,33 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
+  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress, required String userId}) {
+    if (isDemoActive) {
+      return CancelableCompleter<BackupMessage>().operation.asStream();
+    }
+
+    return _sdk.listenRemoteBackup(accountAddress, userId, walletId: walletId);
+  }
+
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
-    _sdk.reset();
     return _sdk.startPairing(qrMessage, userId, backup);
   }
 
-  CancelableOperation<PairingData?> repair(QRMessage qrMessage, String userId) {
+  CancelableOperation<PairingData?> repair(QRMessage qrMessage, String address, String userId) {
     if (isDemoActive) {
       return CancelableOperation.fromValue((null));
     }
-
-    return _sdk.startRePairing(qrMessage, userId);
+    return _sdk.startRePairing(qrMessage, address, userId);
   }
 
-  CancelableOperation<AppBackup> appBackup() {
+  CancelableOperation<AppBackup> appBackup(String walletId, String address) {
     if (isDemoActive) {
       final demoBackup = WalletBackup([AccountBackup("0xDemoAddress", 'Test demo wallet', 'This is a demo backup, not recoverable')]);
       return CancelableOperation.fromValue(AppBackup(demoBackup));
     }
 
     return _sdk //
-        .walletBackup()
+        .walletBackup(walletId, address)
         .then((walletBackup) => AppBackup(walletBackup));
   }
 
@@ -109,9 +108,9 @@ class AppRepository extends DemoDecoratorComposite {
     _sdk.decline(request);
   }
 
-  void reset() {
+  void reset(String walletId, String address) {
     stopDemoMode();
-    _sdk.reset();
+    _sdk.reset(walletId, address);
   }
 
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);
