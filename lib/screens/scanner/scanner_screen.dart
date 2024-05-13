@@ -168,9 +168,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
       if (!showAccountAlreadyPresent) {
         _toWalletScreenAfterRecovery();
       }
-      setState(() {
-        showRemindEnterPassword = false;
-      });
     }
   }
 
@@ -560,10 +557,10 @@ class _ScannerScreenState extends State<ScannerScreen> {
 }
 
 class PopoverAddress extends StatelessWidget {
-  PopoverAddress({super.key, required this.name, required this.icon, required this.address});
-  String name;
-  String icon;
-  String address;
+  const PopoverAddress({super.key, required this.name, required this.icon, required this.address});
+  final String name;
+  final String icon;
+  final String address;
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/fade_in_out.dart';
 import 'package:silentshard/screens/update/app_update.dart';
 import 'package:silentshard/screens/update/snap_and_app_update.dart';
@@ -21,11 +22,6 @@ enum UpdateAlertDialogState {
   showSnapAndAppUpdateAvailable
 }
 
-class ImageKeys {
-  static const String uploadRocket = 'uploadRocket';
-  static const String uploadLaptop = 'uploadLaptop';
-}
-
 class UpdaterDialog extends StatefulWidget {
   final bool showSnapUpdate;
   const UpdaterDialog({super.key, this.showSnapUpdate = true});
@@ -40,8 +36,8 @@ class _UpdaterState extends State<UpdaterDialog> {
   int imageLoading = 2; // Load 2 images
 
   final Map<String, Image> imageMap = {
-    ImageKeys.uploadRocket: Image.asset('assets/images/updateRocket.png', width: 150),
-    ImageKeys.uploadLaptop: Image.asset('assets/images/updateLaptop.png', width: 250),
+    PrecachedImageKeys.uploadRocket: Image.asset('assets/images/updateRocket.png', width: 150),
+    PrecachedImageKeys.uploadLaptop: Image.asset('assets/images/updateLaptop.png', width: 250),
   };
 
   @override
@@ -78,7 +74,7 @@ class _UpdaterState extends State<UpdaterDialog> {
     return Consumer<SnapService>(
       builder: (context, snapService, _) => Consumer<AppUpdaterService>(builder: (context, appUpdaterService, _) {
         if (appUpdaterService.forceUpdateApp != null && imageLoading <= 0) {
-          UpdateAlertDialogState _updateAlertDialogState = switch ((
+          UpdateAlertDialogState updateAlertDialogState = switch ((
             appUpdaterService.forceUpdateApp!,
             widget.showSnapUpdate && (snapService.forceUpdateSnap ?? false),
             widget.showSnapUpdate && showSnapUpdateGuide,
@@ -93,7 +89,7 @@ class _UpdaterState extends State<UpdaterDialog> {
           };
           return Stack(
             children: [
-              if (_updateAlertDialogState != UpdateAlertDialogState.noAlert)
+              if (updateAlertDialogState != UpdateAlertDialogState.noAlert)
                 const IgnorePointer(
                   ignoring: false,
                   child: Opacity(
@@ -104,27 +100,27 @@ class _UpdaterState extends State<UpdaterDialog> {
                   ),
                 ),
               FadeInOut(
-                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateGuide,
+                visible: updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateGuide,
                 child: UpdateSnapGuide(
                   textTheme: textTheme,
                   onBack: () {
                     _updateShowSnapUpdateGuide(false);
                   },
-                  image: imageMap[ImageKeys.uploadLaptop]!,
+                  image: imageMap[PrecachedImageKeys.uploadLaptop]!,
                 ),
               ),
               FadeInOut(
-                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateAvailable,
+                visible: updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateAvailable,
                 child: SnapUpdate(
                   textTheme: textTheme,
                   onPressSnapGuide: () {
                     _updateShowSnapUpdateGuide(true);
                   },
-                  image: imageMap[ImageKeys.uploadRocket]!,
+                  image: imageMap[PrecachedImageKeys.uploadRocket]!,
                 ),
               ),
               FadeInOut(
-                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateSuccessful,
+                visible: updateAlertDialogState == UpdateAlertDialogState.showSnapUpdateSuccessful,
                 child: SnapUpdatedSuccesfully(
                     textTheme: textTheme,
                     onContinue: () {
@@ -132,22 +128,22 @@ class _UpdaterState extends State<UpdaterDialog> {
                     }),
               ),
               FadeInOut(
-                visible: _updateAlertDialogState == UpdateAlertDialogState.showSnapAndAppUpdateAvailable,
+                visible: updateAlertDialogState == UpdateAlertDialogState.showSnapAndAppUpdateAvailable,
                 child: SnapAndAppUpdate(
                   textTheme: textTheme,
                   onAppUpdate: _handleAppUpdate,
                   onPressSnapGuide: () {
                     _updateShowSnapUpdateGuide(true);
                   },
-                  image: imageMap[ImageKeys.uploadRocket]!,
+                  image: imageMap[PrecachedImageKeys.uploadRocket]!,
                 ),
               ),
               FadeInOut(
-                visible: _updateAlertDialogState == UpdateAlertDialogState.showAppUpdateAvailble,
+                visible: updateAlertDialogState == UpdateAlertDialogState.showAppUpdateAvailble,
                 child: AppUpdate(
                   textTheme: textTheme,
                   onAppUpdate: _handleAppUpdate,
-                  image: imageMap[ImageKeys.uploadRocket]!,
+                  image: imageMap[PrecachedImageKeys.uploadRocket]!,
                 ),
               ),
             ],

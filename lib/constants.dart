@@ -44,3 +44,11 @@ const walletMetaData = {
   "zerodev": {"name": "ZeroDev", "icon": "assets/images/zerodev.png"},
   "trustwallet": {"name": "Trust Wallet", "icon": "assets/images/trustwallet.png"},
 };
+
+class PrecachedImageKeys {
+  static const String uploadRocket = 'uploadRocket';
+  static const String uploadLaptop = 'uploadLaptop';
+  static const String cloudUpload = 'cloudUpload';
+  static const String folderOpen = 'folderOpen';
+  static const String social = 'social';
+}
