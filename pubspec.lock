@@ -198,7 +198,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: "52e28e348c9ac8bdb959a728c7b3618e93c28518"
+      resolved-ref: "5c6c4e88a0cb01eb86e698ccec3c7bf3a628bd4e"
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
@@ -937,6 +937,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  scrollable_positioned_list:
+    dependency: "direct main"
+    description:
+      name: scrollable_positioned_list
+      sha256: "1b54d5f1329a1e263269abc9e2543d90806131aa14fe7c6062a8054d57249287"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.8"
   share_plus:
     dependency: "direct main"
     description:

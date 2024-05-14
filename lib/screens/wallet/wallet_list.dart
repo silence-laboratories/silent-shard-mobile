@@ -5,6 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/demo/state_decorators/keyshares_provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
@@ -22,7 +23,8 @@ class WalletList extends StatefulWidget {
 }
 
 class WalletListState extends State<WalletList> {
-  final ScrollController _scrollController = ScrollController();
+  final ItemScrollController itemScrollController = ItemScrollController();
+  final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
 
   void _repair(String repairWalletId, String repairAddress) async {
     FirebaseCrashlytics.instance.log('Initiated repair');
@@ -68,12 +70,9 @@ class WalletListState extends State<WalletList> {
         break;
       }
     }
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        (scrolledToIndex * 175.0),
-        duration: const Duration(milliseconds: 1500),
-        curve: Curves.fastOutSlowIn,
-      );
+    scrolledToIndex = 1;
+    if (itemScrollController.isAttached) {
+      itemScrollController.jumpTo(index: scrolledToIndex);
     }
 
     return scrolledToIndex;
@@ -81,72 +80,75 @@ class WalletListState extends State<WalletList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-        controller: _scrollController,
-        child: Consumer<KeysharesProvider>(
-            builder: (context, keysharesProvider, _) => Consumer<WalletHighlightProvider>(builder: (context, walletIdProvider, child) {
-                  var walletMapEntries = keysharesProvider.keyshares.entries.toList();
-                  List<WalletListItem> walletItems = [];
-                  for (var entry in walletMapEntries) {
-                    var walletId = entry.key;
-                    var keyshareList = entry.value;
-                    for (var keyshare in keyshareList) {
-                      var address = keyshare.ethAddress;
-                      walletItems.add(WalletListItem(walletId: walletId, address: address));
-                    }
-                  }
-                  var scrolledToIndex = _scrollToListener(walletIdProvider.pairedAddress, walletItems);
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: walletItems.length,
-                    itemBuilder: (context, index) {
-                      final item = walletItems[index];
-                      final walletId = item.walletId;
-                      final address = item.address;
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
-                        decoration: (index == scrolledToIndex && walletIdProvider.scrolled)
-                            ? BoxDecoration(
-                                color: const Color(0xFF25194D),
-                                borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                                border: Border.all(
-                                  color: const Color(0xFF745EF6),
-                                  width: 1.0,
-                                ),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0xB2745EF6),
-                                    blurRadius: 20.0,
-                                    spreadRadius: 0.0,
-                                    offset: Offset(0.0, 0.0),
-                                  ),
-                                ],
-                                shape: BoxShape.rectangle,
-                              )
-                            : BoxDecoration(
-                                border: Border.all(width: 1, color: secondaryColor),
-                                borderRadius: BorderRadius.circular(10),
+    return Consumer<KeysharesProvider>(
+        builder: (context, keysharesProvider, _) => Consumer<WalletHighlightProvider>(builder: (context, walletIdProvider, child) {
+              var walletMapEntries = keysharesProvider.keyshares.entries.toList();
+              List<WalletListItem> walletItems = [];
+              for (var entry in walletMapEntries) {
+                var walletId = entry.key;
+                var keyshareList = entry.value;
+                for (var keyshare in keyshareList) {
+                  var address = keyshare.ethAddress;
+                  walletItems.add(WalletListItem(walletId: walletId, address: address));
+                }
+              }
+
+              var scrolledToIndex = 0;
+              if (walletIdProvider.scrolled) {
+                scrolledToIndex = _scrollToListener(walletIdProvider.pairedAddress, walletItems);
+              }
+              return ScrollablePositionedList.builder(
+                itemScrollController: itemScrollController,
+                scrollOffsetController: scrollOffsetController,
+                itemCount: walletItems.length,
+                itemBuilder: (context, index) {
+                  final item = walletItems[index];
+                  final walletId = item.walletId;
+                  final address = item.address;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
+                    decoration: (index == scrolledToIndex && walletIdProvider.scrolled)
+                        ? BoxDecoration(
+                            color: const Color(0xFF25194D),
+                            borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                            border: Border.all(
+                              color: const Color(0xFF745EF6),
+                              width: 1.0,
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0xB2745EF6),
+                                blurRadius: 20.0,
+                                spreadRadius: 0.0,
+                                offset: Offset(0.0, 0.0),
                               ),
-                        child: InkWell(
-                          onTap: () {},
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: WalletCard(
-                            key: Key(address),
-                            walletId: walletId,
-                            onRepair: () {
-                              _repair(walletId, address);
-                            },
-                            onExport: () => _exportBackup(walletId, address),
-                            onLogout: () => _confirmSignOut(walletId, address),
-                            address: address,
-                            onCopy: () async {
-                              await Clipboard.setData(ClipboardData(text: address));
-                            },
+                            ],
+                            shape: BoxShape.rectangle,
+                          )
+                        : BoxDecoration(
+                            border: Border.all(width: 1, color: secondaryColor),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ),
-                      );
-                    },
+                    child: InkWell(
+                      onTap: () {},
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: WalletCard(
+                        key: Key(address),
+                        walletId: walletId,
+                        onRepair: () {
+                          _repair(walletId, address);
+                        },
+                        onExport: () => _exportBackup(walletId, address),
+                        onLogout: () => _confirmSignOut(walletId, address),
+                        address: address,
+                        onCopy: () async {
+                          await Clipboard.setData(ClipboardData(text: address));
+                        },
+                      ),
+                    ),
                   );
-                })));
+                },
+              );
+            }));
   }
 }
