@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
@@ -16,7 +17,6 @@ import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.da
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
-import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
@@ -57,9 +57,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
         _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
             .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
             .map((event) {
-          Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
           setState(() {
-            _isRemoteBackedUpReady = event.isBackedUp;
+            _isRemoteBackedUpReady = event.backupData.isNotEmpty;
           });
           return event;
         });
@@ -268,7 +267,9 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               StreamBuilder(
                   stream: _backupMessageStream,
                   builder: (ctx, snapshot) {
-                    bool isBackedUp = snapshot.data?.isBackedUp ?? false;
+                    final backupsProvider = Provider.of<BackupsProvider>(context, listen: true);
+                    bool isBackedUp =
+                        (snapshot.data?.backupData.isNotEmpty ?? false) || backupsProvider.isBackupAvailable(widget.walletId, widget.address);
                     return isBackedUp
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                         : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
