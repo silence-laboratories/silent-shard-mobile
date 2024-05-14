@@ -70,7 +70,6 @@ class WalletListState extends State<WalletList> {
         break;
       }
     }
-    scrolledToIndex = 1;
     if (itemScrollController.isAttached) {
       itemScrollController.jumpTo(index: scrolledToIndex);
     }
