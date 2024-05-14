@@ -19,7 +19,7 @@ class SnapService extends ChangeNotifier {
   Version? get snapVersion => _snapVersion;
 
   SnapService(this._appRepository) {
-    init();
+    // init();
   }
 
   void init() {
