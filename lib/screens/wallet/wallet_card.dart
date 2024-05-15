@@ -1,14 +1,9 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
-import 'dart:async';
-
-import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:provider/provider.dart';
-import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/repository/app_repository.dart';
+
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';
@@ -16,7 +11,7 @@ import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
 
-class WalletCard extends StatefulWidget {
+class WalletCard extends StatelessWidget {
   final VoidCallback onRepair;
   final VoidCallback onLogout;
   final VoidCallback onExport;
@@ -35,46 +30,15 @@ class WalletCard extends StatefulWidget {
   });
 
   @override
-  State<WalletCard> createState() => _WalletCardState();
-}
-
-class _WalletCardState extends State<WalletCard> {
-  StreamSubscription<BackupMessage>? _backupMessageSubscription;
-  @override
-  void initState() {
-    super.initState();
-    final authState = Provider.of<AuthState>(context, listen: false);
-    final userId = authState.user?.uid;
-    if (widget.walletId != METAMASK_WALLET_ID && userId != null) {
-      _backupMessageSubscription = Provider.of<AppRepository>(context, listen: false)
-          .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
-          .listen((event) {
-        if (event.backupData.isNotEmpty) {
-          _backupMessageSubscription?.cancel();
-        }
-      })
-        ..onError((error, stackTrace) {
-          _backupMessageSubscription?.cancel();
-        });
-    }
-  }
-
-  @override
-  void dispose() {
-    _backupMessageSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(defaultSpacing * 1.5),
       child: Column(
         children: [
-          WalletInfo(widget: widget),
+          WalletInfo(widget: this),
           const Gap(0.5 * defaultSpacing),
           const Divider(),
-          BackupStatusDashboard(address: widget.address, walletId: widget.walletId),
+          BackupStatusDashboard(address: address, walletId: walletId),
         ],
       ),
     );
