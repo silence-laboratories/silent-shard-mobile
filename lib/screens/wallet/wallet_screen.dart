@@ -40,6 +40,8 @@ enum AllowNotificationAlertState { showing, notShowing }
 
 class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver {
   StreamSubscription<SignRequest>? _signRequestsSubscription;
+  StreamSubscription<BackupMessage>? _backupMessageSubscription;
+
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
   bool showWalletList = false;
@@ -88,6 +90,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     if (userId != null) {
       FirebaseCrashlytics.instance.log('Listening to sign requests');
       _signRequestsSubscription = appRepository.signRequests(userId).listen(_handleSignRequest);
+      _backupMessageSubscription = appRepository.listenRemoteBackupMessage(userId: userId).listen((event) {});
     }
 
     _getNotificatioSettingsStatus().then((value) {
@@ -102,6 +105,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   @override
   void deactivate() {
     _signRequestsSubscription?.cancel();
+    _backupMessageSubscription?.cancel();
     super.deactivate();
   }
 
