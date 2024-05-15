@@ -39,27 +39,19 @@ class BackupWalletScreen extends StatefulWidget {
 
 class _BackupWalletScreenState extends State<BackupWalletScreen> {
   late Stream<BackupMessage> _backupMessageStream;
-  bool _isRemoteBackedUpReady = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.walletId != METAMASK_WALLET_ID) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isRemoteBackedUpReady) {
-          _showWaitingSetupDialog();
-        }
+        _showWaitingSetupDialog();
       });
 
       final authState = Provider.of<AuthState>(context, listen: false);
       final userId = authState.user?.uid;
       if (userId != null) {
-        _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
-            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
-            .map((event) {
-          setState(() {
-            _isRemoteBackedUpReady = event.backupData.isNotEmpty;
-          });
+        _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(userId: userId).map((event) {
           return event;
         });
       }
@@ -98,7 +90,9 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (!_isRemoteBackedUpReady && widget.walletId != METAMASK_WALLET_ID) {
+    final backupsProvider = Provider.of<BackupsProvider>(context, listen: false);
+    final isBackUpReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+    if (!isBackUpReady && widget.walletId != METAMASK_WALLET_ID) {
       _showWaitingSetupDialog();
     } else {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -268,8 +262,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                   stream: _backupMessageStream,
                   builder: (ctx, snapshot) {
                     final backupsProvider = Provider.of<BackupsProvider>(context, listen: true);
-                    bool isBackedUp =
-                        (snapshot.data?.backupData.isNotEmpty ?? false) || backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                    bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
                     return isBackedUp
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                         : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
