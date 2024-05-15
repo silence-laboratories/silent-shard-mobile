@@ -59,12 +59,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress, required String userId}) {
+  Stream<BackupMessage> listenRemoteBackupMessage({required String userId}) {
     if (isDemoActive) {
       return CancelableCompleter<BackupMessage>().operation.asStream();
     }
 
-    return _sdk.listenRemoteBackup(accountAddress, userId, walletId: walletId);
+    return _sdk.listenRemoteBackup(userId);
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
