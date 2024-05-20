@@ -65,8 +65,13 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
       context: context,
-      builder: (context) => RemindEnterPasswordModal(
-        walletName: widget.walletId.capitalize(),
+      builder: (context) => Consumer<BackupsProvider>(
+        builder: (context, backupsProvider, _) {
+          return RemindEnterPasswordModal(
+            walletName: widget.walletId.capitalize(),
+            isBackupAvailable: backupsProvider.isBackupAvailable(widget.walletId, widget.address),
+          );
+        },
       ),
     );
   }
@@ -258,15 +263,18 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
             ),
             const Gap(defaultSpacing * 2),
             if (widget.walletId != METAMASK_WALLET_ID)
-              StreamBuilder(
-                  stream: _backupMessageStream,
-                  builder: (ctx, snapshot) {
-                    final backupsProvider = Provider.of<BackupsProvider>(context, listen: true);
-                    bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
-                    return isBackedUp
-                        ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                        : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
-                  }),
+              Consumer<BackupsProvider>(
+                builder: (context, backupsProvider, _) {
+                  return StreamBuilder(
+                      stream: _backupMessageStream,
+                      builder: (ctx, snapshot) {
+                        bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                        return isBackedUp
+                            ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                            : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
+                      });
+                },
+              ),
             const Gap(defaultSpacing * 2),
             Button(
               onPressed: () => _performBackup(context),

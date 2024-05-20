@@ -11,14 +11,19 @@ class RemindEnterPasswordModal extends StatelessWidget {
     super.key,
     required this.walletName,
     this.isScanning = false,
+    this.isBackupAvailable = false,
   });
 
   final String walletName;
   final bool isScanning;
+  final bool isBackupAvailable;
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    if (isScanning == false && isBackupAvailable) {
+      Navigator.of(context).pop();
+    }
     return Wrap(
       children: [
         Container(
