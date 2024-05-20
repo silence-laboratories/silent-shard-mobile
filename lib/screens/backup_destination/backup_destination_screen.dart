@@ -1,19 +1,14 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
-import 'dart:async';
-import 'dart:ui';
-
 import 'package:credential_manager/credential_manager.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
-import 'package:silentshard/auth_state.dart';
-import 'package:silentshard/repository/app_repository.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
-import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import '../../constants.dart';
 import '../../services/backup_service.dart';
@@ -41,26 +36,10 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
   String get _cloudTitle => Platform.isAndroid ? "Google Password Manager" : "iCloud Keychain";
   String get _storageTitle => Platform.isAndroid ? "Google" : "iCloud";
-  StreamSubscription<BackupMessage>? _backupMessageSubscription;
 
   @override
   void initState() {
     super.initState();
-    final authState = Provider.of<AuthState>(context, listen: false);
-    final userId = authState.user?.uid;
-    if (widget.walletId != METAMASK_WALLET_ID && userId != null) {
-      _backupMessageSubscription = Provider.of<AppRepository>(context, listen: false)
-          .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
-          .listen((event) {
-        Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _backupMessageSubscription?.cancel();
-    super.dispose();
   }
 
   @override
@@ -95,8 +74,8 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                 ),
                 if (widget.walletId != METAMASK_WALLET_ID) ...[
                   const Gap(3 * defaultSpacing),
-                  Consumer<AppPreferences>(builder: (context, appPreferences, _) {
-                    bool isPasswordReady = appPreferences.getIsPasswordReady(widget.address);
+                  Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
+                    bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
                     return isPasswordReady
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                         : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
@@ -276,7 +255,7 @@ class BackupDestinationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final isPasswordReady = Provider.of<AppPreferences>(context).getIsPasswordReady(address);
+    final isPasswordReady = Provider.of<BackupsProvider>(context).isBackupAvailable(walletId, address);
     return Stack(
       children: [
         InkWell(

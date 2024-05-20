@@ -99,6 +99,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => appPreferences),
         ChangeNotifierProvider(create: (_) => appRepository.pairingDataProvider),
         ChangeNotifierProvider(create: (_) => appRepository.keysharesProvider),
+        ChangeNotifierProvider(create: (_) => appRepository.backupsProvider),
         ChangeNotifierProvider(create: (_) => authState),
         ChangeNotifierProvider(create: (_) => themeManager),
         ChangeNotifierProvider(create: (_) => localAuth),

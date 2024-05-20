@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';

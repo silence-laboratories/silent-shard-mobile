@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/auth_state.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
@@ -16,7 +17,6 @@ import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.da
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
-import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/bullet.dart';
@@ -39,28 +39,19 @@ class BackupWalletScreen extends StatefulWidget {
 
 class _BackupWalletScreenState extends State<BackupWalletScreen> {
   late Stream<BackupMessage> _backupMessageStream;
-  bool _isRemoteBackedUpReady = false;
 
   @override
   void initState() {
     super.initState();
     if (widget.walletId != METAMASK_WALLET_ID) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isRemoteBackedUpReady) {
-          _showWaitingSetupDialog();
-        }
+        _showWaitingSetupDialog();
       });
 
       final authState = Provider.of<AuthState>(context, listen: false);
       final userId = authState.user?.uid;
       if (userId != null) {
-        _backupMessageStream = Provider.of<AppRepository>(context, listen: false)
-            .listenRemoteBackupMessage(walletId: widget.walletId, accountAddress: widget.address, userId: userId)
-            .map((event) {
-          Provider.of<AppPreferences>(context, listen: false).setIsPasswordReady(widget.address, event.isBackedUp);
-          setState(() {
-            _isRemoteBackedUpReady = event.isBackedUp;
-          });
+        _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(userId: userId).map((event) {
           return event;
         });
       }
@@ -74,8 +65,13 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
       context: context,
-      builder: (context) => RemindEnterPasswordModal(
-        walletName: widget.walletId.capitalize(),
+      builder: (context) => Consumer<BackupsProvider>(
+        builder: (context, backupsProvider, _) {
+          return RemindEnterPasswordModal(
+            walletName: widget.walletId.capitalize(),
+            isBackupAvailable: backupsProvider.isBackupAvailable(widget.walletId, widget.address),
+          );
+        },
       ),
     );
   }
@@ -99,7 +95,9 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
   }
 
   Future<void> _performBackup(BuildContext context) async {
-    if (!_isRemoteBackedUpReady && widget.walletId != METAMASK_WALLET_ID) {
+    final backupsProvider = Provider.of<BackupsProvider>(context, listen: false);
+    final isBackUpReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+    if (!isBackUpReady && widget.walletId != METAMASK_WALLET_ID) {
       _showWaitingSetupDialog();
     } else {
       final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -265,14 +263,18 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
             ),
             const Gap(defaultSpacing * 2),
             if (widget.walletId != METAMASK_WALLET_ID)
-              StreamBuilder(
-                  stream: _backupMessageStream,
-                  builder: (ctx, snapshot) {
-                    bool isBackedUp = snapshot.data?.isBackedUp ?? false;
-                    return isBackedUp
-                        ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                        : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
-                  }),
+              Consumer<BackupsProvider>(
+                builder: (context, backupsProvider, _) {
+                  return StreamBuilder(
+                      stream: _backupMessageStream,
+                      builder: (ctx, snapshot) {
+                        bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                        return isBackedUp
+                            ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
+                            : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
+                      });
+                },
+              ),
             const Gap(defaultSpacing * 2),
             Button(
               onPressed: () => _performBackup(context),

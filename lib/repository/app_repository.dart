@@ -3,6 +3,7 @@
 
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/app_backup.dart';
@@ -17,6 +18,7 @@ class AppRepository extends DemoDecoratorComposite {
   AppRepository(this._sdk, this._analyticManager) {
     addChild(pairingDataProvider);
     addChild(keysharesProvider);
+    addChild(backupsProvider);
   }
 
   // --- SDK wrappers ----
@@ -24,6 +26,8 @@ class AppRepository extends DemoDecoratorComposite {
   late final pairingDataProvider = PairingDataProvider(_sdk.pairingState, _sdk.sodium);
 
   late final keysharesProvider = KeysharesProvider(_sdk.keygenState);
+
+  late final backupsProvider = BackupsProvider(_sdk.backupState);
 
   CancelableOperation<PairingData?> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
     if (qrMessage.isDemo) {
@@ -55,12 +59,12 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Stream<BackupMessage> listenRemoteBackupMessage({required String walletId, required String accountAddress, required String userId}) {
+  Stream<BackupMessage> listenRemoteBackupMessage({required String userId}) {
     if (isDemoActive) {
       return CancelableCompleter<BackupMessage>().operation.asStream();
     }
 
-    return _sdk.listenRemoteBackup(accountAddress, userId, walletId: walletId);
+    return _sdk.listenRemoteBackup(userId);
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
