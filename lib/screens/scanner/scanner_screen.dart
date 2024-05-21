@@ -270,6 +270,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _resetPairing() {
+    _pairingOperation.cancel();
     _updatePairingState(ScannerScreenPairingState.ready);
     _updateScannerState(ScannerState.scanning);
     _resetScannerController();
