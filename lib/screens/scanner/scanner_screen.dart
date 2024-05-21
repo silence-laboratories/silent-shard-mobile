@@ -204,7 +204,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
       scanningWalletId = qrMessage.walletId;
     });
 
-    if ((widget.backup != null || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
+    final hasBackupAlready = widget.backup != null;
+    if ((hasBackupAlready || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
       SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
       SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
       if (context.mounted) {
@@ -239,7 +240,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
       });
     }
 
-    final hasBackupAlready = widget.backup != null;
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: ${widget.isRePairing}, hasBackupAlready: $hasBackupAlready');
     _pairingOperation.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
