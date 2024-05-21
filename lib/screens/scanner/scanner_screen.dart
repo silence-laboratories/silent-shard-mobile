@@ -270,13 +270,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   void _resetPairing() {
+    _updatePairingState(ScannerScreenPairingState.ready);
     _updateScannerState(ScannerState.scanning);
     _resetScannerController();
   }
 
   void _cancelPairing(bool showTryAgain, [dynamic error, String walletId = METAMASK_WALLET_ID]) {
     _pairingOperation.cancel();
-    _updatePairingState(ScannerScreenPairingState.ready);
     if (error is StateError && error.toString().contains('NO_BACKUP_DATA_WHILE_REPAIRING')) {
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -321,6 +321,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
       );
     } else {
       if (mounted) {
+        _resetPairing();
         Navigator.of(context).pop();
       }
     }
@@ -342,7 +343,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
     context.read<WalletHighlightProvider>().setPairedAddress(recoveryAddress);
     context.read<WalletHighlightProvider>().setScrolledTemporarily();
     _resetPairing();
-    _updateScannerState(ScannerState.scanning);
     Navigator.of(context).pop();
   }
 
