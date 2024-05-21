@@ -543,7 +543,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                       isSucceedWithPresentAccount: _pairingState == ScannerScreenPairingState.succeeded && showAccountAlreadyPresent,
                       isRecoverWithBackup: widget.backup != null,
                       showRemindEnterPassword: showRemindEnterPassword,
-                      isNotSucceed: !(_pairingState == ScannerScreenPairingState.succeeded),
+                      isInProgress: _pairingState == ScannerScreenPairingState.inProgress,
                       walletInfo: walletInfo,
                       recoveryAddress: recoveryAddress,
                       toWalletScreenAfterRecovery: _toWalletScreenAfterRecovery,
