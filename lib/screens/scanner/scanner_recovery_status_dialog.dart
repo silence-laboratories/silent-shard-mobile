@@ -18,7 +18,7 @@ class ScannerRecoveryStatusDialog extends StatelessWidget {
       required this.isSucceedWithPresentAccount,
       required this.isRecoverWithBackup,
       required this.showRemindEnterPassword,
-      required this.isNotSucceed,
+      required this.isInProgress,
       this.walletInfo,
       required this.recoveryAddress,
       required this.toWalletScreenAfterRecovery});
@@ -27,7 +27,7 @@ class ScannerRecoveryStatusDialog extends StatelessWidget {
   final bool isSucceedWithPresentAccount;
   final bool isRecoverWithBackup;
   final bool showRemindEnterPassword;
-  final bool isNotSucceed;
+  final bool isInProgress;
   final SupportWallet? walletInfo;
   final String recoveryAddress;
   final Function toWalletScreenAfterRecovery;
@@ -59,12 +59,12 @@ class ScannerRecoveryStatusDialog extends StatelessWidget {
       ),
       showRemindEnterPassword
           ? AnimatedOpacity(
-              opacity: isNotSucceed ? 1 : 0,
+              opacity: isInProgress ? 1 : 0,
               duration: const Duration(milliseconds: 500),
-              child: Visibility(visible: isNotSucceed, child: RemindEnterPasswordModal(isScanning: true, walletName: walletInfo?.name ?? "")),
+              child: Visibility(visible: isInProgress, child: RemindEnterPasswordModal(isScanning: true, walletName: walletInfo?.name ?? "")),
             )
           : AnimatedOpacity(
-              opacity: isNotSucceed ? 1 : 0,
+              opacity: isInProgress ? 1 : 0,
               duration: const Duration(milliseconds: 500),
               child: Wrap(children: [Loader(text: '${isRecoverWithBackup ? 'Recovering' : 'Re-Pairing'} with ${walletInfo?.name ?? ""}...')]),
             ),
