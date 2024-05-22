@@ -132,16 +132,17 @@ class BackupService extends ChangeNotifier {
     if (walletId == METAMASK_WALLET_ID) {
       Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
       for (var key in backupEntries.keys) {
-        if (!(_hasCheckedKeychain[key] ?? false)) {
-          _hasCheckedKeychain[key] = true;
-          try {
-            final (_, backup) = await readBackupFromStorage(key);
-            if (backup != null) {
-              backupEntries[key] = backup;
-            }
-          } catch (e) {
-            backupEntries[key] = null;
+        if (_hasCheckedKeychain.containsKey(key) && _hasCheckedKeychain[key] == true) {
+          return;
+        }
+        _hasCheckedKeychain[key] = true;
+        try {
+          final (_, backup) = await readBackupFromStorage(key);
+          if (backup != null) {
+            backupEntries[key] = backup;
           }
+        } catch (e) {
+          backupEntries[key] = null;
         }
       }
 
