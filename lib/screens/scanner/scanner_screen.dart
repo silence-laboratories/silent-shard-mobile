@@ -168,11 +168,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
       }
     } else {
       if (!widget.isRePairing && widget.backup != null) {
-        final keyshareList = appRepository.keysharesProvider.keyshares[walletId];
-        final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
-        bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
-        _updateRecoveryState(isBackupSameAccount, backupAddress);
-
         if (widget.source == BackupSource.fileSystem) {
           final backupService = Provider.of<BackupService>(context, listen: false);
           backupService.backupToFileDidSave(widget.backup!); // update backup status
@@ -181,9 +176,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
           final backupService = Provider.of<BackupService>(context, listen: false);
           backupService.backupToStorageDidSave(widget.backup!);
         }
-      } else {
-        bool isRePairingExistWallet = widget.isRePairing == true && widget.recoveryWalletId == walletId;
-        _updateRecoveryState(isRePairingExistWallet, widget.repairAddress);
       }
 
       _updatePairingState(ScannerScreenPairingState.succeeded);
@@ -225,6 +217,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
         );
       }
       return;
+    }
+
+    if (hasBackupAlready) {
+      final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
+      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
+      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
+      _updateRecoveryState(isBackupSameAccount, backupAddress);
+    } else if (widget.isRePairing == true) {
+      bool isRePairingSameAccount = widget.recoveryWalletId == qrMessage.walletId;
+      _updateRecoveryState(isRePairingSameAccount, widget.repairAddress);
     }
 
     if (widget.isRePairing == true) {

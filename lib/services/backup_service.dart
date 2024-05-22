@@ -123,7 +123,12 @@ class BackupService extends ChangeNotifier {
 
   Future<BackupInfo> getBackupInfo(String address, {String walletId = ''}) async {
     final info = _preferences.backupInfo(address);
-    if (Platform.isIOS) return info;
+    if (!Platform.isIOS) return info;
+    await _setupKeychainBackupInfo(info, address, walletId);
+    return info;
+  }
+
+  Future<void> _setupKeychainBackupInfo(BackupInfo info, String address, String walletId) async {
     if (walletId == METAMASK_WALLET_ID) {
       Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
       for (var key in backupEntries.keys) {
@@ -138,45 +143,41 @@ class BackupService extends ChangeNotifier {
             backupEntries[key] = null;
           }
         }
+      }
 
-        for (var key in backupEntries.keys) {
-          final backup = backupEntries[key];
+      final backup = backupEntries.values.firstWhere((element) => element != null, orElse: () => null);
+      if (backup != null) {
+        info.keychain = BackupCheck(BackupStatus.done, backup.time);
+        _setBackupInfo(info);
+      } else if (info.keychain.status == BackupStatus.done) {
+        // TODO: auto-save backup on iOS
+        info.keychain = BackupCheck(BackupStatus.missing);
+        _setBackupInfo(info);
+      }
+    } else {
+      var key = '$walletId-$address';
+      if (!(_hasCheckedKeychain[key] ?? false)) {
+        _hasCheckedKeychain[key] = true;
+
+        try {
+          final (_, backup) = await readBackupFromStorage(key);
           if (backup != null) {
             info.keychain = BackupCheck(BackupStatus.done, backup.time);
             _setBackupInfo(info);
-            return info;
           } else if (info.keychain.status == BackupStatus.done) {
+            // TODO: auto-save backup on iOS
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        } catch (e) {
+          if (info.keychain.status == BackupStatus.done) {
             // TODO: auto-save backup on iOS
             info.keychain = BackupCheck(BackupStatus.missing);
             _setBackupInfo(info);
           }
         }
       }
-    } else {
-      var key = '$walletId-$address';
-      if (!(_hasCheckedKeychain[key] ?? false)) {
-        _hasCheckedKeychain[key] = true;
-        readBackupFromStorage(key).then((result) {
-          final backup = result.$2;
-          if (backup != null) {
-            info.keychain = BackupCheck(BackupStatus.done, backup.time);
-            _setBackupInfo(info);
-          } else if (info.keychain.status == BackupStatus.done) {
-            // TODO: auto-save backup on iOS
-            info.keychain = BackupCheck(BackupStatus.missing);
-            _setBackupInfo(info);
-          }
-        }, onError: (e) {
-          if (info.keychain.status == BackupStatus.done) {
-            // TODO: auto-save backup on iOS
-            info.keychain = BackupCheck(BackupStatus.missing);
-            _setBackupInfo(info);
-          }
-        });
-      }
     }
-
-    return info;
   }
 
   Future<void> verifyBackup(String address) async {
