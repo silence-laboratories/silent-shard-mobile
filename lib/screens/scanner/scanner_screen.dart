@@ -199,6 +199,15 @@ class _ScannerScreenState extends State<ScannerScreen> {
     });
 
     final hasBackupAlready = widget.backup != null;
+    if (hasBackupAlready) {
+      final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
+      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
+      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
+      _updateRecoveryState(isBackupSameAccount, backupAddress);
+    } else if (widget.isRePairing == true) {
+      bool isRePairingSameAccount = widget.recoveryWalletId == qrMessage.walletId;
+      _updateRecoveryState(isRePairingSameAccount, widget.repairAddress);
+    }
     if ((hasBackupAlready || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
       analyticManager.trackPairingDevice(
         address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
@@ -218,6 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => MultiWalletMismatchScreen(
+              address: recoveryAddress,
               oldWalletId: widget.recoveryWalletId,
               oldWalletIcon: oldWallet.icon,
               newWalletId: qrMessage.walletId,
@@ -230,16 +240,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
         );
       }
       return;
-    }
-
-    if (hasBackupAlready) {
-      final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
-      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
-      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
-      _updateRecoveryState(isBackupSameAccount, backupAddress);
-    } else if (widget.isRePairing == true) {
-      bool isRePairingSameAccount = widget.recoveryWalletId == qrMessage.walletId;
-      _updateRecoveryState(isRePairingSameAccount, widget.repairAddress);
     }
 
     if (widget.isRePairing == true) {
@@ -596,7 +596,6 @@ class PopoverAddress extends StatelessWidget {
         children: [
           PaddedContainer(
               child: Image.asset(
-            // walletInfo.icon,
             icon,
             height: 28,
           )),
