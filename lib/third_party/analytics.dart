@@ -48,11 +48,13 @@ enum EventName {
   recover_from_file,
   delete_account,
   log_out,
-  verify_backup
+  verify_backup,
+  password_for_backup
 }
 
 const WALLET_ID_NOT_FOUND = "Wallet ID not found";
 const ADDRESS_NOT_FOUND = "Address not found";
+const WALLET_MISMATCH = "wallet mismatch";
 
 class AnalyticManager {
   late Mixpanel mixpanel;
@@ -172,6 +174,13 @@ class AnalyticManager {
       'source': source?.name,
       'wallet': wallet,
       'public_key': address
+    });
+  }
+
+  void trackPasswordForBackup({required bool success, String? error}) {
+    mixpanel.track(EventName.password_for_backup.name, properties: {
+      'success': success,
+      'error': error,
     });
   }
 

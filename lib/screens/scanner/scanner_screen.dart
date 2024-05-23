@@ -200,6 +200,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
 
     final hasBackupAlready = widget.backup != null;
     if ((hasBackupAlready || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
+      analyticManager.trackPairingDevice(
+        address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+        wallet: qrMessage.walletId,
+        type: widget.isRePairing
+            ? PairingDeviceType.repaired
+            : hasBackupAlready
+                ? PairingDeviceType.recovered
+                : PairingDeviceType.new_account,
+        status: PairingDeviceStatus.failed,
+        error: WALLET_MISMATCH,
+      );
       SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
       SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
       if (context.mounted) {
