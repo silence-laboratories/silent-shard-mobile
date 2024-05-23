@@ -272,8 +272,11 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                   return StreamBuilder(
                       stream: _backupMessageStream,
                       builder: (ctx, snapshot) {
-                        bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
-                        return isBackedUp
+                        bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                        if (isPasswordReady) {
+                          analyticManager.trackPasswordForBackup();
+                        }
+                        return isPasswordReady
                             ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                             : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
                       });

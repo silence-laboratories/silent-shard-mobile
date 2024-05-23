@@ -76,6 +76,10 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                   const Gap(3 * defaultSpacing),
                   Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
                     bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                    final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+                    if (isPasswordReady) {
+                      analyticManager.trackPasswordForBackup();
+                    }
                     return isPasswordReady
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                         : const PasswordStatusBanner(status: PasswordBannerStatus.alert);

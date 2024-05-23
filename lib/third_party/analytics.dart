@@ -177,10 +177,9 @@ class AnalyticManager {
     });
   }
 
-  void trackPasswordForBackup({required bool success, String? error}) {
+  void trackPasswordForBackup() {
     mixpanel.track(EventName.password_for_backup.name, properties: {
-      'success': success,
-      'error': error,
+      'success': true,
     });
   }
 
