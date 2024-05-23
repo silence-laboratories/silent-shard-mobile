@@ -84,7 +84,7 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                 const Gap(9 * defaultSpacing),
                 Consumer<BackupService>(builder: (context, backupService, _) {
                   return FutureBuilder(
-                    future: backupService.getBackupInfo(widget.address),
+                    future: backupService.getBackupInfo(widget.address, walletId: widget.walletId),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
@@ -108,7 +108,7 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                 const Gap(4 * defaultSpacing),
                 Consumer<BackupService>(builder: (context, backupService, _) {
                   return FutureBuilder(
-                    future: backupService.getBackupInfo(widget.address),
+                    future: backupService.getBackupInfo(widget.address, walletId: widget.walletId),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasError) {
                         debugPrint('Error in getting backup info: ${snapshot.error}');
