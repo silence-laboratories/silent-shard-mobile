@@ -44,17 +44,17 @@ class AppRepository extends DemoDecoratorComposite {
 
   Future<Keyshare2> keygen(String walletId, String userId, PairingData pairingData) async {
     try {
-      _analyticManager.trackDistributedKeyGen(type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
+      _analyticManager.trackDistributedKeyGen(wallet: walletId, type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
       final keyshare = await _sdk.startKeygen(walletId, userId, pairingData).value;
       if (walletId == METAMASK_WALLET_ID) {
         await _sdk.fetchRemoteBackup(keyshare.ethAddress, userId).value;
       }
       _analyticManager.trackDistributedKeyGen(
-          type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, publicKey: keyshare.ethAddress);
+          wallet: walletId, type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.success, address: keyshare.ethAddress);
       return keyshare;
     } catch (error) {
       _analyticManager.trackDistributedKeyGen(
-          type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.failed, error: error.toString());
+          wallet: walletId, type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.failed, error: error.toString());
       rethrow;
     }
   }

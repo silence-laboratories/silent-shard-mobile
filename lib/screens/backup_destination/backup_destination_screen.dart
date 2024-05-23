@@ -169,17 +169,18 @@ class BackupDestinationWidget extends StatelessWidget {
       await useCase.execute(walletId, address);
 
       if (destination == BackupDestination.secureStorage) {
-        analyticManager.trackSaveBackupSystem(success: true, source: PageSource.backup_page);
+        analyticManager.trackSaveBackupSystem(wallet: walletId, address: address, success: true, source: PageSource.backup_page);
       } else {
-        analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page);
+        analyticManager.trackSaveToFile(wallet: walletId, address: address, success: true, source: PageSource.backup_page);
       }
     } catch (error) {
       FirebaseCrashlytics.instance.log('Cannot backup: $error, ${parseCredentialExceptionMessage(error)}');
 
       if (destination == BackupDestination.secureStorage) {
-        analyticManager.trackSaveBackupSystem(success: false, source: PageSource.backup_page, error: parseCredentialExceptionMessage(error));
+        analyticManager.trackSaveBackupSystem(
+            wallet: walletId, address: address, success: false, source: PageSource.backup_page, error: parseCredentialExceptionMessage(error));
       } else {
-        analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: error.toString());
+        analyticManager.trackSaveToFile(wallet: walletId, address: address, success: false, source: PageSource.backup_page, error: error.toString());
       }
       if (error is CredentialException && error.code == 301) {
         return; // Save cancelled, ignore
@@ -207,6 +208,8 @@ class BackupDestinationWidget extends StatelessWidget {
       final backupService = Provider.of<BackupService>(context, listen: false);
       await backupService.verifyBackup(address);
       analyticManager.trackVerifyBackup(
+        wallet: walletId,
+        address: address,
         success: true,
         timeSinceVerify: cloudMessage(check.date),
         source: PageSource.get_started,
@@ -214,7 +217,12 @@ class BackupDestinationWidget extends StatelessWidget {
     } catch (error) {
       FirebaseCrashlytics.instance.log('Cannot verify backup: $error, ${parseCredentialExceptionMessage(error)}');
       analyticManager.trackVerifyBackup(
-          success: false, timeSinceVerify: cloudMessage(check.date), source: PageSource.get_started, error: parseCredentialExceptionMessage(error));
+          wallet: walletId,
+          address: address,
+          success: false,
+          timeSinceVerify: cloudMessage(check.date),
+          source: PageSource.get_started,
+          error: parseCredentialExceptionMessage(error));
       if (context.mounted && !(error is ArgumentError && error.message == CANNOT_VERIFY_BACKUP)) {
         _showErrorScreen(
           context,

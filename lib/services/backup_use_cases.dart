@@ -76,14 +76,20 @@ class ExportBackupUseCase extends UseCase {
           sharePositionOrigin: isIPad ? box.localToGlobal(Offset.zero) & box.size : null,
         );
         if (result.status != ShareResultStatus.dismissed) {
-          analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page, backup: result.raw);
+          analyticManager.trackSaveToFile(wallet: walletId, address: address, success: true, source: PageSource.backup_page, backup: result.raw);
           backupService.backupToFileDidSave(appBackup);
         } else {
-          analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, backup: result.raw, error: "Save to file is dismissed.");
+          analyticManager.trackSaveToFile(
+              wallet: walletId,
+              address: address,
+              success: false,
+              source: PageSource.backup_page,
+              backup: result.raw,
+              error: "Save to file is dismissed.");
         }
       }
     } catch (e) {
-      analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: e.toString());
+      analyticManager.trackSaveToFile(wallet: walletId, address: address, success: false, source: PageSource.backup_page, error: e.toString());
       return Future.error(e);
     }
   }

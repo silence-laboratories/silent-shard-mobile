@@ -117,12 +117,23 @@ class _PairState extends State<PairScreen> {
             if (backupDestination.contains("-")) {
               walletId = backupDestination.split("-").first;
             }
+            analyticManager.trackRecoverBackupSystem(
+                wallet: walletId,
+                address: backup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
+                success: true,
+                source: PageSource.get_started);
             break;
           case BackupSource.fileSystem:
             final tokens = backupDestination.split("-");
             if (!tokens[tokens.length - 2].contains("wallet")) {
               walletId = tokens[tokens.length - 2];
             }
+            analyticManager.trackRecoverFromFile(
+                wallet: walletId,
+                address: backup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
+                success: true,
+                source: PageSource.get_started,
+                backup: backupDestination);
             break;
         }
         _recoverFromBackup(backup, source, walletId);
@@ -174,9 +185,11 @@ class _PairState extends State<PairScreen> {
     }
 
     if (source == BackupSource.secureStorage) {
-      analyticManager.trackRecoverBackupSystem(success: false, source: PageSource.get_started, error: "No backup found.");
+      analyticManager.trackRecoverBackupSystem(
+          wallet: WALLET_ID_NOT_FOUND, address: ADDRESS_NOT_FOUND, success: false, source: PageSource.get_started, error: "No backup found.");
     } else {
-      analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, error: "No backup found.");
+      analyticManager.trackRecoverFromFile(
+          wallet: WALLET_ID_NOT_FOUND, address: ADDRESS_NOT_FOUND, success: false, source: PageSource.get_started, error: "No backup found.");
     }
 
     Navigator.push(

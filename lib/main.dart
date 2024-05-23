@@ -54,7 +54,6 @@ Future<void> main() async {
   final analyticManager = AnalyticManager();
   await analyticManager.init();
   final appRepository = AppRepository(sdk, analyticManager);
-  analyticManager.keysharesProvider = appRepository.keysharesProvider;
   final appPreferences = AppPreferences(sharedPreferences);
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();

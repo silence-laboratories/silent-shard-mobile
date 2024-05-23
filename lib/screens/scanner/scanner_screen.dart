@@ -128,16 +128,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (_scannerState != ScannerState.scanning) return;
     final barcode = capture.barcodes.firstOrNull;
     final message = _parse(barcode?.rawValue);
+    FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message?.pairingId}');
+    analyticManager.trackPairingDevice(
+        address: "",
+        wallet: message?.walletId ?? WALLET_ID_NOT_FOUND,
+        type: widget.isRePairing
+            ? PairingDeviceType.repaired
+            : widget.backup?.walletBackup != null
+                ? PairingDeviceType.recovered
+                : PairingDeviceType.new_account,
+        status: PairingDeviceStatus.qr_scanned);
+    _updateScannerState(ScannerState.scanned);
     if (message != null) {
-      FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message.pairingId}');
-      analyticManager.trackPairingDevice(
-          type: widget.isRePairing
-              ? PairingDeviceType.repaired
-              : widget.backup?.walletBackup != null
-                  ? PairingDeviceType.recovered
-                  : PairingDeviceType.new_account,
-          status: PairingDeviceStatus.qr_scanned);
-      _updateScannerState(ScannerState.scanned);
       _startPairing(context, sdk, authState, message);
     } else {
       _updateScannerState(ScannerState.scanned);
@@ -245,6 +247,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: ${widget.isRePairing}, hasBackupAlready: $hasBackupAlready');
     _pairingOperation.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
+        address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+        wallet: qrMessage.walletId,
         type: widget.isRePairing
             ? PairingDeviceType.repaired
             : hasBackupAlready
@@ -260,6 +264,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
+          address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+          wallet: qrMessage.walletId,
           type: widget.isRePairing
               ? PairingDeviceType.repaired
               : hasBackupAlready
