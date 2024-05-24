@@ -128,16 +128,18 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (_scannerState != ScannerState.scanning) return;
     final barcode = capture.barcodes.firstOrNull;
     final message = _parse(barcode?.rawValue);
+    FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message?.pairingId}');
+    analyticManager.trackPairingDevice(
+        address: "",
+        wallet: message?.walletId ?? WALLET_ID_NOT_FOUND,
+        type: widget.isRePairing
+            ? PairingDeviceType.repaired
+            : widget.backup?.walletBackup != null
+                ? PairingDeviceType.recovered
+                : PairingDeviceType.new_account,
+        status: PairingDeviceStatus.qr_scanned);
+    _updateScannerState(ScannerState.scanned);
     if (message != null) {
-      FirebaseCrashlytics.instance.log('QR code scanned, pairingId: ${message.pairingId}');
-      analyticManager.trackPairingDevice(
-          type: widget.isRePairing
-              ? PairingDeviceType.repaired
-              : widget.backup?.walletBackup != null
-                  ? PairingDeviceType.recovered
-                  : PairingDeviceType.new_account,
-          status: PairingDeviceStatus.qr_scanned);
-      _updateScannerState(ScannerState.scanned);
       _startPairing(context, sdk, authState, message);
     } else {
       _updateScannerState(ScannerState.scanned);
@@ -197,7 +199,27 @@ class _ScannerScreenState extends State<ScannerScreen> {
     });
 
     final hasBackupAlready = widget.backup != null;
+    if (hasBackupAlready) {
+      final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
+      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
+      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
+      _updateRecoveryState(isBackupSameAccount, backupAddress);
+    } else if (widget.isRePairing == true) {
+      bool isRePairingSameAccount = widget.recoveryWalletId == qrMessage.walletId;
+      _updateRecoveryState(isRePairingSameAccount, widget.repairAddress);
+    }
     if ((hasBackupAlready || widget.isRePairing) && widget.recoveryWalletId != qrMessage.walletId) {
+      analyticManager.trackPairingDevice(
+        address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+        wallet: qrMessage.walletId,
+        type: widget.isRePairing
+            ? PairingDeviceType.repaired
+            : hasBackupAlready
+                ? PairingDeviceType.recovered
+                : PairingDeviceType.new_account,
+        status: PairingDeviceStatus.failed,
+        error: WALLET_MISMATCH,
+      );
       SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
       SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
       if (context.mounted) {
@@ -205,6 +227,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => MultiWalletMismatchScreen(
+              address: recoveryAddress,
               oldWalletId: widget.recoveryWalletId,
               oldWalletIcon: oldWallet.icon,
               newWalletId: qrMessage.walletId,
@@ -217,16 +240,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
         );
       }
       return;
-    }
-
-    if (hasBackupAlready) {
-      final keyshareList = appRepository.keysharesProvider.keyshares[qrMessage.walletId];
-      final backupAddress = widget.backup?.walletBackup.accounts.firstOrNull?.address ?? '';
-      bool isBackupSameAccount = keyshareList?.any((element) => element.ethAddress == backupAddress) ?? false;
-      _updateRecoveryState(isBackupSameAccount, backupAddress);
-    } else if (widget.isRePairing == true) {
-      bool isRePairingSameAccount = widget.recoveryWalletId == qrMessage.walletId;
-      _updateRecoveryState(isRePairingSameAccount, widget.repairAddress);
     }
 
     if (widget.isRePairing == true) {
@@ -245,6 +258,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     FirebaseCrashlytics.instance.log('Start pairing, isRepair: ${widget.isRePairing}, hasBackupAlready: $hasBackupAlready');
     _pairingOperation.value.then((pairingResponse) {
       analyticManager.trackPairingDevice(
+        address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+        wallet: qrMessage.walletId,
         type: widget.isRePairing
             ? PairingDeviceType.repaired
             : hasBackupAlready
@@ -260,6 +275,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }, onError: (error) {
       FirebaseCrashlytics.instance.log('Pairing failed: $error');
       analyticManager.trackPairingDevice(
+          address: widget.isRePairing || hasBackupAlready ? recoveryAddress : "",
+          wallet: qrMessage.walletId,
           type: widget.isRePairing
               ? PairingDeviceType.repaired
               : hasBackupAlready
@@ -579,7 +596,6 @@ class PopoverAddress extends StatelessWidget {
         children: [
           PaddedContainer(
               child: Image.asset(
-            // walletInfo.icon,
             icon,
             height: 28,
           )),

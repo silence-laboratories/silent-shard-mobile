@@ -11,12 +11,14 @@ import 'package:silentshard/utils.dart';
 class MultiWalletMismatchScreen extends StatelessWidget {
   final VoidCallback onContinue;
   // final VoidCallback onBack;
+  final String address;
   final String oldWalletId;
   final String oldWalletIcon;
   final String newWalletId;
   final String newWalletIcon;
   const MultiWalletMismatchScreen(
       {super.key,
+      required this.address,
       required this.onContinue,
       required this.oldWalletId,
       required this.oldWalletIcon,
@@ -92,22 +94,42 @@ class MultiWalletMismatchScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  PaddedContainer(
-                                      child: Image.asset(
-                                    oldWalletIcon,
-                                    height: 36,
-                                  )),
+                                  Column(
+                                    children: [
+                                      PaddedContainer(
+                                          child: Image.asset(
+                                        oldWalletIcon,
+                                        height: 36,
+                                      )),
+                                      const Gap(defaultSpacing),
+                                      Text(
+                                        address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
+                                        style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold).copyWith(
+                                              color: const Color(0xFFFDD147),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
                                   Container(
                                       margin: const EdgeInsets.symmetric(horizontal: defaultSpacing * 4),
                                       child: const Icon(
                                         Icons.arrow_forward,
                                         color: Color(0xFFF6F7F9),
                                       )),
-                                  PaddedContainer(
-                                      child: Image.asset(
-                                    newWalletIcon,
-                                    height: 36,
-                                  )),
+                                  Column(
+                                    children: [
+                                      PaddedContainer(
+                                          child: Image.asset(
+                                        newWalletIcon,
+                                        height: 36,
+                                      )),
+                                      const Gap(defaultSpacing),
+                                      Text(address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
+                                          style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold).copyWith(
+                                                color: const Color(0xFFFDD147),
+                                              )),
+                                    ],
+                                  ),
                                 ],
                               )
                             ],
