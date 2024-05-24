@@ -81,12 +81,12 @@ class AppRepository extends DemoDecoratorComposite {
   CancelableOperation<AppBackup> appBackup(String walletId, String address) {
     if (isDemoActive) {
       final demoBackup = WalletBackup([AccountBackup("0xDemoAddress", 'Test demo wallet', 'This is a demo backup, not recoverable')]);
-      return CancelableOperation.fromValue(AppBackup(demoBackup));
+      return CancelableOperation.fromValue(AppBackup(demoBackup, "DemoWalletId"));
     }
 
     return _sdk //
         .walletBackup(walletId, address)
-        .then((walletBackup) => AppBackup(walletBackup));
+        .then((walletBackup) => AppBackup(walletBackup, walletId));
   }
 
   Stream<UserData> snapVersionListner(String userId) {

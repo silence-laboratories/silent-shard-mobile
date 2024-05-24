@@ -24,7 +24,6 @@ import '../../services/backup_service.dart';
 import '../../services/secure_storage/secure_storage_service.dart';
 import 'backup_picker.dart';
 import 'backup_source_picker.dart';
-import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
 class PairScreen extends StatefulWidget {
   const PairScreen({super.key});
@@ -107,36 +106,11 @@ class _PairState extends State<PairScreen> {
       FirebaseCrashlytics.instance.log('Fetching backup, soure: $source');
       setState(() => _pairingState = PairingState.fetchingBackup);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final (backupDestination, backup) = await backupService.fetchBackup(source, key);
-      if (backup != null && backupDestination != null) {
+      final appBackup = await backupService.fetchBackup(source, key);
+      if (appBackup != null) {
         FirebaseCrashlytics.instance.log('Backup fetched');
-        String walletId = METAMASK_WALLET_ID;
-
-        switch (source) {
-          case BackupSource.secureStorage:
-            if (backupDestination.contains("-")) {
-              walletId = backupDestination.split("-").first;
-            }
-            analyticManager.trackRecoverBackupSystem(
-                wallet: walletId,
-                address: backup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
-                success: true,
-                source: PageSource.get_started);
-            break;
-          case BackupSource.fileSystem:
-            final tokens = backupDestination.split("-");
-            if (!tokens[tokens.length - 2].contains("wallet")) {
-              walletId = tokens[tokens.length - 2];
-            }
-            analyticManager.trackRecoverFromFile(
-                wallet: walletId,
-                address: backup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
-                success: true,
-                source: PageSource.get_started,
-                backup: backupDestination);
-            break;
-        }
-        _recoverFromBackup(backup, source, walletId);
+        String walletId = appBackup.walletId;
+        _recoverFromBackup(appBackup, source, walletId);
       } else {
         FirebaseCrashlytics.instance.log('No backup found');
         _showNoBackupFound(source);

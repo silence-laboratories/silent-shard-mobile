@@ -32,14 +32,14 @@ class BackupService extends ChangeNotifier {
 
   // -------------------- Read --------------------
 
-  Future<(String?, AppBackup?)> fetchBackup(BackupSource source, String? key) {
+  Future<AppBackup?> fetchBackup(BackupSource source, String? key) {
     return switch (source) {
       BackupSource.fileSystem => readBackupFromFile(),
       BackupSource.secureStorage => readBackupFromStorage(key),
     };
   }
 
-  Future<(String?, AppBackup?)> readBackupFromFile() async {
+  Future<AppBackup?> readBackupFromFile() async {
     late String? backupDestination;
     try {
       final (file, filePickerId) = await _fileService.selectFile();
@@ -47,7 +47,13 @@ class BackupService extends ChangeNotifier {
       if (file != null) {
         final fileContent = await file.readAsString();
         final appBackup = AppBackup.fromString(fileContent);
-        return (file.path, appBackup);
+        _analyticManager.trackRecoverFromFile(
+            wallet: appBackup.walletId,
+            address: appBackup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
+            success: true,
+            source: PageSource.get_started,
+            backup: backupDestination);
+        return appBackup;
       }
     } catch (error) {
       _analyticManager.trackRecoverFromFile(
@@ -59,15 +65,20 @@ class BackupService extends ChangeNotifier {
           error: error.toString());
       rethrow;
     }
-    return (null, null);
+    return null;
   }
 
-  Future<(String?, AppBackup?)> readBackupFromStorage(String? key) async {
+  Future<AppBackup?> readBackupFromStorage(String? key) async {
     try {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
         final appBackup = AppBackup.fromString(entry.value);
-        return (entry.key, appBackup);
+        _analyticManager.trackRecoverBackupSystem(
+            wallet: appBackup.walletId,
+            address: appBackup.walletBackup.accounts.firstOrNull?.address ?? ADDRESS_NOT_FOUND,
+            success: true,
+            source: PageSource.get_started);
+        return appBackup;
       }
     } catch (error) {
       _analyticManager.trackRecoverBackupSystem(
@@ -78,7 +89,7 @@ class BackupService extends ChangeNotifier {
           error: parseCredentialExceptionMessage(error));
       rethrow;
     }
-    return (null, null);
+    return null;
   }
 
   // -------------------- Save --------------------
@@ -143,18 +154,18 @@ class BackupService extends ChangeNotifier {
         }
         _hasCheckedKeychain[key] = true;
         try {
-          final (_, backup) = await readBackupFromStorage(key);
-          if (backup != null) {
-            backupEntries[key] = backup;
+          final appBackup = await readBackupFromStorage(key);
+          if (appBackup != null) {
+            backupEntries[key] = appBackup;
           }
         } catch (e) {
           backupEntries[key] = null;
         }
       }
 
-      final backup = backupEntries.values.firstWhere((element) => element != null, orElse: () => null);
-      if (backup != null) {
-        info.keychain = BackupCheck(BackupStatus.done, backup.time);
+      final appBackup = backupEntries.values.firstWhere((element) => element != null, orElse: () => null);
+      if (appBackup != null) {
+        info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
         _setBackupInfo(info);
       } else if (info.keychain.status == BackupStatus.done) {
         // TODO: auto-save backup on iOS
@@ -167,9 +178,9 @@ class BackupService extends ChangeNotifier {
         _hasCheckedKeychain[key] = true;
 
         try {
-          final (_, backup) = await readBackupFromStorage(key);
-          if (backup != null) {
-            info.keychain = BackupCheck(BackupStatus.done, backup.time);
+          final appBackup = await readBackupFromStorage(key);
+          if (appBackup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
             _setBackupInfo(info);
           } else if (info.keychain.status == BackupStatus.done) {
             // TODO: auto-save backup on iOS
@@ -191,7 +202,7 @@ class BackupService extends ChangeNotifier {
     if (!Platform.isAndroid) return;
     final info = _preferences.backupInfo(address);
     try {
-      final (_, backup) = await readBackupFromStorage(null);
+      final backup = await readBackupFromStorage(null);
       if (backup != null) {
         if (backup.walletBackup.accounts.firstOrNull?.address != address) {
           throw ArgumentError(CANNOT_VERIFY_BACKUP);
