@@ -45,6 +45,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
   bool showWalletList = false;
+  late AnalyticManager analyticManager;
   _updateNotificationAlertState(AllowNotificationAlertState value) {
     setState(() {
       _notificationAlertState = value;
@@ -84,12 +85,16 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     });
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);
+    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
+
     final authState = Provider.of<AuthState>(context, listen: false);
 
     final userId = authState.user?.uid;
     if (userId != null) {
       FirebaseCrashlytics.instance.log('Listening to sign requests');
-      _signRequestsSubscription = appRepository.signRequests(userId).listen(_handleSignRequest);
+      _signRequestsSubscription = appRepository.signRequests(userId).listen(_handleSignRequest, onError: (error) {
+        analyticManager.trackSignInitiated(from: "", wallet: "", error: error.toString());
+      });
       _backupMessageSubscription = appRepository.listenRemoteBackupMessage(userId: userId).listen((event) {});
     }
 
@@ -224,13 +229,12 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
 
   Future<void> _handleSignRequest(SignRequest requst) async {
     FirebaseCrashlytics.instance.log('New sign request, chainId: ${requst.chainId}');
-    final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
     final chainLoader = Provider.of<ChainLoader>(context, listen: false);
     _signRequestsSubscription?.pause();
     Future<Chain> chain = chainLoader.getChainInfo(requst.chainId);
 
     final requestModel = SignRequestViewModel(requst, chain);
-    analyticManager.trackSignInitiated();
+    analyticManager.trackSignInitiated(from: requst.from, wallet: requst.walletId ?? WALLET_ID_NOT_FOUND);
     _showConfirmationDialog(requst.walletId ?? "", requestModel, requst.from);
   }
 

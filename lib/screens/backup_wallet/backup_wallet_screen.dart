@@ -106,6 +106,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
         await SaveBackupToStorageUseCase(context).execute(widget.walletId, widget.address);
         FirebaseCrashlytics.instance.log('Backup saved');
         analyticManager.trackSaveBackupSystem(
+          wallet: widget.walletId,
+          address: widget.address,
           success: true,
           source: PageSource.onboarding,
         );
@@ -135,6 +137,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
           _showErrorScreen(context);
         }
         analyticManager.trackSaveBackupSystem(
+          wallet: widget.walletId,
+          address: widget.address,
           success: false,
           source: PageSource.onboarding,
           error: parseCredentialExceptionMessage(error),
@@ -268,8 +272,11 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                   return StreamBuilder(
                       stream: _backupMessageStream,
                       builder: (ctx, snapshot) {
-                        bool isBackedUp = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
-                        return isBackedUp
+                        bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                        if (isPasswordReady) {
+                          analyticManager.trackPasswordForBackup();
+                        }
+                        return isPasswordReady
                             ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
                             : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
                       });
@@ -294,6 +301,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                       children: [
                         BackupSkipWarning(onContinue: () {
                           analyticManager.trackSaveBackupSystem(
+                            wallet: widget.walletId,
+                            address: widget.address,
                             success: false,
                             source: PageSource.onboarding,
                             error: "User skipped backup",

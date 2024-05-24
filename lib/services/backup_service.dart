@@ -47,11 +47,16 @@ class BackupService extends ChangeNotifier {
       if (file != null) {
         final fileContent = await file.readAsString();
         final appBackup = AppBackup.fromString(fileContent);
-        _analyticManager.trackRecoverFromFile(success: true, source: PageSource.get_started, backup: backupDestination);
         return (file.path, appBackup);
       }
     } catch (error) {
-      _analyticManager.trackRecoverFromFile(success: false, source: PageSource.get_started, backup: backupDestination, error: error.toString());
+      _analyticManager.trackRecoverFromFile(
+          wallet: WALLET_ID_NOT_FOUND,
+          address: ADDRESS_NOT_FOUND,
+          success: false,
+          source: PageSource.get_started,
+          backup: backupDestination,
+          error: error.toString());
       rethrow;
     }
     return (null, null);
@@ -62,11 +67,12 @@ class BackupService extends ChangeNotifier {
       final entry = await _secureStorage.read(key);
       if (entry != null) {
         final appBackup = AppBackup.fromString(entry.value);
-        _analyticManager.trackRecoverBackupSystem(success: true, source: PageSource.get_started);
         return (entry.key, appBackup);
       }
     } catch (error) {
       _analyticManager.trackRecoverBackupSystem(
+          wallet: WALLET_ID_NOT_FOUND,
+          address: ADDRESS_NOT_FOUND,
           success: false, //
           source: PageSource.get_started,
           error: parseCredentialExceptionMessage(error));
