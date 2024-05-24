@@ -8,6 +8,7 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
+import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import '../../constants.dart';
@@ -40,6 +41,24 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void _showWaitingSetupDialog() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      backgroundColor: Colors.black,
+      barrierColor: Colors.white.withOpacity(0.15),
+      showDragHandle: true,
+      context: context,
+      builder: (context) => Consumer<BackupsProvider>(
+        builder: (context, backupsProvider, _) {
+          return RemindEnterPasswordModal(
+            walletName: widget.walletId.capitalize(),
+            isBackupAvailable: backupsProvider.isBackupAvailable(widget.walletId, widget.address),
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -82,7 +101,10 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                     }
                     return isPasswordReady
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                        : const PasswordStatusBanner(status: PasswordBannerStatus.alert);
+                        : GestureDetector(
+                            onTap: _showWaitingSetupDialog,
+                            child: const PasswordStatusBanner(status: PasswordBannerStatus.alert),
+                          );
                   }),
                 ],
                 const Gap(9 * defaultSpacing),
