@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.dart';
+import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/loader.dart';
