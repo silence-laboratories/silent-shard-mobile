@@ -88,6 +88,7 @@ class WalletListState extends State<WalletList> {
                 var keyshareList = entry.value;
                 for (var keyshare in keyshareList) {
                   var address = keyshare.ethAddress;
+                  FirebaseCrashlytics.instance.log('Wallet list, id: $walletId, address: $address');
                   walletItems.add(WalletListItem(walletId: walletId, address: address));
                 }
               }

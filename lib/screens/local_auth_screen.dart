@@ -21,7 +21,8 @@ class LocalAuthScreen extends StatefulWidget {
 
 class _LocalAuthScreenState extends State<LocalAuthScreen> {
   onInit() async {
-    await widget.localAuth.authenticate();
+    final response = await widget.localAuth.authenticate();
+    FirebaseCrashlytics.instance.log('onInit local auth ${response ? 'success' : 'failed'}');
   }
 
   @override
