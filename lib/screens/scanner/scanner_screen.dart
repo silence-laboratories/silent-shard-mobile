@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/screens/components/padded_container.dart';
+import 'package:silentshard/screens/error/keygen_last_round_error_screen.dart';
 import 'package:silentshard/screens/error/multi_wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
 import 'package:silentshard/screens/error/wrong_metamask_wallet_for_recovery_screen.dart';
@@ -158,14 +159,28 @@ class _ScannerScreenState extends State<ScannerScreen> {
     FirebaseCrashlytics.instance.log('Pairing finished, ${isRecovery ? 'show save backup screen' : 'starting keygen'}');
 
     if (!isRecovery) {
-      final result = await appRepository.keygen(walletId, userId, pairingData);
-      _updatePairingState(ScannerScreenPairingState.succeeded);
-      await Future.delayed(const Duration(seconds: 2), () {});
-      final address = result.ethAddress;
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
+      try {
+        final result = await appRepository.keygen(walletId, userId, pairingData);
+        _updatePairingState(ScannerScreenPairingState.succeeded);
+        await Future.delayed(const Duration(seconds: 2), () {});
+        final address = result.ethAddress;
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => BackupWalletScreen(walletId: walletId, address: address),
+            ),
+          );
+        }
+      } catch (e) {
+        FirebaseCrashlytics.instance.log('Keygen failed: $e');
+        _updatePairingState(ScannerScreenPairingState.failed);
+        Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => BackupWalletScreen(walletId: walletId, address: address),
+            builder: (context) => KeygenLastRoundErrorScreen(
+              onContinue: () {
+                _resetPairing();
+              },
+            ),
           ),
         );
       }
