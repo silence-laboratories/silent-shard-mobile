@@ -198,7 +198,7 @@ packages:
     description:
       path: "."
       ref: staging
-      resolved-ref: fb89c07fb4221a7f016e726a8ded1487fca293a9
+      resolved-ref: "83a405095d308f27dfbb05b47483b70b3372332b"
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
     version: "0.0.1"
