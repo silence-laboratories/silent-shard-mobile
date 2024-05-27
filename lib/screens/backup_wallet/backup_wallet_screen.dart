@@ -275,6 +275,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                         bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
                         if (isPasswordReady) {
                           analyticManager.trackPasswordForBackup();
+                          FirebaseCrashlytics.instance
+                              .log('Backup ready for walletId: ${widget.walletId}, address: ${widget.address}, backup wallet screen');
                         }
                         return isPasswordReady
                             ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)

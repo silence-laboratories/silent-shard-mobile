@@ -98,6 +98,8 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
                     if (isPasswordReady) {
                       analyticManager.trackPasswordForBackup();
+                      FirebaseCrashlytics.instance
+                          .log('Backup ready for walletId: ${widget.walletId}, address: ${widget.address}, backup destination screen');
                     }
                     return isPasswordReady
                         ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)

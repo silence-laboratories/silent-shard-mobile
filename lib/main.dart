@@ -137,7 +137,6 @@ class _MyAppState extends State<MyApp> {
                 bool isLocalAuthRequired = Provider.of<AppPreferences>(context, listen: false).getIsLocalAuthRequired();
                 // TODO: Identify crashlytics and mixpanel user by wallet's public key
                 final ethAddress = keysharesProvider.keyshares[METAMASK_WALLET_ID]?.firstOrNull?.ethAddress ?? '';
-                FirebaseCrashlytics.instance.setCustomKey("ethAddress", ethAddress);
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
 
                 return switch ((

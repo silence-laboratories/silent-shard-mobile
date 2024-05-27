@@ -142,6 +142,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     if (message != null) {
       _startPairing(context, sdk, authState, message);
     } else {
+      FirebaseCrashlytics.instance.log('QR code scanned, no message found');
       _updateScannerState(ScannerState.scanned);
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -154,7 +155,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
   }
 
   Future<void> _finishPairing(AppRepository appRepository, String walletId, String userId, PairingData? pairingData) async {
-    FirebaseCrashlytics.instance.log('Pairing finished, show save backup: ${!isRecovery}');
+    FirebaseCrashlytics.instance.log('Pairing finished, ${isRecovery ? 'show save backup screen' : 'starting keygen'}');
 
     if (!isRecovery) {
       final result = await appRepository.keygen(walletId, userId, pairingData);
