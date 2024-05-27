@@ -42,8 +42,15 @@ class AppRepository extends DemoDecoratorComposite {
     }
   }
 
-  Future<Keyshare2> keygen(String walletId, String userId, PairingData pairingData) async {
+  Future<Keyshare> keygen(String walletId, String userId, PairingData? pairingData) async {
+    if (isDemoActive) {
+      return keysharesProvider.keyshares["metamask"]!.first as DemoKeyshare;
+    }
+
     try {
+      if (pairingData == null) {
+        throw Exception("Pairing data is null while starting keygen.");
+      }
       _analyticManager.trackDistributedKeyGen(wallet: walletId, type: DistributedKeyGenType.new_account, status: DistributedKeyGenStatus.initiated);
       final keyshare = await _sdk.startKeygen(walletId, userId, pairingData).value;
       if (walletId == METAMASK_WALLET_ID) {
@@ -81,7 +88,7 @@ class AppRepository extends DemoDecoratorComposite {
   CancelableOperation<AppBackup> appBackup(String walletId, String address) {
     if (isDemoActive) {
       final demoBackup = WalletBackup([AccountBackup("0xDemoAddress", 'Test demo wallet', 'This is a demo backup, not recoverable')]);
-      return CancelableOperation.fromValue(AppBackup(demoBackup, "DemoWalletId"));
+      return CancelableOperation.fromValue(AppBackup(demoBackup, "metamask"));
     }
 
     return _sdk //

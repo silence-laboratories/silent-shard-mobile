@@ -25,7 +25,7 @@ class BackupsProvider extends ChangeNotifier with DemoDecorator {
   @override
   void startDemoMode() {
     super.startDemoMode();
-    _demoWalletBackups = {"DemoWalletId": DemoWalletBackup()};
+    _demoWalletBackups = {"metamask": DemoWalletBackup()};
     notifyListeners();
   }
 
