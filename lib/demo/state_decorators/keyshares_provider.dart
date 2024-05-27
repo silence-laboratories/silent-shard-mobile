@@ -22,7 +22,7 @@ class KeysharesProvider extends ChangeNotifier with DemoDecorator {
   void startDemoMode() {
     super.startDemoMode();
     _demoKeyshares = {
-      "demo": [DemoKeyshare()]
+      "metamask": [DemoKeyshare()]
     };
     notifyListeners();
   }

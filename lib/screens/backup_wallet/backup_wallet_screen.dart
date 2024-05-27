@@ -13,7 +13,7 @@ import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/repository/app_repository.dart';
 import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
-import 'package:silentshard/screens/backup_wallet/remind_enter_password_modal.dart';
+import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/components/check.dart';
 import 'package:silentshard/screens/components/password_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';

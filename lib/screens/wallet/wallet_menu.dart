@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
 import 'package:silentshard/screens/components/custom_popup_menu_divider.dart';
 
 import '../../constants.dart';
@@ -12,8 +13,9 @@ enum WalletActions { repair, exportBackup, removeWallet }
 
 class WalletMenu extends StatelessWidget {
   final PopupMenuItemSelected<WalletActions> onSelected;
+  final bool isPasswordReady;
 
-  const WalletMenu({super.key, required this.onSelected});
+  const WalletMenu({super.key, required this.onSelected, this.isPasswordReady = true});
 
   @override
   Widget build(BuildContext context) {
@@ -45,21 +47,22 @@ class WalletMenu extends StatelessWidget {
   List<PopupMenuEntry<WalletActions>> _buildOptionsMenu(TextTheme textTheme) => [
         PopupMenuItem<WalletActions>(
           value: WalletActions.repair,
-          child: WalletOption(
-            title: Flexible(
-              child: Text(
-                "Re-pair with browser",
-                style: textTheme.displaySmall,
-              ),
-            ),
-            icon: PaddedContainer(
-                color: backgroundSecondaryColor2,
-                child: Image.asset(
-                  'assets/images/repeat.png',
-                  width: 16,
-                  height: 16,
-                )),
-          ),
+          child: Opacity(
+              opacity: !isPasswordReady ? 0.3 : 1,
+              child: WalletOption(
+                  title: Flexible(
+                    child: Text(
+                      "Re-pair with browser",
+                      style: textTheme.displaySmall,
+                    ),
+                  ),
+                  icon: PaddedContainer(
+                      color: backgroundSecondaryColor2.withOpacity(0.3),
+                      child: Image.asset(
+                        'assets/images/repeat.png',
+                        width: 16,
+                        height: 16,
+                      )))),
         ),
         const CustomPopupMenuDivider(endIndent: defaultSpacing * 2, indent: defaultSpacing * 2),
         PopupMenuItem<WalletActions>(

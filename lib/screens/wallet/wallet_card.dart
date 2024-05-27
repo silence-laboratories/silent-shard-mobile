@@ -1,11 +1,16 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/types/support_wallet.dart';
+import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
+import 'package:silentshard/utils.dart';
 import '../../constants.dart';
 import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
@@ -51,6 +56,24 @@ class WalletInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void showWaitingSetupDialog() {
+      showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.black,
+        barrierColor: Colors.white.withOpacity(0.15),
+        showDragHandle: true,
+        context: context,
+        builder: (context) => Consumer<BackupsProvider>(
+          builder: (context, backupsProvider, _) {
+            return RemindEnterPasswordModal(
+              walletName: widget.walletId.capitalize(),
+              isBackupAvailable: backupsProvider.isBackupAvailable(widget.walletId, widget.address),
+            );
+          },
+        ),
+      );
+    }
+
     TextTheme textTheme = Theme.of(context).textTheme;
     SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId] ?? {});
     return Row(
@@ -82,15 +105,27 @@ class WalletInfo extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        WalletMenu(onSelected: (WalletActions item) {
-          if (item == WalletActions.repair) {
-            widget.onRepair();
-          } else if (item == WalletActions.exportBackup) {
-            widget.onExport();
-          } else if (item == WalletActions.removeWallet) {
-            widget.onLogout();
-          }
-        }),
+        Consumer<BackupsProvider>(
+          builder: (context, backupsProvider, child) {
+            final isPasswordReady = widget.walletId == METAMASK_WALLET_ID ? true : backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+            return WalletMenu(
+                key: Key(widget.address),
+                isPasswordReady: isPasswordReady,
+                onSelected: (WalletActions item) {
+                  if (item == WalletActions.repair) {
+                    if (isPasswordReady) {
+                      widget.onRepair();
+                    } else {
+                      showWaitingSetupDialog();
+                    }
+                  } else if (item == WalletActions.exportBackup) {
+                    widget.onExport();
+                  } else if (item == WalletActions.removeWallet) {
+                    widget.onLogout();
+                  }
+                });
+          },
+        ),
       ],
     );
   }
