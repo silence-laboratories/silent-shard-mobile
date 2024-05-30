@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/padded_container.dart';
+import 'package:silentshard/types/support_wallet.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:lottie/lottie.dart';
 
@@ -33,6 +35,7 @@ class TransactionDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     var outputFormat = DateFormat('hh:mm a, dd/MM/yyyy ');
+    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[walletId] ?? {});
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -57,6 +60,12 @@ class TransactionDetailsWidget extends StatelessWidget {
               padding: const EdgeInsets.all(defaultSpacing * 1.5),
               child: Row(
                 children: [
+                  PaddedContainer(
+                      child: Image.asset(
+                    walletInfo.icon,
+                    height: 28,
+                  )),
+                  const Gap(defaultSpacing),
                   Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                     return WalletAddressWidget(
                       title: 'From wallet',
