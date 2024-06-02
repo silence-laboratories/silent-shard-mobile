@@ -63,7 +63,7 @@ dependencies:
   lottie: ^2.7.0
   intl: ^0.18.0
   local_auth: ^2.1.7
-  credential_manager: 0.0.3
+  credential_manager: 0.0.3 #TODO: Upstream to 0.0.4
   gap: ^3.0.1
   shared_preferences: ^2.2.2
   app_settings: ^5.1.1
