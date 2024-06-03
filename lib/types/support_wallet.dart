@@ -9,8 +9,8 @@ class SupportWallet {
 
   factory SupportWallet.fromJson(Map<String, String> json) {
     return SupportWallet(
-      name: json['name'] ?? '',
-      icon: json['icon'] ?? '',
+      name: json['name'] ?? 'Unknown',
+      icon: json['icon'] ?? 'assets/images/walletLightFill.png',
     );
   }
 }

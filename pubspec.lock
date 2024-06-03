@@ -197,7 +197,7 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: staging
+      ref: "V3.2"
       resolved-ref: "83a405095d308f27dfbb05b47483b70b3372332b"
       url: "git@github.com:silence-laboratories/silent-shard-flutter-sdk.git"
     source: git
