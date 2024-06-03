@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/constants.dart';
 
 import '../types/demo_decorator.dart';
 
@@ -15,7 +16,17 @@ class BackupsProvider extends ChangeNotifier with DemoDecorator {
   bool isBackupAvailable(String walletId, String address) {
     final walletBackup = walletBackupsMap[walletId];
     if (walletBackup == null) return false;
-    return walletBackup.accounts.any((accountBackup) => accountBackup.address == address);
+
+    for (AccountBackup account in walletBackup.accounts) {
+      if (account.address == address) {
+        return _validateBackup(account);
+      }
+    }
+    return false;
+  }
+
+  bool _validateBackup(AccountBackup backup) {
+    return backup.remoteData.length != NULL_ENCRYPTED_LENGTH;
   }
 
   BackupsProvider(this._backupState) {

@@ -52,3 +52,5 @@ class PrecachedImageKeys {
   static const String folderOpen = 'folderOpen';
   static const String social = 'social';
 }
+
+const NULL_ENCRYPTED_LENGTH = 141;
