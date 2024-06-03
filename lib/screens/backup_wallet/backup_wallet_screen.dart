@@ -15,7 +15,7 @@ import 'package:silentshard/screens/backup_wallet/know_more_modal.dart';
 import 'package:silentshard/screens/backup_wallet/skip_backup_modal.dart';
 import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/components/check.dart';
-import 'package:silentshard/screens/components/password_status_banner.dart';
+import 'package:silentshard/screens/components/backup_status_banner.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -279,8 +279,8 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
                               .log('Backup ready for walletId: ${widget.walletId}, address: ${widget.address}, backup wallet screen');
                         }
                         return isPasswordReady
-                            ? const PasswordStatusBanner(status: PasswordBannerStatus.ready)
-                            : const PasswordStatusBanner(status: PasswordBannerStatus.warn);
+                            ? const BackupStatusBanner(status: BackupBannerStatus.ready)
+                            : const BackupStatusBanner(status: BackupBannerStatus.warn);
                       });
                 },
               ),
