@@ -109,7 +109,7 @@ class WalletListState extends State<WalletList> {
                     margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
                     decoration: (index == scrolledToIndex && walletIdProvider.scrolled)
                         ? BoxDecoration(
-                            color: const Color(0xFF25194D),
+                            color: const Color(0xFF23202F),
                             borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                             border: Border.all(
                               color: const Color(0xFF745EF6),
