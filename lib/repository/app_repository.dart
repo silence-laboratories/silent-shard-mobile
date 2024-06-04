@@ -116,9 +116,9 @@ class AppRepository extends DemoDecoratorComposite {
     _sdk.decline(request);
   }
 
-  void reset(String walletId, String address) {
+  void remove(String walletId, String address) {
     stopDemoMode();
-    _sdk.reset(walletId, address);
+    _sdk.remove(walletId, address);
   }
 
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);

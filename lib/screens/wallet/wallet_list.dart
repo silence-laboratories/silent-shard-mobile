@@ -59,7 +59,7 @@ class WalletListState extends State<WalletList> {
 
   Future<void> _signOut(String walletId, String address) async {
     FirebaseCrashlytics.instance.log('Signing out');
-    Provider.of<AppRepository>(context, listen: false).reset(walletId, address);
+    Provider.of<AppRepository>(context, listen: false).remove(walletId, address);
   }
 
   int _scrollToListener(String pairedAddress, List<WalletListItem> walletEntries) {
