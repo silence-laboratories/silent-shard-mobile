@@ -124,5 +124,9 @@ class AppRepository extends DemoDecoratorComposite {
     _sdk.remove(walletId, address);
   }
 
+  void deleteBackup(String walletId, String address) {
+    _sdk.deleteBackup(walletId, address);
+  }
+
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);
 }

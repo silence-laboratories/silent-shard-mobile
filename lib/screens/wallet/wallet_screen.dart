@@ -11,10 +11,13 @@ import 'package:gap/gap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
+import 'package:silentshard/screens/error/corrupted_backup_error_screen.dart';
 import 'package:silentshard/screens/pairing/pair_screen.dart';
 import 'package:silentshard/screens/wallet/wallet_list.dart';
 import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/screens/update/updater_dialog.dart';
+import 'package:silentshard/services/backup_service.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -140,7 +143,25 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
-        child: Scaffold(
+      child: Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
+        for (MapEntry<String, WalletBackup> entry in backupsProvider.walletBackupsMap.entries) {
+          final walletId = entry.key;
+          for (AccountBackup accountBackup in entry.value.accounts) {
+            if (accountBackup.remoteData.length == NULL_ENCRYPTED_LENGTH) {
+              final address = accountBackup.address;
+              FirebaseCrashlytics.instance.log('Backup of ${entry.key} wallet with ${accountBackup.address} is broken.');
+              return CorruptedBackupErrorScreen(
+                onContinue: () async {
+                  final backupService = Provider.of<BackupService>(context, listen: false);
+                  final appRepository = Provider.of<AppRepository>(context, listen: false);
+                  appRepository.deleteBackup(walletId, address);
+                  await backupService.removeBackupFromStorage(walletId, address);
+                },
+              );
+            }
+          }
+        }
+        return Scaffold(
             backgroundColor: Colors.black,
             body: Stack(children: [
               Container(
@@ -224,7 +245,9 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                 height: 64,
                 width: 64,
               ),
-            )));
+            ));
+      }),
+    );
   }
 
   Future<void> _handleSignRequest(SignRequest requst) async {
