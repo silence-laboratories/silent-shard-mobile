@@ -75,7 +75,7 @@ class WalletInfo extends StatelessWidget {
     }
 
     TextTheme textTheme = Theme.of(context).textTheme;
-    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[widget.walletId] ?? {});
+    SupportWallet walletInfo = SupportWallet.fromWalletId(widget.walletId);
     return Row(
       children: [
         PaddedContainer(
