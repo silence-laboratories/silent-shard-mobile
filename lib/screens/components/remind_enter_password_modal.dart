@@ -50,6 +50,7 @@ class RemindEnterPasswordModal extends StatelessWidget {
                     Center(
                       child: Image.asset(
                         'assets/images/browserScreen.png',
+                        width: MediaQuery.of(context).size.width * 0.7,
                       ),
                     ),
                     const Gap(defaultSpacing * 4),

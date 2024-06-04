@@ -46,7 +46,8 @@ class NotFetchBackupModal extends StatelessWidget {
                   children: [
                     Center(
                       child: Image.asset(
-                        'assets/images/browserScreen.png',
+                        'assets/images/backupBrowserScreen.png',
+                        width: MediaQuery.of(context).size.width * 0.7,
                       ),
                     ),
                     const Gap(defaultSpacing * 4),
@@ -57,19 +58,26 @@ class NotFetchBackupModal extends StatelessWidget {
                     ),
                     const Gap(defaultSpacing),
                     Bullet(
-                        child: Text(
-                      'Head on over to your wallet DApp : snap.silencelaboratories.com.',
-                      style: textTheme.bodySmall,
-                    )),
+                        child: RichText(
+                            text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(text: 'Head on over to your wallet DApp: ', style: textTheme.displaySmall),
+                        TextSpan(
+                            text: 'snap.silencelaboratories.com',
+                            style: textTheme.displaySmall?.copyWith(
+                              decoration: TextDecoration.underline,
+                            )),
+                      ],
+                    ))),
                     Bullet(
                         child: Text(
                       'Click on the menu options of your wallet.',
-                      style: textTheme.bodySmall,
+                      style: textTheme.displaySmall,
                     )),
                     Bullet(
                         child: Text(
                       'Select the “Refresh backup” option.',
-                      style: textTheme.bodySmall,
+                      style: textTheme.displaySmall,
                     )),
                   ],
                 )),
