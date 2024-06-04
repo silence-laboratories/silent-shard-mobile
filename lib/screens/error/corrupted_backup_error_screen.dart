@@ -40,7 +40,7 @@ class CorruptedBackupErrorScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Image.asset(
-                                'assets/images/accountMismatch.png',
+                                'assets/images/broken_backup.png',
                                 width: MediaQuery.of(context).size.width * 0.7,
                               ),
                               const Gap(defaultSpacing * 3),
@@ -59,7 +59,19 @@ class CorruptedBackupErrorScreen extends StatelessWidget {
                               Column(
                                 children: [
                                   Bullet(
-                                      child: Text('Head over to snap.silencelaboratories.com on your Desktop Browser.', style: textTheme.bodyMedium)),
+                                      child: RichText(
+                                          text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(text: 'Head over to ', style: textTheme.displaySmall),
+                                      TextSpan(
+                                          text: 'snap.silencelaboratories.com',
+                                          style: textTheme.displaySmall?.copyWith(
+                                            decoration: TextDecoration.underline,
+                                          )),
+                                      TextSpan(text: ' on your ', style: textTheme.displaySmall),
+                                      TextSpan(text: 'Desktop Browser.', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                    ],
+                                  ))),
                                   Bullet(
                                       child: Text(
                                     'Click on the “Update” banner to update your Snap to the latest version.',
