@@ -64,9 +64,7 @@ class NotFetchBackupModal extends StatelessWidget {
                         TextSpan(text: 'Head on over to your wallet DApp: ', style: textTheme.displaySmall),
                         TextSpan(
                             text: 'snap.silencelaboratories.com',
-                            style: textTheme.displaySmall?.copyWith(
-                              decoration: TextDecoration.underline,
-                            )),
+                            style: textTheme.displaySmall?.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
                       ],
                     ))),
                     Bullet(
@@ -75,10 +73,14 @@ class NotFetchBackupModal extends StatelessWidget {
                       style: textTheme.displaySmall,
                     )),
                     Bullet(
-                        child: Text(
-                      'Select the “Refresh backup” option.',
-                      style: textTheme.displaySmall,
-                    )),
+                        child: RichText(
+                            text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(text: 'Select the ', style: textTheme.displaySmall),
+                        TextSpan(text: '“Resend backup”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                        TextSpan(text: ' option.', style: textTheme.displaySmall),
+                      ],
+                    ))),
                   ],
                 )),
             const Gap(defaultSpacing * 5),

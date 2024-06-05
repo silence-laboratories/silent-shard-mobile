@@ -73,15 +73,22 @@ class CorruptedBackupErrorScreen extends StatelessWidget {
                                     ],
                                   ))),
                                   Bullet(
-                                      child: Text(
-                                    'Click on the “Update” banner to update your Snap to the latest version.',
-                                    style: textTheme.displaySmall,
-                                  )),
+                                      child: RichText(
+                                          text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(text: 'Click on the ', style: textTheme.displaySmall),
+                                      TextSpan(text: '“Update”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                      TextSpan(text: ' banner to update your Snap to the latest version.', style: textTheme.displaySmall),
+                                    ],
+                                  ))),
                                   Bullet(
-                                      child: Text(
-                                    'Backup your wallet using your desired method again.',
-                                    style: textTheme.displaySmall,
-                                  )),
+                                      child: RichText(
+                                          text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(text: 'Backup your wallet', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                                      TextSpan(text: ' on this device using your desired method again.', style: textTheme.displaySmall),
+                                    ],
+                                  ))),
                                 ],
                               ),
                             ],
