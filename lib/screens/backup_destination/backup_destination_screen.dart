@@ -4,14 +4,18 @@
 import 'package:credential_manager/credential_manager.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/demo/state_decorators/backups_provider.dart';
+import 'package:silentshard/screens/backup_destination/new_backup_found_screen.dart';
 import 'package:silentshard/screens/components/backup_status_banner.dart';
+import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/screens/components/not_fetch_backup_modal.dart';
 import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
 import 'package:silentshard/third_party/analytics.dart';
+import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';
 import '../../services/backup_service.dart';
 import '../../services/backup_use_cases.dart';
@@ -38,10 +42,17 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   Image get _cloudIcon => Image.asset("assets/images/$_cloudIconName", height: 20);
   String get _cloudTitle => Platform.isAndroid ? "Google Password Manager" : "iCloud Keychain";
   String get _storageTitle => Platform.isAndroid ? "Google" : "iCloud";
+  bool isMetaMaskBackupNotAvailable = false;
 
   @override
   void initState() {
     super.initState();
+    final isBackupAvailable = Provider.of<BackupsProvider>(context, listen: false).isBackupAvailable(widget.walletId, widget.address);
+    if (widget.walletId == METAMASK_WALLET_ID && !isBackupAvailable) {
+      setState(() {
+        isMetaMaskBackupNotAvailable = true;
+      });
+    }
   }
 
   void _showWaitingSetupDialog(bool isMetaMaskBackup) {
@@ -67,7 +78,9 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final isMetaMaskBackup = widget.walletId == METAMASK_WALLET_ID;
+    final isMetaMaskWallet = widget.walletId == METAMASK_WALLET_ID;
+    SupportWallet walletInfo = SupportWallet.fromWalletId(widget.walletId);
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -89,6 +102,34 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                   "Backup wallet",
                   style: textTheme.displayLarge,
                 ),
+                const Gap(defaultSpacing / 2),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(color: const Color.fromRGBO(37, 25, 77, 0.5), borderRadius: BorderRadius.circular(8.0)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      PaddedContainer(
+                          child: Image.asset(
+                        walletInfo.icon,
+                        height: 24,
+                      )),
+                      const Gap(defaultSpacing / 2),
+                      Text(
+                        widget.address.isNotEmpty ? '${widget.address.substring(0, 5)}...${widget.address.substring(widget.address.length - 5)}' : '',
+                        style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const Spacer(),
+                      CopyButton(
+                        onCopy: () async {
+                          await Clipboard.setData(ClipboardData(text: widget.address));
+                        },
+                        followerAnchor: Alignment.bottomRight,
+                      ),
+                    ],
+                  ),
+                ),
                 const Gap(defaultSpacing),
                 Text(
                   "Secure your wallet by backing up using $_cloudTitle or by exporting to files.",
@@ -96,20 +137,39 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                 ),
                 const Gap(3 * defaultSpacing),
                 Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
-                  bool isPasswordReady = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+                  bool isBackupAvailable = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
                   final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-                  if (isPasswordReady) {
+
+                  if (isMetaMaskBackupNotAvailable) {
+                    if (isBackupAvailable && isMetaMaskWallet) {
+                      Future.delayed(Duration.zero, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewBackupFoundScreen(
+                              onContinue: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        );
+                      });
+                    }
+                  }
+
+                  if (isBackupAvailable) {
                     analyticManager.trackPasswordForBackup();
                     FirebaseCrashlytics.instance
                         .log('Backup ready for walletId: ${widget.walletId}, address: ${widget.address}, backup destination screen');
                   }
-                  return isPasswordReady
-                      ? BackupStatusBanner(status: BackupBannerStatus.ready, isMetaMaskBackup: isMetaMaskBackup)
+
+                  return isBackupAvailable
+                      ? BackupStatusBanner(status: BackupBannerStatus.ready, isMetaMaskBackup: isMetaMaskWallet)
                       : GestureDetector(
                           onTap: () {
-                            _showWaitingSetupDialog(isMetaMaskBackup);
+                            _showWaitingSetupDialog(isMetaMaskWallet);
                           },
-                          child: BackupStatusBanner(status: BackupBannerStatus.alert, isMetaMaskBackup: isMetaMaskBackup),
+                          child: BackupStatusBanner(status: BackupBannerStatus.alert, isMetaMaskBackup: isMetaMaskWallet),
                         );
                 }),
                 const Gap(9 * defaultSpacing),
