@@ -74,11 +74,27 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     return AuthorizationStatus.notDetermined;
   }
 
+  Future<void> setupInteractedPushMessage() async {
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handlePushMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handlePushMessage);
+  }
+
+  void _handlePushMessage(RemoteMessage message) {
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    analyticManager.trackNotificationClick(userId: userId ?? "", notificationTitle: message.notification?.title ?? "");
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
+    setupInteractedPushMessage();
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 

@@ -55,7 +55,8 @@ enum EventName {
   log_out,
   verify_backup,
   backup_found,
-  corrupt_backup_detected
+  corrupt_backup_detected,
+  notification_click
 }
 
 const WALLET_ID_NOT_FOUND = "Wallet ID not found";
@@ -193,6 +194,10 @@ class AnalyticManager {
 
   void trackCorruptBackupDetected({required String walletId, required String address}) {
     mixpanel.track(EventName.corrupt_backup_detected.name, properties: {'wallet': walletId, 'public_key': address});
+  }
+
+  void trackNotificationClick({required String userId, required String notificationTitle}) {
+    mixpanel.track(EventName.notification_click.name, properties: {'user_id': userId, 'notification_title': notificationTitle});
   }
 
   String _getBackupSystem() {
