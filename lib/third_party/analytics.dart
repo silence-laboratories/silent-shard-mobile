@@ -5,6 +5,7 @@
 
 import 'dart:io';
 
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -30,6 +31,10 @@ enum SaveBackupSystem { google_password, keychain }
 
 enum DeleteAccountStatus { success, cancelled }
 
+enum BackupEntropy { password, seed }
+
+enum BackupValidity { corrupt, valid }
+
 enum EventName {
   app_start,
   info_sheet,
@@ -49,7 +54,8 @@ enum EventName {
   delete_account,
   log_out,
   verify_backup,
-  password_for_backup
+  backup_found,
+  corrupt_backup_detected
 }
 
 const WALLET_ID_NOT_FOUND = "Wallet ID not found";
@@ -177,10 +183,16 @@ class AnalyticManager {
     });
   }
 
-  void trackPasswordForBackup() {
-    mixpanel.track(EventName.password_for_backup.name, properties: {
-      'success': true,
+  void trackBackupFound({required String walletId, required bool isValid}) {
+    mixpanel.track(EventName.backup_found.name, properties: {
+      'entropy': walletId == METAMASK_WALLET_ID ? BackupEntropy.seed.name : BackupEntropy.password.name,
+      'validity': isValid ? BackupValidity.valid.name : BackupValidity.corrupt.name,
+      'wallet': walletId,
     });
+  }
+
+  void trackCorruptBackupDetected({required String walletId, required String address}) {
+    mixpanel.track(EventName.corrupt_backup_detected.name, properties: {'wallet': walletId, 'public_key': address});
   }
 
   String _getBackupSystem() {

@@ -27,7 +27,7 @@ class AppRepository extends DemoDecoratorComposite {
 
   late final keysharesProvider = KeysharesProvider(_sdk.keygenState);
 
-  late final backupsProvider = BackupsProvider(_sdk.backupState);
+  late final backupsProvider = BackupsProvider(_sdk.backupState, _analyticManager);
 
   CancelableOperation<PairingData?> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
     if (qrMessage.isDemo) {

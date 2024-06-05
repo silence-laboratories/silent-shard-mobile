@@ -158,7 +158,6 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                   }
 
                   if (isBackupAvailable) {
-                    analyticManager.trackPasswordForBackup();
                     FirebaseCrashlytics.instance
                         .log('Backup ready for walletId: ${widget.walletId}, address: ${widget.address}, backup destination screen');
                   }

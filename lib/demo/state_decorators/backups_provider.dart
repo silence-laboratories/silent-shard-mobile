@@ -4,11 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/constants.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import '../types/demo_decorator.dart';
 
 class BackupsProvider extends ChangeNotifier with DemoDecorator {
   final BackupState _backupState;
+  final AnalyticManager _analyticManager;
   Map<String, WalletBackup>? _demoWalletBackups;
 
   Map<String, WalletBackup> get walletBackupsMap => _demoWalletBackups ?? _backupState.walletBackupsMap;
@@ -19,7 +21,9 @@ class BackupsProvider extends ChangeNotifier with DemoDecorator {
 
     for (AccountBackup account in walletBackup.accounts) {
       if (account.address == address) {
-        return _validateBackup(account);
+        final isValid = _validateBackup(account);
+        _analyticManager.trackBackupFound(walletId: walletId, isValid: isValid);
+        return isValid;
       }
     }
     return false;
@@ -29,7 +33,7 @@ class BackupsProvider extends ChangeNotifier with DemoDecorator {
     return backup.remoteData.length != NULL_ENCRYPTED_LENGTH;
   }
 
-  BackupsProvider(this._backupState) {
+  BackupsProvider(this._backupState, this._analyticManager) {
     _backupState.addListener(() => notifyListeners());
   }
 

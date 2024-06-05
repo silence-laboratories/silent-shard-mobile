@@ -142,6 +142,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
             if (accountBackup.remoteData.length == NULL_ENCRYPTED_LENGTH) {
               final address = accountBackup.address;
               FirebaseCrashlytics.instance.log('Backup of ${entry.key} wallet with ${accountBackup.address} is broken.');
+              analyticManager.trackCorruptBackupDetected(walletId: walletId, address: address);
               return CorruptedBackupErrorScreen(
                 onContinue: () async {
                   final backupService = Provider.of<BackupService>(context, listen: false);
