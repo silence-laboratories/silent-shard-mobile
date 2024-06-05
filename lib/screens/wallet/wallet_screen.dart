@@ -47,7 +47,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
 
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
-  bool showWalletList = false;
   late AnalyticManager analyticManager;
   _updateNotificationAlertState(AllowNotificationAlertState value) {
     setState(() {
@@ -79,13 +78,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 5));
-      setState(() {
-        showWalletList = true;
-      });
-    });
 
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -206,13 +198,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                       ),
                       const Gap(defaultSpacing * 2)
                     ],
-                    Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                      return Expanded(
-                          child: AnimatedOpacity(
-                              opacity: showWalletList ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
-                              child: Visibility(visible: showWalletList, child: const WalletList())));
-                    }),
+                    const Expanded(child: WalletList()),
                   ],
                 ),
               ),
