@@ -260,7 +260,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     Future<Chain> chain = chainLoader.getChainInfo(requst.chainId);
 
     final requestModel = SignRequestViewModel(requst, chain);
-    analyticManager.trackSignInitiated(from: requst.from, wallet: requst.walletId ?? WALLET_ID_NOT_FOUND);
+    analyticManager.trackSignInitiated(from: requst.from, wallet: requst.walletId ?? WALLET_ID_NOT_FOUND, signType: requestModel.signType);
     _showConfirmationDialog(requst.walletId ?? "", requestModel, requst.from);
   }
 

@@ -76,14 +76,23 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
     FirebaseCrashlytics.instance.log('Successfully generated signature');
     _updateTransactionState(TransactionState.signed);
     _close();
-    analyticManager.trackSignPerform(from: widget.address, wallet: widget.walletId, status: SignPerformStatus.success);
+    analyticManager.trackSignPerform(
+      from: widget.address,
+      wallet: widget.walletId,
+      status: SignPerformStatus.success,
+    );
   }
 
   void _onError(Object error) {
     FirebaseCrashlytics.instance.log('Error generating signature: $error');
     _updateTransactionState(TransactionState.failed);
     _close();
-    analyticManager.trackSignPerform(from: widget.address, wallet: widget.walletId, status: SignPerformStatus.failed, error: error.toString());
+    analyticManager.trackSignPerform(
+      from: widget.address,
+      wallet: widget.walletId,
+      status: SignPerformStatus.failed,
+      error: error.toString(),
+    );
   }
 
   void _handleSignResponse(bool approved, SignRequestViewModel requestModel, {Function? onErrorCb, bool shouldDismiss = true}) {
@@ -92,7 +101,8 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
 
     if (approved) {
       FirebaseCrashlytics.instance.log('Transaction approved');
-      analyticManager.trackSignPerform(from: widget.address, wallet: widget.walletId, status: SignPerformStatus.approved);
+      analyticManager.trackSignPerform(
+          from: widget.address, wallet: widget.walletId, status: SignPerformStatus.approved, signType: requestModel.signRequest.signType);
       _updateTransactionState(TransactionState.signing);
       _signingOperation = appRepository.approve(requestModel.signRequest);
       _signingOperation?.value.then(_onSignature, onError: (error) {
@@ -101,7 +111,8 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
       });
     } else {
       FirebaseCrashlytics.instance.log('Transaction declined');
-      analyticManager.trackSignPerform(from: widget.address, wallet: widget.walletId, status: SignPerformStatus.rejected);
+      analyticManager.trackSignPerform(
+          from: widget.address, wallet: widget.walletId, status: SignPerformStatus.rejected, signType: requestModel.signRequest.signType);
       _updateTransactionState(TransactionState.canceled);
       appRepository.decline(requestModel.signRequest);
       _close(shouldDismiss);

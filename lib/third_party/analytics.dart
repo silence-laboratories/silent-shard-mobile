@@ -136,12 +136,13 @@ class AnalyticManager {
         properties: {'device_lock': deviceLock?.name, 'notifications': notifications?.name, 'source': source.name, 'error': error});
   }
 
-  void trackSignInitiated({required String wallet, required String from, String? error}) {
-    mixpanel.track(EventName.sign_initiated.name, properties: {'from': from, 'wallet': wallet, 'error': error});
+  void trackSignInitiated({required String wallet, required String from, SignType? signType, String? error}) {
+    mixpanel.track(EventName.sign_initiated.name, properties: {'from': from, 'wallet': wallet, 'sign_type': signType?.name, 'error': error});
   }
 
-  void trackSignPerform({required SignPerformStatus status, required String wallet, required String from, String? error}) {
-    mixpanel.track(EventName.sign_perform.name, properties: {'status': status.name, 'from': from, 'wallet': wallet, 'error': error});
+  void trackSignPerform({required SignPerformStatus status, required String wallet, required String from, SignType? signType, String? error}) {
+    mixpanel.track(EventName.sign_perform.name,
+        properties: {'status': status.name, 'from': from, 'wallet': wallet, 'sign_type': signType?.name, 'error': error});
   }
 
   void trackDeviceLockToggle(bool allowed) {
