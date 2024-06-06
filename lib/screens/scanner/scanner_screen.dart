@@ -174,15 +174,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
       } catch (e) {
         FirebaseCrashlytics.instance.log('Keygen failed: $e');
         _updatePairingState(ScannerScreenPairingState.failed);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => KeygenLastRoundErrorScreen(
-              onContinue: () {
-                _resetPairing();
-              },
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => KeygenLastRoundErrorScreen(
+                onContinue: () {
+                  _resetPairing();
+                },
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } else {
       if (!widget.isRePairing && widget.backup != null) {
