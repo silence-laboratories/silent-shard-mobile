@@ -145,59 +145,6 @@ class BackupService extends ChangeNotifier {
     return info;
   }
 
-  Future<void> _setupKeychainBackupInfo(BackupInfo info, String address, String walletId) async {
-    if (walletId == METAMASK_WALLET_ID) {
-      Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
-      for (var key in backupEntries.keys) {
-        if (_hasCheckedKeychain.containsKey(key) && _hasCheckedKeychain[key] == true) {
-          return;
-        }
-        _hasCheckedKeychain[key] = true;
-        try {
-          final appBackup = await readBackupFromStorage(key);
-          if (appBackup != null) {
-            backupEntries[key] = appBackup;
-          }
-        } catch (e) {
-          backupEntries[key] = null;
-        }
-      }
-
-      final appBackup = backupEntries.values.firstWhere((element) => element != null, orElse: () => null);
-      if (appBackup != null) {
-        info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
-        _setBackupInfo(info);
-      } else if (info.keychain.status == BackupStatus.done) {
-        // TODO: auto-save backup on iOS
-        info.keychain = BackupCheck(BackupStatus.missing);
-        _setBackupInfo(info);
-      }
-    } else {
-      var key = '$walletId-$address';
-      if (!(_hasCheckedKeychain[key] ?? false)) {
-        _hasCheckedKeychain[key] = true;
-
-        try {
-          final appBackup = await readBackupFromStorage(key);
-          if (appBackup != null) {
-            info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
-            _setBackupInfo(info);
-          } else if (info.keychain.status == BackupStatus.done) {
-            // TODO: auto-save backup on iOS
-            info.keychain = BackupCheck(BackupStatus.missing);
-            _setBackupInfo(info);
-          }
-        } catch (e) {
-          if (info.keychain.status == BackupStatus.done) {
-            // TODO: auto-save backup on iOS
-            info.keychain = BackupCheck(BackupStatus.missing);
-            _setBackupInfo(info);
-          }
-        }
-      }
-    }
-  }
-
   Future<void> verifyBackup(String address) async {
     if (!Platform.isAndroid) return;
     final info = _preferences.backupInfo(address);
@@ -219,6 +166,60 @@ class BackupService extends ChangeNotifier {
         info.passwordManager = BackupCheck(BackupStatus.missing);
         _setBackupInfo(info);
       }
+    }
+  }
+
+  Future<void> _setupKeychainBackupInfo(BackupInfo info, String address, String walletId) async {
+    if (walletId == METAMASK_WALLET_ID) {
+      await _setupMetaMaskKeychainBackupInfo(info, address, walletId);
+    } else {
+      var key = '$walletId-$address';
+      if (!(_hasCheckedKeychain[key] ?? false)) {
+        _hasCheckedKeychain[key] = true;
+
+        try {
+          final appBackup = await readBackupFromStorage(key);
+          if (appBackup != null) {
+            info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
+            _setBackupInfo(info);
+          } else if (info.keychain.status == BackupStatus.done) {
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        } catch (e) {
+          if (info.keychain.status == BackupStatus.done) {
+            info.keychain = BackupCheck(BackupStatus.missing);
+            _setBackupInfo(info);
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _setupMetaMaskKeychainBackupInfo(BackupInfo info, String address, String walletId) async {
+    Map<String, AppBackup?> backupEntries = {address: null, '$walletId-$address': null};
+    for (var key in backupEntries.keys) {
+      if (_hasCheckedKeychain.containsKey(key) && _hasCheckedKeychain[key] == true) {
+        return;
+      }
+      _hasCheckedKeychain[key] = true;
+      try {
+        final appBackup = await readBackupFromStorage(key);
+        if (appBackup != null) {
+          backupEntries[key] = appBackup;
+        }
+      } catch (e) {
+        backupEntries[key] = null;
+      }
+    }
+
+    final appBackup = backupEntries.values.firstWhere((element) => element != null, orElse: () => null);
+    if (appBackup != null) {
+      info.keychain = BackupCheck(BackupStatus.done, appBackup.time);
+      _setBackupInfo(info);
+    } else if (info.keychain.status == BackupStatus.done) {
+      info.keychain = BackupCheck(BackupStatus.missing);
+      _setBackupInfo(info);
     }
   }
 

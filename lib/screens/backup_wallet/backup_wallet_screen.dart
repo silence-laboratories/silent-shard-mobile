@@ -47,14 +47,14 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showWaitingSetupDialog();
       });
+    }
 
-      final authState = Provider.of<AuthState>(context, listen: false);
-      final userId = authState.user?.uid;
-      if (userId != null) {
-        _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(userId: userId).map((event) {
-          return event;
-        });
-      }
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    if (userId != null) {
+      _backupMessageStream = Provider.of<AppRepository>(context, listen: false).listenRemoteBackupMessage(userId: userId).map((event) {
+        return event;
+      });
     }
   }
 
@@ -286,6 +286,7 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               ),
             const Gap(defaultSpacing * 2),
             Button(
+              isDisabled: !Provider.of<BackupsProvider>(context, listen: false).isBackupAvailable(widget.walletId, widget.address),
               onPressed: () => _performBackup(context),
               child: Text('Backup wallet now', style: textTheme.displayMedium),
             ),
