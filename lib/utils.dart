@@ -1,8 +1,14 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'dart:async';
+
 import 'package:credential_manager/credential_manager.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:ui';
+import 'package:flutter/services.dart';
 
 String hexToAscii(String hexString) => List.generate(
       hexString.length ~/ 2,
@@ -95,4 +101,61 @@ extension StringExtension on String {
     }
     return length > 1 ? "${this[0].toUpperCase()}${substring(1).toLowerCase()}" : this[0].toUpperCase();
   }
+}
+
+Future<void> loadImage(ImageProvider provider) {
+  final ImageConfiguration config = ImageConfiguration(
+    bundle: rootBundle,
+    platform: defaultTargetPlatform,
+  );
+  final Completer<void> completer = Completer<void>();
+  final ImageStream stream = provider.resolve(config);
+
+  late final ImageStreamListener listener;
+
+  listener = ImageStreamListener((ImageInfo image, bool sync) {
+    debugPrint('Image ${image.debugLabel} finished loading');
+    completer.complete();
+    stream.removeListener(listener);
+  }, onError: (Object exception, StackTrace? stackTrace) {
+    completer.complete();
+    stream.removeListener(listener);
+    FlutterError.reportError(FlutterErrorDetails(
+      context: ErrorDescription('image failed to load'),
+      library: 'image resource service',
+      exception: exception,
+      stack: stackTrace,
+      silent: true,
+    ));
+  });
+
+  stream.addListener(listener);
+  return completer.future;
+}
+
+Future<void> preloadImage() async {
+  await loadImage(
+    const AssetImage('assets/images/metamaskIcon.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/stackup.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/biconomy.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/cloud-upload_light.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/cloud-upload_light.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/folder-open_light.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/socialApple.png'),
+  );
+  await loadImage(
+    const AssetImage('assets/images/socialGoogle.png'),
+  );
 }

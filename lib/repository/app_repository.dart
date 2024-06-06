@@ -27,7 +27,7 @@ class AppRepository extends DemoDecoratorComposite {
 
   late final keysharesProvider = KeysharesProvider(_sdk.keygenState);
 
-  late final backupsProvider = BackupsProvider(_sdk.backupState);
+  late final backupsProvider = BackupsProvider(_sdk.backupState, _analyticManager);
 
   CancelableOperation<PairingData?> pair(QRMessage qrMessage, String userId, WalletBackup? backup) {
     if (qrMessage.isDemo) {
@@ -122,6 +122,10 @@ class AppRepository extends DemoDecoratorComposite {
   void remove(String walletId, String address) {
     stopDemoMode();
     _sdk.remove(walletId, address);
+  }
+
+  void deleteBackup(String walletId, String address) {
+    _sdk.deleteBackup(walletId, address);
   }
 
   void updateMessagingToken(String userId, String token) => _sdk.updateMessagingToken(userId, token);

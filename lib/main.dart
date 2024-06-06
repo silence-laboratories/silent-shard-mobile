@@ -44,6 +44,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
+  await preloadImage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   final sdk = Dart2PartySDK(FirebaseTransport());
