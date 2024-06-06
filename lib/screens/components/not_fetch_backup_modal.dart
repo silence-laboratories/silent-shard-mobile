@@ -4,24 +4,21 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
+import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/components/button.dart';
 
-class RemindEnterPasswordModal extends StatelessWidget {
-  const RemindEnterPasswordModal({
+class NotFetchBackupModal extends StatelessWidget {
+  const NotFetchBackupModal({
     super.key,
-    required this.walletName,
-    this.isScanning = false,
     this.isBackupAvailable = false,
   });
 
-  final String walletName;
-  final bool isScanning;
   final bool isBackupAvailable;
 
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    if (isScanning == false && isBackupAvailable) {
+    if (isBackupAvailable) {
       Navigator.of(context).pop();
     }
     return Wrap(
@@ -31,7 +28,7 @@ class RemindEnterPasswordModal extends StatelessWidget {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             const Gap(defaultSpacing),
             Text(
-              'Please ${isScanning == true ? "enter" : "set"} a Password for your $walletName wallet on Desktop',
+              'Couldn’t fetch your backup',
               style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(defaultSpacing * 2),
@@ -49,32 +46,48 @@ class RemindEnterPasswordModal extends StatelessWidget {
                   children: [
                     Center(
                       child: Image.asset(
-                        'assets/images/browserScreen.png',
+                        'assets/images/backupBrowserScreen.png',
                         width: MediaQuery.of(context).size.width * 0.7,
                       ),
                     ),
                     const Gap(defaultSpacing * 4),
                     Text(
-                      "Waiting for password setup on Desktop to unlock Backup options",
+                      "Waiting for your browser backup",
                       style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                     const Gap(defaultSpacing),
-                    Text(
-                      isScanning == true
-                          ? "Waiting for password on Desktop to complete your recovery"
-                          : "This password will be used when recovering this wallet on your Browser/Desktop.",
-                      style: textTheme.bodySmall,
-                    ),
+                    Bullet(
+                        child: RichText(
+                            text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(text: 'Head on over to your wallet DApp: ', style: textTheme.displaySmall),
+                        TextSpan(
+                            text: 'snap.silencelaboratories.com',
+                            style: textTheme.displaySmall?.copyWith(decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+                      ],
+                    ))),
+                    Bullet(
+                        child: Text(
+                      'Click on the menu options of your wallet.',
+                      style: textTheme.displaySmall,
+                    )),
+                    Bullet(
+                        child: RichText(
+                            text: TextSpan(
+                      children: <TextSpan>[
+                        TextSpan(text: 'Select the ', style: textTheme.displaySmall),
+                        TextSpan(text: '“Resend backup”', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                        TextSpan(text: ' option.', style: textTheme.displaySmall),
+                      ],
+                    ))),
                   ],
                 )),
-            if (isScanning == false) ...[
-              const Gap(defaultSpacing * 5),
-              Button(
-                onPressed: () => {Navigator.of(context).pop()},
-                child: Text('Got it', style: textTheme.displayMedium),
-              )
-            ],
+            const Gap(defaultSpacing * 5),
+            Button(
+              onPressed: () => {Navigator.of(context).pop()},
+              child: Text('Got it', style: textTheme.displayMedium),
+            ),
             const Gap(defaultSpacing * 3),
           ]),
         )

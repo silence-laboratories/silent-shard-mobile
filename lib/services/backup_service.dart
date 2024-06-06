@@ -136,6 +136,19 @@ class BackupService extends ChangeNotifier {
     }
   }
 
+  // -------------------- Remove --------------------
+
+  Future<void> removeBackupFromStorage(String walletId, String address) async {
+    final key = '$walletId-$address';
+    if (walletId == METAMASK_WALLET_ID) {
+      await _secureStorage.delete(address);
+      await _secureStorage.delete(key);
+    } else {
+      await _secureStorage.delete(key);
+    }
+    removeBackupInfo(address);
+  }
+
   // -------------------- Info --------------------
 
   Future<BackupInfo> getBackupInfo(String address, {String walletId = ''}) async {
@@ -225,6 +238,14 @@ class BackupService extends ChangeNotifier {
 
   void _setBackupInfo(BackupInfo backupInfo) {
     _preferences.setBackupInfo(backupInfo);
+    notifyListeners();
+  }
+
+  void removeBackupInfo(String address) {
+    final info = _preferences.backupInfo(address);
+    info.file = BackupCheck(BackupStatus.missing);
+    info.cloud = BackupCheck(BackupStatus.missing);
+    _preferences.setBackupInfo(info);
     notifyListeners();
   }
 }

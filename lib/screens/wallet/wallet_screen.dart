@@ -11,10 +11,13 @@ import 'package:gap/gap.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
+import 'package:silentshard/screens/error/corrupted_backup_error_screen.dart';
 import 'package:silentshard/screens/pairing/pair_screen.dart';
 import 'package:silentshard/screens/wallet/wallet_list.dart';
 import 'package:silentshard/auth_state.dart';
 import 'package:silentshard/screens/update/updater_dialog.dart';
+import 'package:silentshard/services/backup_service.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
@@ -44,7 +47,6 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
 
   AllowNotificationAlertState _notificationAlertState = AllowNotificationAlertState.notShowing;
   AuthorizationStatus _notificationStatus = AuthorizationStatus.notDetermined;
-  bool showWalletList = false;
   late AnalyticManager analyticManager;
   _updateNotificationAlertState(AllowNotificationAlertState value) {
     setState(() {
@@ -72,18 +74,27 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     return AuthorizationStatus.notDetermined;
   }
 
+  Future<void> setupInteractedPushMessage() async {
+    RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      _handlePushMessage(initialMessage);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen(_handlePushMessage);
+  }
+
+  void _handlePushMessage(RemoteMessage message) {
+    final authState = Provider.of<AuthState>(context, listen: false);
+    final userId = authState.user?.uid;
+    analyticManager.trackNotificationClick(userId: userId ?? "", notificationTitle: message.notification?.title ?? "");
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 5));
-      setState(() {
-        showWalletList = true;
-      });
-    });
-
+    setupInteractedPushMessage();
     final appRepository = Provider.of<AppRepository>(context, listen: false);
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
@@ -140,7 +151,26 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
-        child: Scaffold(
+      child: Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
+        for (MapEntry<String, WalletBackup> entry in backupsProvider.walletBackupsMap.entries) {
+          final walletId = entry.key;
+          for (AccountBackup accountBackup in entry.value.accounts) {
+            if (accountBackup.remoteData.length == NULL_ENCRYPTED_LENGTH) {
+              final address = accountBackup.address;
+              FirebaseCrashlytics.instance.log('Backup of ${entry.key} wallet with ${accountBackup.address} is broken.');
+              analyticManager.trackCorruptBackupDetected(walletId: walletId, address: address);
+              return CorruptedBackupErrorScreen(
+                onContinue: () async {
+                  final backupService = Provider.of<BackupService>(context, listen: false);
+                  final appRepository = Provider.of<AppRepository>(context, listen: false);
+                  appRepository.deleteBackup(walletId, address);
+                  await backupService.removeBackupFromStorage(walletId, address);
+                },
+              );
+            }
+          }
+        }
+        return Scaffold(
             backgroundColor: Colors.black,
             body: Stack(children: [
               Container(
@@ -185,13 +215,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                       ),
                       const Gap(defaultSpacing * 2)
                     ],
-                    Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
-                      return Expanded(
-                          child: AnimatedOpacity(
-                              opacity: showWalletList ? 1 : 0,
-                              duration: const Duration(milliseconds: 500),
-                              child: Visibility(visible: showWalletList, child: const WalletList())));
-                    }),
+                    const Expanded(child: WalletList()),
                   ],
                 ),
               ),
@@ -224,7 +248,9 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
                 height: 64,
                 width: 64,
               ),
-            )));
+            ));
+      }),
+    );
   }
 
   Future<void> _handleSignRequest(SignRequest requst) async {
@@ -234,7 +260,7 @@ class _WalletScreenState extends State<WalletScreen> with WidgetsBindingObserver
     Future<Chain> chain = chainLoader.getChainInfo(requst.chainId);
 
     final requestModel = SignRequestViewModel(requst, chain);
-    analyticManager.trackSignInitiated(from: requst.from, wallet: requst.walletId ?? WALLET_ID_NOT_FOUND);
+    analyticManager.trackSignInitiated(from: requst.from, wallet: requst.walletId ?? WALLET_ID_NOT_FOUND, signType: requestModel.signType);
     _showConfirmationDialog(requst.walletId ?? "", requestModel, requst.from);
   }
 

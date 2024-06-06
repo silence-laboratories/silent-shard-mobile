@@ -95,53 +95,20 @@ class BackupStatusWidget extends StatelessWidget {
   }
 }
 
-class BackupStatusDashboard extends StatefulWidget {
+class BackupStatusDashboard extends StatelessWidget {
   final String address;
   final String walletId;
 
   const BackupStatusDashboard({super.key, required this.address, required this.walletId});
 
-  @override
-  State<BackupStatusDashboard> createState() => _BackupStatusDashboardState();
-}
-
-class _BackupStatusDashboardState extends State<BackupStatusDashboard> {
-  int imageLoading = 3; // Load 2 images
   void _showBackupDestination(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
           builder: (context) => BackupDestinationScreen(
-                address: widget.address,
-                walletId: widget.walletId,
+                address: address,
+                walletId: walletId,
               )),
     );
-  }
-
-  final Map<String, Image> imageMap = {
-    PrecachedImageKeys.cloudUpload: Image.asset(
-      'assets/images/cloud-upload_light.png',
-      height: iconHeight,
-    ),
-    PrecachedImageKeys.folderOpen: Image.asset(
-      'assets/images/folder-open_light.png',
-      height: iconHeight,
-    ),
-    PrecachedImageKeys.social: Image.asset(
-      'assets/images/social${Platform.isIOS ? "Apple" : "Google"}.png',
-      height: iconHeight,
-    ),
-  };
-
-  @override
-  void didChangeDependencies() {
-    imageMap.forEach((key, value) {
-      precacheImage(value.image, context).then((_) {
-        setState(() {
-          imageLoading--;
-        });
-      });
-    });
-    super.didChangeDependencies();
   }
 
   @override
@@ -152,35 +119,42 @@ class _BackupStatusDashboardState extends State<BackupStatusDashboard> {
       onTap: () => _showBackupDestination(context),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 3 * defaultSpacing),
-        child: imageLoading <= 0
-            ? Row(children: [
-                const Gap(defaultSpacing),
-                Row(children: [
-                  imageMap[PrecachedImageKeys.cloudUpload]!,
-                  const Gap(defaultSpacing),
-                  Text(
-                    "Backups",
-                    style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
-                  )
-                ]),
-                const Gap(defaultSpacing * 1.5),
-                BackupStatusWidget(
-                  walletId: widget.walletId,
-                  address: widget.address,
-                  source: BackupSource.secureStorage,
-                  image: imageMap[PrecachedImageKeys.social]!,
-                ),
-                const Gap(defaultSpacing * 1.5),
-                BackupStatusWidget(
-                  walletId: widget.walletId,
-                  address: widget.address,
-                  source: BackupSource.fileSystem,
-                  image: imageMap[PrecachedImageKeys.folderOpen]!,
-                ),
-                const Spacer(),
-                const Icon(Icons.chevron_right_rounded)
-              ])
-            : Container(),
+        child: Row(children: [
+          const Gap(defaultSpacing),
+          Row(children: [
+            Image.asset(
+              "assets/images/cloud-upload_light.png",
+              height: iconHeight,
+            ),
+            const Gap(defaultSpacing),
+            Text(
+              "Backups",
+              style: textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold),
+            )
+          ]),
+          const Gap(defaultSpacing * 1.5),
+          BackupStatusWidget(
+            walletId: walletId,
+            address: address,
+            source: BackupSource.secureStorage,
+            image: Image.asset(
+              "assets/images/social${Platform.isIOS ? "Apple" : "Google"}.png",
+              height: iconHeight,
+            ),
+          ),
+          const Gap(defaultSpacing * 1.5),
+          BackupStatusWidget(
+            walletId: walletId,
+            address: address,
+            source: BackupSource.fileSystem,
+            image: Image.asset(
+              "assets/images/folder-open_light.png",
+              height: iconHeight,
+            ),
+          ),
+          const Spacer(),
+          const Icon(Icons.chevron_right_rounded)
+        ]),
       ),
     );
   }

@@ -35,7 +35,7 @@ class TransactionDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     var outputFormat = DateFormat('hh:mm a, dd/MM/yyyy ');
-    SupportWallet walletInfo = SupportWallet.fromJson(walletMetaData[walletId] ?? {});
+    SupportWallet walletInfo = SupportWallet.fromWalletId(walletId);
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,

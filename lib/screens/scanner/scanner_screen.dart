@@ -78,7 +78,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     super.initState();
     setState(() {
       isRecovery = widget.backup != null || widget.isRePairing;
-      walletInfo = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId] ?? {});
+      walletInfo = SupportWallet.fromWalletId(widget.recoveryWalletId);
     });
 
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -174,15 +174,17 @@ class _ScannerScreenState extends State<ScannerScreen> {
       } catch (e) {
         FirebaseCrashlytics.instance.log('Keygen failed: $e');
         _updatePairingState(ScannerScreenPairingState.failed);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => KeygenLastRoundErrorScreen(
-              onContinue: () {
-                _resetPairing();
-              },
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => KeygenLastRoundErrorScreen(
+                onContinue: () {
+                  _resetPairing();
+                },
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } else {
       if (!widget.isRePairing && widget.backup != null) {
@@ -236,8 +238,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.failed,
         error: WALLET_MISMATCH,
       );
-      SupportWallet oldWallet = SupportWallet.fromJson(walletMetaData[widget.recoveryWalletId]!);
-      SupportWallet newWallet = SupportWallet.fromJson(walletMetaData[qrMessage.walletId]!);
+      SupportWallet oldWallet = SupportWallet.fromWalletId(widget.recoveryWalletId);
+      SupportWallet newWallet = SupportWallet.fromWalletId(qrMessage.walletId);
       if (context.mounted) {
         _updatePairingState(ScannerScreenPairingState.failed);
         Navigator.of(context).push(
