@@ -24,7 +24,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version-file: pubspec.yaml
+          flutter-version: 3.19.0
       - name: main
         run: | 
           echo "echo $MIX_PANEL_TOKEN > .env"
