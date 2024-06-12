@@ -1,0 +1,32 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ "CI/CD" ]
+  pull_request:
+    branches: [ "CI/CD" ]
+
+jobs:
+  build:
+    runs-on: [self-hosted, silent-shard-mobile-builder]
+    env: 
+      MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: main
+        run: | 
+          echo $MIX_PANEL_TOKEN > .env
+          cp /opt/key.properties ./android/key.properties
+          dart pub global activate flutterfire_cli
+          ruby.gem install xcodeproj
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
+          flutterfire configure  -y  -p mobile-wallet-mm-snap
+          flutter build apk --release
+          cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
