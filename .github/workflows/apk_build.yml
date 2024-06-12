@@ -13,13 +13,18 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, silent-shard-mobile-builder]
+    runs-on: [ubuntu-latest]
     env: 
       MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
       - name: main
         run: | 
           echo "echo $MIX_PANEL_TOKEN > .env"
