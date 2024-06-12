@@ -43,7 +43,7 @@ jobs:
           gem install xcodeproj
           export PATH="$PATH":"$HOME/.pub-cache/bin"
           echo "flutterfire configure  -y  -p mobile-wallet-mm-snap"
-          flutterfire configure  -y  -p mobile-wallet-mm-snap --platforms=android
+          flutterfire configure  -y  -p mobile-wallet-mm-snap --platforms=android --android-package-name=mobile-wallet-mm-snap
           echo "flutter build apk --release"
           flutter build apk --release
           cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
