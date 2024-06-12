@@ -17,6 +17,7 @@ jobs:
     env: 
       MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      KEY_PROP: ${{ secrets.KEY_PROPERTIES }}
 
     steps:
       - uses: actions/checkout@v4
@@ -27,10 +28,9 @@ jobs:
           flutter-version: 3.19.0
       - name: main
         run: | 
-          echo "echo $MIX_PANEL_TOKEN > .env"
+
           echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
-          echo "cp /opt/key.properties ./android/key.properties"
-          cp /opt/key.properties ./android/key.properties
+          echo  $KEY_PROP | base64  -d > ./android/key.properties
           echo "dart pub global activate flutterfire_cli"
           dart pub global activate flutterfire_cli
           echo "ruby.gem install xcodeproj"
