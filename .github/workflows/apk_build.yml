@@ -30,6 +30,9 @@ jobs:
         with:
           ruby-version: '3.3' # Not needed with a .ruby-version file
           bundler-cache: true
+      - uses: pocket-apps/action-setup-firebase@v2
+        with:
+          firebase-token: ${{ secrets.FIREBASE_TOKEN }}
       - name: main
         run: | 
           echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
