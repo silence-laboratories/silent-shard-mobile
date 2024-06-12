@@ -23,7 +23,7 @@ jobs:
       - name: main
         run: | 
           echo "echo $MIX_PANEL_TOKEN > .env"
-          echo $MIX_PANEL_TOKEN > .env
+          echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
           echo "cp /opt/key.properties ./android/key.properties"
           cp /opt/key.properties ./android/key.properties
           echo "dart pub global activate flutterfire_cli"
