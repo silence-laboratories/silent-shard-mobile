@@ -26,9 +26,11 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.19.0
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
       - name: main
         run: | 
-
           echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
           echo  $KEY_PROP | base64  -d > ./android/key.properties
           echo "dart pub global activate flutterfire_cli"
