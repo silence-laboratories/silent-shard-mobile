@@ -26,9 +26,10 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.19.0
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.6'
+          ruby-version: '3.3' # Not needed with a .ruby-version file
+          bundler-cache: true
       - name: main
         run: | 
           echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
