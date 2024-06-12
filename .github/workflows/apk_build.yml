@@ -37,7 +37,7 @@ jobs:
           echo "dart pub global activate flutterfire_cli"
           dart pub global activate flutterfire_cli
           echo "ruby.gem install xcodeproj"
-          ruby.gem install xcodeproj
+          gem install xcodeproj
           export PATH="$PATH":"$HOME/.pub-cache/bin"
           echo "flutterfire configure  -y  -p mobile-wallet-mm-snap"
           flutterfire configure  -y  -p mobile-wallet-mm-snap
