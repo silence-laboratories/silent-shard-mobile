@@ -43,7 +43,7 @@ jobs:
       - run: dart pub global activate flutterfire_cli
       - run: gem install xcodeproj && export PATH="$PATH":"$HOME/.pub-cache/bin"
       - run: flutter pub get
-      - run: flutterfire configure  -y  -p mobile-wallet-mm-snap --platforms=android
+      - run: flutterfire configure  -y  -p mobile-wallet-mm-snap --platforms=android -a mobile-wallet-mm-snap
       - run: flutter build apk --release
       - run: cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
 
