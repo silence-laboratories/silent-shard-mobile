@@ -38,12 +38,14 @@ jobs:
           firebase-token: ${{ secrets.FIREBASE_TOKEN }}
       - run: echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
       - run: echo  $KEY_PROP | base64  -d > ./android/key.properties
+      - run: echo $FIREBASE_DART | base64  -d > lib/firebase_options.dart
+      - run: echo $GS_JSON | base64 -d > android/app/google-services.json
       - run: dart pub global activate flutterfire_cli
       - run: gem install xcodeproj && export PATH="$PATH":"$HOME/.pub-cache/bin"
       - run: flutter pub get
       # - run: |
-      #     echo $GS_JSON | base64 -d > android/app/google-services.json
-      #     echo $FIREBASE_DART | base64  -d > lib/firebase_options.dart
+      #     
+      #     
       #     flutterfire configure  -y  -p mobile-wallet-mm-snap
       - run: flutter build apk --release
       - run: cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
