@@ -13,7 +13,7 @@ on:
 
 jobs:
   build:
-    runs-on: [ubuntu-latest]
+    runs-on: [silent-shard-mobile-builder]
     env: 
       MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
