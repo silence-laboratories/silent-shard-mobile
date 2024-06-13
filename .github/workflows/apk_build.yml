@@ -55,13 +55,6 @@ jobs:
           --web-app-id com.mobile.wallet.mm.snap
           --windows-app-id com.mobile.wallet.mm.snap
       - run: flutter build apk --release
-      - name: Upload to slack step
-        uses: adrey/slack-file-upload-action@master
-        with:
-          token: ${{ secrets.SLACK_TOKEN }}
-          path: test.txt
-          channel: random
-      - run: cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
       - uses: MeilCli/slack-upload-file@v4
         id: message
         with:
