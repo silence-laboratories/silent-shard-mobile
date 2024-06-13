@@ -38,6 +38,7 @@ jobs:
       - run: echo MIX_PANEL_TOKEN=$MIX_PANEL_TOKEN > .env
       - run: echo  $KEY_PROP | base64  -d > ./android/key.properties
       - run: echo ${{ secrets.FIREBASE_DART }} | base64  -d > ./lib/firebase_options.dart
+      - run: echo ${{ secrets.GS_JSON }} | base64 -d > ./android/app/google-services.json
       # - run: flutter pub get
       - run: dart pub global activate flutterfire_cli
       - run: gem install xcodeproj && export PATH="$PATH":"$HOME/.pub-cache/bin"
