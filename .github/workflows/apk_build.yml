@@ -50,7 +50,7 @@ jobs:
           flutterfire configure  -y  \
           -p mobile-wallet-mm-snap \
           --platforms=android \ 
-          -a com.mobile.wallet.mm.snap \
+          --android-package-name com.mobile.wallet.mm.snap \
           -i com.mobile.wallet.mm.snap \ 
           -m com.mobile.wallet.mm.snap \ 
           --web-app-id com.mobile.wallet.mm.snap \
