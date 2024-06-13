@@ -62,7 +62,6 @@ jobs:
           path: test.txt
           channel: random
       - run: cp -r build/app/outputs/flutter-apk/app-release.apk /builds/
-      - run: 'echo ${{ github.event.inputs.message }} > message.txt'
       - uses: MeilCli/slack-upload-file@v4
         id: message
         with:
