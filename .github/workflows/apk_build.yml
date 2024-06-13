@@ -47,7 +47,7 @@ jobs:
       - run: gem install xcodeproj && export PATH="$PATH":"$HOME/.pub-cache/bin"
       - run: flutter pub get
       - run: flutterfire configure  -y  \
-          -p mobile-wallet-mm-snap \
+          --project mobile-wallet-mm-snap \
           --platforms=android \ 
           --android-package-name com.mobile.wallet.mm.snap \
           -i com.mobile.wallet.mm.snap \ 
