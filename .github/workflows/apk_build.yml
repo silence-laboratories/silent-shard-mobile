@@ -70,6 +70,6 @@ jobs:
           channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
           file_path: 'message.txt'
           initial_comment: 'post by slack-upload-file'
-      - run: 'echo ${{ fromJson(steps.message.outputs.response).files[0].file.permalink }}'
+      - run: 'echo Tesst'
           
           
