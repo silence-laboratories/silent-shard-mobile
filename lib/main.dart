@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -124,9 +125,53 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final secureStorage = SecureStorage();
   bool showOnboardingScreen = true;
+  bool showWrongTimeSettingScreen = false;
+  Future<bool> checkTimeConsistency() async {
+    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getServerTimestamp');
+    final results = await callable();
+
+    final deviceTimestamp = DateTime.timestamp().millisecondsSinceEpoch;
+    final serverTimestamp = results.data['timeStamp'];
+    final difference = deviceTimestamp - serverTimestamp;
+    if (difference.abs() > 5000) {
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkTimeConsistency().then((isConsistent) {
+        setState(() {
+          showWrongTimeSettingScreen = !isConsistent;
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkTimeConsistency().then((isConsistent) {
+        setState(() {
+          showWrongTimeSettingScreen = !isConsistent;
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,6 +184,16 @@ class _MyAppState extends State<MyApp> {
                 // TODO: Identify crashlytics and mixpanel user by wallet's public key
                 final ethAddress = keysharesProvider.keyshares[METAMASK_WALLET_ID]?.firstOrNull?.ethAddress ?? '';
                 widget.analyticManager.setUserProfileProps(prop: "public_key", value: ethAddress);
+
+                // TODO: Impl WrongTimeSettingScreen
+                if (showWrongTimeSettingScreen) {
+                  return const Center(
+                    child: Text(
+                      'Please check your device time settings',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                }
 
                 return switch ((
                   (!localAuth.isAuthenticated) && isLocalAuthRequired,
