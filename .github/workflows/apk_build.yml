@@ -55,12 +55,13 @@ jobs:
           --web-app-id com.mobile.wallet.mm.snap
           --windows-app-id com.mobile.wallet.mm.snap
       - run: flutter build apk --release
+      - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/app/outputs/flutter-apk/app-release-${{ github.ref_name }}.apk
       - uses: MeilCli/slack-upload-file@v4
         id: message
         with:
           slack_token: ${{ secrets.SLACK_TOKEN }}
           channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
-          file_path: './build/app/outputs/flutter-apk/app-release.apk'
+          file_path: './build/app/outputs/flutter-apk/app-release-${{ github.ref_name }}.apk'
           initial_comment: 'New release silent-shar-mobile'
 
           
