@@ -86,11 +86,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkTimeConsistency().then((isConsistent) {
-        setState(() {
-          showWrongTimeSettingScreen = !isConsistent;
-        });
-      });
+      _checkTimeConsistency();
     });
   }
 
@@ -104,11 +100,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      checkTimeConsistency().then((isConsistent) {
-        setState(() {
-          showWrongTimeSettingScreen = !isConsistent;
-        });
-      });
+      _checkTimeConsistency();
     }
   }
 
@@ -147,7 +139,7 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     });
   }
 
-  Future<bool> checkTimeConsistency() async {
+  Future<void> _checkTimeConsistency() async {
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getServerTimestamp');
     final results = await callable();
 
@@ -155,9 +147,22 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     final serverTimestamp = results.data['timeStamp'];
     final difference = deviceTimestamp - serverTimestamp;
     if (difference.abs() > 5000) {
-      return false;
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => WrongTimezoneScreen(onGotoSettings: () {
+              Navigator.of(context).pop();
+              _resetPairing();
+              AppSettings.openAppSettings(type: AppSettingsType.date);
+            }, onScanAgain: () {
+              Navigator.of(context).pop();
+              _checkTimeConsistency();
+            }),
+          ),
+        );
+      }
     }
-    return true;
+    return;
   }
 
   void _handleDetect(AppRepository sdk, AuthState authState, BarcodeCapture capture) {
@@ -371,12 +376,14 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => WrongTimezoneScreen(
-            onPress: () {
+            onGotoSettings: () {
+              Navigator.of(context).pop();
               _resetPairing();
               AppSettings.openAppSettings(type: AppSettingsType.date);
             },
-            onBack: () {
-              _resetPairing();
+            onScanAgain: () {
+              Navigator.of(context).pop();
+              _checkTimeConsistency();
             },
           ),
         ),
@@ -419,18 +426,6 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-
-    if (showWrongTimeSettingScreen) {
-      return WrongTimezoneScreen(
-        onPress: () {
-          _resetPairing();
-          AppSettings.openAppSettings(type: AppSettingsType.date);
-        },
-        onBack: () {
-          _resetPairing();
-        },
-      );
-    }
 
     return Consumer<AppRepository>(
       builder: (context, appRepository, _) => Consumer<AuthState>(

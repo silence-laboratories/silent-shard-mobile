@@ -4,12 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
+import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/error/error_handler.dart';
 
 class WrongTimezoneScreen extends StatelessWidget {
-  final VoidCallback onPress;
-  final VoidCallback onBack;
-  const WrongTimezoneScreen({super.key, required this.onPress, required this.onBack});
+  final VoidCallback onGotoSettings;
+  final VoidCallback onScanAgain;
+  const WrongTimezoneScreen({super.key, required this.onGotoSettings, required this.onScanAgain});
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +39,31 @@ class WrongTimezoneScreen extends StatelessWidget {
                 style: textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              const Gap(defaultSpacing),
+              const Gap(defaultSpacing * 2),
               Image.asset(
                 'assets/images/time_setting.png',
                 width: MediaQuery.of(context).size.width * 0.7,
               ),
-              const Gap(defaultSpacing * 3),
-              RichText(
-                  text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(text: 'If the issue persists please reach out to ', style: textTheme.displaySmall),
-                  TextSpan(text: 'snap@silencelaboratories.com', style: textTheme.displaySmall?.copyWith(color: primaryColor)),
-                  TextSpan(text: '. We will get back to you within 8hrs.', style: textTheme.displaySmall),
-                ],
-              )),
             ],
           ),
         ),
       ),
-      buttonTitle: 'Go to settings',
-      onBack: onBack,
+      buttonTitle: 'Scan again',
       onPressBottomButton: () {
-        Navigator.of(context).pop();
-        onPress();
+        onScanAgain();
       },
+      bottomWidget: Column(children: [
+        const Gap(defaultSpacing),
+        Button(
+            type: ButtonType.secondary,
+            onPressed: () {
+              onGotoSettings();
+            },
+            child: Text(
+              'Go to settings',
+              style: textTheme.displaySmall?.copyWith(color: primaryColor2),
+            )),
+      ]),
     );
   }
 }
