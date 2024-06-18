@@ -25,24 +25,25 @@ class WrongTimezoneScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                     children: <TextSpan>[
-                      TextSpan(text: 'Please head over to the ', style: textTheme.displaySmall),
-                      TextSpan(text: '“Date and Time” ', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
-                      TextSpan(text: 'Settings in your device and toggle on ', style: textTheme.displaySmall),
+                      TextSpan(text: 'Please click on the ', style: textTheme.displaySmall),
+                      TextSpan(text: '“Go to settings” ', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                      TextSpan(text: 'button and toggle on ', style: textTheme.displaySmall),
                       TextSpan(text: '“Set time Automatically” ', style: textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
                       TextSpan(text: 'to readjust to your local timezone.', style: textTheme.displaySmall),
                     ],
                   )),
-              const Gap(defaultSpacing * 3),
+              const Gap(defaultSpacing * 4),
               Text(
                 "It should look like this 👇🏻",
                 style: textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
-              const Gap(defaultSpacing * 2),
+              const Gap(defaultSpacing),
               Image.asset(
                 'assets/images/time_setting.png',
+                width: MediaQuery.of(context).size.width * 0.7,
               ),
-              const Gap(defaultSpacing * 2),
+              const Gap(defaultSpacing * 3),
               RichText(
                   text: TextSpan(
                 children: <TextSpan>[
