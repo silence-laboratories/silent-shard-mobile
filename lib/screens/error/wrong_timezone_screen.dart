@@ -9,8 +9,8 @@ import 'package:silentshard/screens/error/error_handler.dart';
 
 class WrongTimezoneScreen extends StatelessWidget {
   final VoidCallback onGotoSettings;
-  final VoidCallback onScanAgain;
-  const WrongTimezoneScreen({super.key, required this.onGotoSettings, required this.onScanAgain});
+  final VoidCallback onTryAgain;
+  const WrongTimezoneScreen({super.key, required this.onGotoSettings, required this.onTryAgain});
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +48,9 @@ class WrongTimezoneScreen extends StatelessWidget {
           ),
         ),
       ),
-      buttonTitle: 'Scan again',
+      buttonTitle: 'Try again',
       onPressBottomButton: () {
-        onScanAgain();
+        onTryAgain();
       },
       bottomWidget: Column(children: [
         const Gap(defaultSpacing),

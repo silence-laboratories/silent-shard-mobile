@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:app_settings/app_settings.dart';
 import 'package:async/async.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -57,7 +56,7 @@ enum ScannerState { scanning, scanned, error }
 
 enum ScannerScreenPairingState { ready, inProgress, succeeded, failed }
 
-class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserver {
+class _ScannerScreenState extends State<ScannerScreen> {
   ScannerState _scannerState = ScannerState.scanning;
   ScannerScreenPairingState _pairingState = ScannerScreenPairingState.ready;
   CancelableOperation<PairingData?> _pairingOperation = CancelableOperation<PairingData?>.fromFuture(Future.value(null));
@@ -73,7 +72,6 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
   String recoveryAddress = '';
   String scanningWalletId = '';
   SupportWallet? walletInfo;
-  bool showWrongTimeSettingScreen = false;
 
   @override
   void initState() {
@@ -84,24 +82,12 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
     });
 
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkTimeConsistency();
-    });
   }
 
   @override
   void dispose() {
-    super.dispose();
-    WidgetsBinding.instance.removeObserver(this);
     scannerController.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _checkTimeConsistency();
-    }
+    super.dispose();
   }
 
   void _updateScannerState(ScannerState newState) {
@@ -137,32 +123,6 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
         torchEnabled: false,
       );
     });
-  }
-
-  Future<void> _checkTimeConsistency() async {
-    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getServerTimestamp');
-    final results = await callable();
-
-    final deviceTimestamp = DateTime.timestamp().millisecondsSinceEpoch;
-    final serverTimestamp = results.data['timeStamp'];
-    final difference = deviceTimestamp - serverTimestamp;
-    if (difference.abs() > 5000) {
-      if (mounted) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => WrongTimezoneScreen(onGotoSettings: () {
-              Navigator.of(context).pop();
-              _resetPairing();
-              AppSettings.openAppSettings(type: AppSettingsType.date);
-            }, onScanAgain: () {
-              Navigator.of(context).pop();
-              _checkTimeConsistency();
-            }),
-          ),
-        );
-      }
-    }
-    return;
   }
 
   void _handleDetect(AppRepository sdk, AuthState authState, BarcodeCapture capture) {
@@ -381,9 +341,8 @@ class _ScannerScreenState extends State<ScannerScreen> with WidgetsBindingObserv
               _resetPairing();
               AppSettings.openAppSettings(type: AppSettingsType.date);
             },
-            onScanAgain: () {
+            onTryAgain: () {
               Navigator.of(context).pop();
-              _checkTimeConsistency();
             },
           ),
         ),

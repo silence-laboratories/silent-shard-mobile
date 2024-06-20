@@ -3,6 +3,8 @@
 
 import 'dart:async';
 
+import 'package:app_settings/app_settings.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +13,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/services/app_updater_service.dart';
 import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/screens/onboarding_screen.dart';
@@ -124,9 +127,58 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final secureStorage = SecureStorage();
   bool showOnboardingScreen = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkTimeConsistency();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkTimeConsistency();
+    }
+  }
+
+  Future<void> _checkTimeConsistency() async {
+    try {
+      HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getServerTimestamp');
+      final results = await callable();
+
+      final deviceTimestamp = DateTime.timestamp().millisecondsSinceEpoch;
+      final serverTimestamp = results.data['timeStamp'];
+      final difference = deviceTimestamp - serverTimestamp;
+      if (difference.abs() > 5000) {
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => WrongTimezoneScreen(onGotoSettings: () {
+                Navigator.of(context).pop();
+                AppSettings.openAppSettings(type: AppSettingsType.date);
+              }, onTryAgain: () {
+                Navigator.of(context).pop();
+              }),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      FirebaseCrashlytics.instance.log('Get server timestamp failed! $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
