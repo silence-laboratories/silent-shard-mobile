@@ -336,12 +336,13 @@ class _ScannerScreenState extends State<ScannerScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => WrongTimezoneScreen(
-            onPress: () {
+            onGotoSettings: () {
+              Navigator.of(context).pop();
               _resetPairing();
               AppSettings.openAppSettings(type: AppSettingsType.date);
             },
-            onBack: () {
-              _resetPairing();
+            onTryAgain: () {
+              Navigator.of(context).pop();
             },
           ),
         ),

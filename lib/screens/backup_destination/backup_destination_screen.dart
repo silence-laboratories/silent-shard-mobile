@@ -138,7 +138,6 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                 const Gap(3 * defaultSpacing),
                 Consumer<BackupsProvider>(builder: (context, backupsProvider, _) {
                   bool isBackupAvailable = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
-                  final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
 
                   if (isMetaMaskBackupNotAvailable) {
                     if (isBackupAvailable && isMetaMaskWallet) {
