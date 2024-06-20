@@ -285,7 +285,6 @@ class _BackupWalletScreenState extends State<BackupWalletScreen> {
               ),
             const Gap(defaultSpacing * 2),
             Button(
-              isDisabled: !Provider.of<BackupsProvider>(context, listen: false).isBackupAvailable(widget.walletId, widget.address),
               onPressed: () => _performBackup(context),
               child: Text('Backup wallet now', style: textTheme.displayMedium),
             ),
