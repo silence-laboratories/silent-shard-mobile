@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/screens/scanner/scanner_instruction.dart';
-import 'package:silentshard/types/support_wallet.dart';
 
 class GuideMeTabController extends StatefulWidget {
   const GuideMeTabController({required this.isRePairing, super.key});
@@ -18,12 +17,6 @@ class GuideMeTabController extends StatefulWidget {
 }
 
 class GuideMeTabControllerState extends State<GuideMeTabController> {
-  bool showSupportWallets = false;
-  List<SupportWallet> supportWallets = walletMetaData.entries
-      .map((entry) => SupportWallet(name: entry.value['name'] ?? "", icon: entry.value['icon'] ?? ""))
-      .where((e) => e.name != "Metamask")
-      .toList();
-
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -79,21 +72,12 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
                         ),
                       ),
                       // Other wallet
-                      SingleChildScrollView(
+                      const SingleChildScrollView(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            CheckWalletButton(
-                              supportWalletsCount: supportWallets.length,
-                              onShowSupportWallets: () {
-                                setState(() {
-                                  showSupportWallets = true;
-                                });
-                              },
-                            ),
-                            const Gap(defaultSpacing * 2),
-                            const ScannerInstruction(isOtherWalletInstructor: true)
-                          ]),
+                          padding: EdgeInsets.symmetric(horizontal: defaultSpacing * 2, vertical: defaultSpacing * 3),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [CheckWalletButton(), Gap(defaultSpacing * 2), ScannerInstruction(isOtherWalletInstructor: true)]),
                         ),
                       ),
                     ],
@@ -114,9 +98,7 @@ class GuideMeTabControllerState extends State<GuideMeTabController> {
 }
 
 class CheckWalletButton extends StatelessWidget {
-  const CheckWalletButton({super.key, required this.onShowSupportWallets, required this.supportWalletsCount});
-  final Function onShowSupportWallets;
-  final int supportWalletsCount;
+  const CheckWalletButton({super.key});
 
   @override
   Widget build(BuildContext context) {
