@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 
@@ -10,8 +13,8 @@ class FirebaseTransport implements Transport {
   }
 
   @override
-  Future<void> set(String collection, String docId, Map<String, dynamic> data) {
-    return db.collection(collection).doc(docId).set(data);
+  Future<void> set(String collection, String docId, Map<String, dynamic> data, [bool? mergeData]) {
+    return db.collection(collection).doc(docId).set(data, mergeData != null && mergeData ? SetOptions(merge: true) : null);
   }
 
   @override

@@ -1,8 +1,18 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
+import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
+import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 
+import 'package:silentshard/screens/components/copy_button.dart';
+import 'package:silentshard/types/support_wallet.dart';
+import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
+import 'package:silentshard/utils.dart';
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
 
@@ -12,6 +22,7 @@ class WalletCard extends StatelessWidget {
   final VoidCallback onExport;
   final String address;
   final VoidCallback onCopy;
+  final String walletId;
 
   const WalletCard({
     super.key,
@@ -20,22 +31,19 @@ class WalletCard extends StatelessWidget {
     required this.onExport,
     required this.address,
     required this.onCopy,
+    required this.walletId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(defaultPadding * 1.5),
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: secondaryColor),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      padding: const EdgeInsets.all(defaultSpacing * 1.5),
       child: Column(
         children: [
           WalletInfo(widget: this),
-          const Gap(0.5 * defaultPadding),
+          const Gap(0.5 * defaultSpacing),
           const Divider(),
-          BackupStatusDashboard(address: address),
+          BackupStatusDashboard(address: address, walletId: walletId),
         ],
       ),
     );
@@ -48,15 +56,34 @@ class WalletInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void showWaitingSetupDialog() {
+      showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.black,
+        barrierColor: Colors.white.withOpacity(0.15),
+        showDragHandle: true,
+        context: context,
+        builder: (context) => Consumer<BackupsProvider>(
+          builder: (context, backupsProvider, _) {
+            return RemindEnterPasswordModal(
+              walletName: widget.walletId.capitalize(),
+              isBackupAvailable: backupsProvider.isBackupAvailable(widget.walletId, widget.address),
+            );
+          },
+        ),
+      );
+    }
+
     TextTheme textTheme = Theme.of(context).textTheme;
+    SupportWallet walletInfo = SupportWallet.fromWalletId(widget.walletId);
     return Row(
       children: [
         PaddedContainer(
             child: Image.asset(
-          'assets/images/walletLightFill.png',
-          height: 27.6,
+          walletInfo.icon,
+          height: 28,
         )),
-        const Gap(defaultPadding),
+        const Gap(defaultSpacing),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -65,41 +92,40 @@ class WalletInfo extends StatelessWidget {
                 '${widget.address.substring(0, 5)}...${widget.address.substring(widget.address.length - 5)}',
                 style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
-              const Gap(defaultPadding),
-              GestureDetector(
-                onTap: widget.onCopy,
-                child: Image.asset(
-                  'assets/images/copyLight.png',
-                  height: 20,
-                ),
-              ),
+              const Gap(defaultSpacing),
+              CopyButton(onCopy: () {
+                widget.onCopy();
+              }),
+              const SizedBox(width: 24),
             ]),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Image.asset(
-                  'assets/images/metamaskIcon.png',
-                  height: 18,
-                ),
-                const Gap(defaultPadding),
-                Text(
-                  'MetaMask',
-                  style: textTheme.displaySmall?.copyWith(fontSize: 12),
-                )
-              ],
+            Text(
+              walletInfo.name,
+              style: textTheme.displaySmall?.copyWith(fontSize: 12),
             )
           ],
         ),
         const Spacer(),
-        WalletMenu(onSelected: (WalletActions item) {
-          if (item == WalletActions.repair) {
-            widget.onRepair();
-          } else if (item == WalletActions.exportBackup) {
-            widget.onExport();
-          } else if (item == WalletActions.removeWallet) {
-            widget.onLogout();
-          }
-        }),
+        Consumer<BackupsProvider>(
+          builder: (context, backupsProvider, child) {
+            final isPasswordReady = widget.walletId == METAMASK_WALLET_ID ? true : backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+            return WalletMenu(
+                key: Key(widget.address),
+                isPasswordReady: isPasswordReady,
+                onSelected: (WalletActions item) {
+                  if (item == WalletActions.repair) {
+                    if (isPasswordReady) {
+                      widget.onRepair();
+                    } else {
+                      showWaitingSetupDialog();
+                    }
+                  } else if (item == WalletActions.exportBackup) {
+                    widget.onExport();
+                  } else if (item == WalletActions.removeWallet) {
+                    widget.onLogout();
+                  }
+                });
+          },
+        ),
       ],
     );
   }

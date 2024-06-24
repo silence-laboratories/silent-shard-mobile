@@ -1,13 +1,17 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FileService {
-  Future<File?> selectFile() {
+  Future<(File?, String?)> selectFile() {
     return FilePicker.platform.pickFiles().then((value) {
       final path = value?.files.single.path;
-      return (path != null) ? File(path) : null;
+      final filePickerId = _removeEmailFrom(value?.files.single.identifier ?? '');
+      return (path != null) ? (File(path), filePickerId) : (null, null);
     });
   }
 
@@ -15,4 +19,14 @@ class FileService {
     return getTemporaryDirectory() //
         .then((tempDirectory) => File('${tempDirectory.path}/$filename.txt'));
   }
+}
+
+String _removeEmailFrom(String identifier) {
+  RegExp emailRegex = RegExp(
+    r'\b[A-Za-z0-9._%+-]+%2540[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  return identifier.replaceAll(emailRegex, '');
 }

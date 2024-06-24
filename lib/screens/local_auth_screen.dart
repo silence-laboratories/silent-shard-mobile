@@ -1,7 +1,11 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Button.dart';
+import 'package:silentshard/screens/components/button.dart';
 import 'package:silentshard/services/local_auth_service.dart';
 
 class LocalAuthScreen extends StatefulWidget {
@@ -17,7 +21,8 @@ class LocalAuthScreen extends StatefulWidget {
 
 class _LocalAuthScreenState extends State<LocalAuthScreen> {
   onInit() async {
-    await widget.localAuth.authenticate();
+    final response = await widget.localAuth.authenticate();
+    FirebaseCrashlytics.instance.log('onInit local auth ${response ? 'success' : 'failed'}');
   }
 
   @override
@@ -31,16 +36,18 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
         child: Container(
-      padding: const EdgeInsets.all(defaultPadding * 4),
+      padding: const EdgeInsets.all(defaultSpacing * 4),
       child: Center(
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           Expanded(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Image.asset(
-                'assets/images/lockClosed.png',
-                width: MediaQuery.of(context).size.width / 2,
+              Expanded(
+                child: Image.asset(
+                  'assets/images/lockClosed.png',
+                  width: MediaQuery.of(context).size.width / 2,
+                ),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Text(
                 'Silent Shard is locked!',
                 style: textTheme.displayLarge,
@@ -52,9 +59,11 @@ class _LocalAuthScreenState extends State<LocalAuthScreen> {
               ),
             ]),
           ),
+          const Gap(defaultSpacing * 2),
           Button(
               onPressed: () async {
-                await widget.localAuth.authenticate();
+                final response = await widget.localAuth.authenticate();
+                FirebaseCrashlytics.instance.log('Local auth ${response ? 'success' : 'failed'}');
               },
               child: Text(
                 'Unlock',

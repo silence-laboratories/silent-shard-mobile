@@ -1,5 +1,9 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:async';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../repository/app_repository.dart';
@@ -33,7 +37,7 @@ class MessagingService {
   }
 
   void _handleError(error) {
-    print('Error fetching messaging token: $error');
+    FirebaseCrashlytics.instance.log('Error fetching messaging token: $error');
   }
 
   void _authListener() {
@@ -46,6 +50,5 @@ class MessagingService {
 
     _token = token;
     _appRepository.updateMessagingToken(currentUserId, token);
-    print('Push token is updated for user $currentUserId, token: $token');
   }
 }

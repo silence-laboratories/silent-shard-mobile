@@ -65,6 +65,3 @@ jobs:
           channel_id: ${{ secrets.SLACK_CHANNEL_ID }}
           file_path: './build/app/outputs/flutter-apk/app-release-${{ github.ref_name }}.apk'
           initial_comment: 'New release silent-shar-mobile'
-
-          
-          

@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:typed_data';
 
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
@@ -11,7 +14,7 @@ class PairingDataProvider extends ChangeNotifier with DemoDecorator {
   final PairingState _pairingState;
   DemoPairingData? _demoPairingData;
 
-  PairingData? get pairingData => _demoPairingData ?? _pairingState.pairingData;
+  PairingData? get pairingData => _demoPairingData ?? _pairingState.pairingDataMap["DemoAddress"];
 
   PairingDataProvider(this._pairingState, this._sodium) {
     _pairingState.addListener(() => notifyListeners());
@@ -38,5 +41,6 @@ class DemoPairingData extends PairingData {
           "DemoPairingId",
           Uint8List(0),
           sodium.crypto.box.keyPair(),
+          null,
         );
 }

@@ -1,7 +1,10 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Button.dart';
+import 'package:silentshard/screens/components/button.dart';
 
 class ErrorHandler extends StatelessWidget {
   final Widget? image;
@@ -27,7 +30,7 @@ class ErrorHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return PopScope(
-      canPop: true,
+      canPop: onBack != null,
       onPopInvoked: (didPop) {
         if (onBack != null && didPop) onBack!();
       },
@@ -35,10 +38,11 @@ class ErrorHandler extends StatelessWidget {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.black,
+            automaticallyImplyLeading: onBack != null,
           ),
           backgroundColor: Colors.black,
           body: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: defaultSpacing * 1.5),
             width: MediaQuery.of(context).size.width,
             child: Column(children: [
               Expanded(
@@ -51,18 +55,18 @@ class ErrorHandler extends StatelessWidget {
                           'assets/images/spill.png',
                           width: MediaQuery.of(context).size.width / 2,
                         ),
-                    const Gap(defaultPadding * 2),
+                    const Gap(defaultSpacing * 2),
                     Text(
                       errorTitle ?? 'Something went wrong',
                       style: textTheme.displayLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const Gap(defaultPadding),
+                    const Gap(defaultSpacing),
                     if (errorSubtitle != null) errorSubtitle!,
                   ],
                 ),
               ),
-              if (bottomWidget != null) bottomWidget!,
+              if (bottomWidget != null) ...[bottomWidget!, const Gap(defaultSpacing)],
               Button(
                   onPressed: onPressBottomButton,
                   child: Text(

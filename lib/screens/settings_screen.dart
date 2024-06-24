@@ -1,9 +1,13 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/PaddedContainer.dart';
+import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/services/app_preferences.dart';
 import 'package:silentshard/services/local_auth_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -59,15 +63,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.black,
         body: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
+            padding: const EdgeInsets.all(defaultSpacing * 1.5),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
                 "Settings",
                 style: textTheme.displayLarge,
               ),
-              const SizedBox(
-                height: defaultPadding * 2,
-              ),
+              const Gap(defaultSpacing * 2),
               Consumer<LocalAuth>(builder: (context, localAuth, _) {
                 return SettingOption(
                     icon: const Icon(
@@ -83,12 +85,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Provider.of<AppPreferences>(context, listen: false).setIsLocalAuthRequired(value);
                         final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
                         analyticManager.trackDeviceLockToggle(value);
+                        FirebaseCrashlytics.instance.log('Local auth ${value ? 'enabled' : 'disabled'}');
                       }
                     });
               }),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.help_outline,
@@ -102,9 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "How Silent Shard works",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.shield_outlined,
@@ -118,26 +117,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "Privacy Policy",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.file_copy_outlined,
                   color: Colors.white,
                 ),
                 onTap: () async {
-                  final url = Uri.parse(
-                      'https://silence-laboratories.gitbook.io/silent-shard-phone-+-cloud-mpc-tss-sdk/~/changes/kKCywQovqWCTefwcckYV/silent-shard-mpc-tss-sl');
+                  final url = Uri.parse('https://docs.silencelaboratories.com/duo');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }
                 },
                 title: "SDK Documentation",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               SettingOption(
                 icon: const Icon(
                   Icons.description_outlined,
@@ -154,11 +148,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
                 title: "Licenses",
               ),
-              const Divider(
-                color: Colors.white,
-              ),
+              const Divider(),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
+                padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -166,9 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       "For any queries reach out to",
                       style: textTheme.displaySmall,
                     ),
-                    const SizedBox(
-                      height: defaultPadding * 1.5,
-                    ),
+                    const Gap(defaultSpacing * 1.5),
                     GestureDetector(
                         onTap: () {
                           Uri emailLaunchUri = Uri(
@@ -184,11 +174,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              const Gap(defaultPadding * 2),
+              const Gap(defaultSpacing * 2),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 GestureDetector(
                   onTap: () async {
-                    final url = Uri.parse('https://twitter.com/silentauth');
+                    final url = Uri.parse('https://twitter.com/silencelabs_sl');
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
                     }
@@ -198,8 +188,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     height: 30,
                   ),
                 ),
-                const Gap(defaultPadding * 2),
-                const Gap(defaultPadding * 2),
+                const Gap(defaultSpacing * 2),
+                const Gap(defaultSpacing * 2),
                 GestureDetector(
                   onTap: () async {
                     final url = Uri.parse('https://github.com/silence-laboratories');
@@ -228,7 +218,7 @@ class SettingOption extends StatelessWidget {
   final bool? isSwitchOn;
   final Future<void> Function()? onTap;
   final Function(bool value)? onChangeSwitch;
-  SettingOption({
+  const SettingOption({
     super.key,
     required this.icon,
     required this.title,
@@ -241,36 +231,49 @@ class SettingOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
-    return GestureDetector(
-      onTap: () async {
-        if (onTap != null) {
-          await onTap!();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
-        child: Row(
-          children: [
-            PaddedContainer(child: icon),
-            const SizedBox(
-              width: defaultPadding,
-            ),
-            Flexible(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: textTheme.displaySmall),
-                if (subtitle != null) Text(subtitle!, style: textTheme.bodySmall),
-              ]),
-            ),
-            const Gap(defaultPadding),
-            if (isSwitchOn != null && onChangeSwitch != null)
-              Switch(
-                thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
-                value: isSwitchOn!,
-                activeColor: primaryColor,
-                onChanged: onChangeSwitch,
-              )
-          ],
-        ),
+    bool hasSwitch = isSwitchOn != null && onChangeSwitch != null;
+    return hasSwitch
+        ? GestureDetector(
+            onTap: () async {
+              if (onTap != null) {
+                await onTap!();
+              }
+            },
+            child: _buildContainer(textTheme, hasSwitch),
+          )
+        : InkWell(
+            onTap: () async {
+              if (onTap != null) {
+                await onTap!();
+              }
+            },
+            splashColor: const Color(0xFF151515),
+            child: _buildContainer(textTheme, hasSwitch),
+          );
+  }
+
+  Widget _buildContainer(TextTheme textTheme, bool hasSwitch) {
+    return Container(
+      padding: const EdgeInsets.only(top: defaultSpacing * 1.5, bottom: defaultSpacing * 1.5, left: defaultSpacing),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          PaddedContainer(child: icon),
+          const Gap(defaultSpacing),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: textTheme.displaySmall),
+              if (subtitle != null) Text(subtitle!, style: textTheme.bodySmall),
+            ]),
+          ),
+          if (hasSwitch)
+            Switch(
+              thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
+              value: isSwitchOn ?? false,
+              activeColor: backgroundPrimaryColor,
+              onChanged: onChangeSwitch,
+            )
+        ],
       ),
     );
   }

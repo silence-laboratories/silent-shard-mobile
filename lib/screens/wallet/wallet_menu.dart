@@ -1,16 +1,21 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+
 import 'package:silentshard/screens/components/custom_popup_menu_divider.dart';
 
 import '../../constants.dart';
-import '../components/PaddedContainer.dart';
+import '../components/padded_container.dart';
 
 enum WalletActions { repair, exportBackup, removeWallet }
 
 class WalletMenu extends StatelessWidget {
   final PopupMenuItemSelected<WalletActions> onSelected;
+  final bool isPasswordReady;
 
-  const WalletMenu({super.key, required this.onSelected});
+  const WalletMenu({super.key, required this.onSelected, this.isPasswordReady = true});
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +24,7 @@ class WalletMenu extends StatelessWidget {
       initialValue: null,
       onSelected: onSelected,
       color: Colors.black,
+      splashRadius: 8,
       shape: const RoundedRectangleBorder(
         side: BorderSide(color: Color(0xFF434E61)),
         borderRadius: BorderRadius.all(
@@ -26,7 +32,7 @@ class WalletMenu extends StatelessWidget {
         ),
       ),
       position: PopupMenuPosition.under,
-      offset: const Offset(0, defaultPadding),
+      offset: const Offset(0, defaultSpacing),
       itemBuilder: (BuildContext context) => _buildOptionsMenu(textTheme),
       child: const PaddedContainer(
         child: Icon(
@@ -41,23 +47,24 @@ class WalletMenu extends StatelessWidget {
   List<PopupMenuEntry<WalletActions>> _buildOptionsMenu(TextTheme textTheme) => [
         PopupMenuItem<WalletActions>(
           value: WalletActions.repair,
-          child: WalletOption(
-            title: Flexible(
-              child: Text(
-                "Re-pair with browser",
-                style: textTheme.displaySmall,
-              ),
-            ),
-            icon: PaddedContainer(
-                color: backgroundSecondaryColor2,
-                child: Image.asset(
-                  'assets/images/repeat.png',
-                  width: 16,
-                  height: 16,
-                )),
-          ),
+          child: Opacity(
+              opacity: !isPasswordReady ? 0.3 : 1,
+              child: WalletOption(
+                  title: Flexible(
+                    child: Text(
+                      "Re-pair with browser",
+                      style: textTheme.displaySmall,
+                    ),
+                  ),
+                  icon: PaddedContainer(
+                      color: backgroundSecondaryColor2.withOpacity(0.3),
+                      child: Image.asset(
+                        'assets/images/repeat.png',
+                        width: 16,
+                        height: 16,
+                      )))),
         ),
-        const CustomPopupMenuDivider(endIndent: defaultPadding * 2, indent: defaultPadding * 2),
+        const CustomPopupMenuDivider(endIndent: defaultSpacing * 2, indent: defaultSpacing * 2),
         PopupMenuItem<WalletActions>(
           value: WalletActions.exportBackup,
           child: WalletOption(
@@ -75,7 +82,7 @@ class WalletMenu extends StatelessWidget {
                 )),
           ),
         ),
-        const CustomPopupMenuDivider(endIndent: defaultPadding * 2, indent: defaultPadding * 2),
+        const CustomPopupMenuDivider(endIndent: defaultSpacing * 2, indent: defaultSpacing * 2),
         PopupMenuItem<WalletActions>(
           value: WalletActions.removeWallet,
           child: WalletOption(
@@ -111,11 +118,11 @@ class WalletOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: defaultPadding * 2),
+        padding: const EdgeInsets.symmetric(vertical: defaultSpacing * 2),
         child: Row(
           children: [
             icon,
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             title,
           ],
         ),

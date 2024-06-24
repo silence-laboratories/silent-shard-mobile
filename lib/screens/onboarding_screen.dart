@@ -1,3 +1,7 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
@@ -15,13 +19,13 @@ class OnboardingScreen extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Gap(defaultPadding * 2),
+        const Gap(defaultSpacing * 2),
         Expanded(
           child: Stack(children: [
             Container(
               alignment: Alignment.topCenter,
               width: MediaQuery.of(context).size.width,
-              margin: const EdgeInsets.only(top: defaultPadding),
+              margin: const EdgeInsets.only(top: defaultSpacing),
               child: Text(
                 'Silent Shard',
                 style: textTheme.displayLarge?.copyWith(fontWeight: FontWeight.bold, color: textColor1),
@@ -39,15 +43,15 @@ class OnboardingScreen extends StatelessWidget {
           ]),
         ),
         Container(
-          padding: const EdgeInsets.only(left: defaultPadding * 2, right: defaultPadding * 2),
+          padding: const EdgeInsets.only(left: defaultSpacing * 2, right: defaultSpacing * 2),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text("Protect your wallet with a Two Factor Authenticator like experience", style: textTheme.displayLarge),
-            const Gap(defaultPadding),
+            const Gap(defaultSpacing),
             Text(
               "Powered by cutting edge MPC technology from Silence Laboratories",
               style: textTheme.bodyMedium,
             ),
-            const Gap(defaultPadding * 3),
+            const Gap(defaultSpacing * 3),
             Row(
               children: [
                 const Spacer(),
@@ -56,13 +60,14 @@ class OnboardingScreen extends StatelessWidget {
                     final analyticManager = Provider.of<AnalyticManager>(context, listen: false);
                     analyticManager.trackAppStart();
                     Provider.of<AppPreferences>(context, listen: false).setIsOnboardingCompleted(true);
+                    FirebaseCrashlytics.instance.log("Onboarding done");
                   },
                   child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                     Text(
                       "Get started",
                       style: textTheme.headlineSmall,
                     ),
-                    const Gap(defaultPadding / 2),
+                    const Gap(defaultSpacing / 2),
                     const Icon(
                       Icons.arrow_forward,
                       color: primaryColor,
@@ -70,12 +75,12 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                   ]),
                 ),
-                const Gap(defaultPadding),
+                const Gap(defaultSpacing),
               ],
             ),
           ]),
         ),
-        const Gap(defaultPadding * 2),
+        const Gap(defaultSpacing * 2),
       ]),
     );
   }

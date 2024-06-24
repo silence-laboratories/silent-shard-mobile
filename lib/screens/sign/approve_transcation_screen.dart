@@ -1,11 +1,16 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:async/async.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/third_party/analytics.dart';
 
 import '../../constants.dart';
 import '../../repository/app_repository.dart';
-import '../components/Loader.dart';
+import '../components/loader.dart';
 import '../components/cancel.dart';
 import '../components/check.dart';
 import '../sign/sign_request_view_model.dart';
@@ -17,12 +22,15 @@ enum TransactionState { readyToSign, signing, signed, canceled, failed }
 class ApproveTransactionScreen extends StatefulWidget {
   final SignRequestViewModel requestModel;
   final VoidCallback resumeSignRequestSubscription;
+  final String walletId;
+  final String address;
 
-  const ApproveTransactionScreen({
-    super.key,
-    required this.requestModel,
-    required this.resumeSignRequestSubscription,
-  });
+  const ApproveTransactionScreen(
+      {super.key, //
+      required this.requestModel,
+      required this.resumeSignRequestSubscription,
+      required this.walletId,
+      required this.address});
 
   @override
   State<ApproveTransactionScreen> createState() => _ApproveTransactionScreenState();
@@ -31,23 +39,27 @@ class ApproveTransactionScreen extends StatefulWidget {
 class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   CancelableOperation<String>? _signingOperation;
   TransactionState _transactionState = TransactionState.readyToSign;
+  late AnalyticManager analyticManager;
 
   @override
   void initState() {
     super.initState();
     Future.delayed(const Duration(seconds: 30)) //
         .then((value) {
-      if (mounted && _transactionState == TransactionState.readyToSign) {
+      if (_transactionState == TransactionState.readyToSign) {
         _updateTransactionState(TransactionState.failed);
         _close();
       }
     });
+    analyticManager = Provider.of<AnalyticManager>(context, listen: false);
   }
 
   _updateTransactionState(TransactionState value) {
-    setState(() {
-      _transactionState = value;
-    });
+    if (mounted) {
+      setState(() {
+        _transactionState = value;
+      });
+    }
   }
 
   Future<void> _close([bool shouldDismiss = true]) async {
@@ -61,15 +73,26 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
   }
 
   Future<void> _onSignature(String signature) async {
-    print("Successfully generated signature: $signature");
+    FirebaseCrashlytics.instance.log('Successfully generated signature');
     _updateTransactionState(TransactionState.signed);
     _close();
+    analyticManager.trackSignPerform(
+      from: widget.address,
+      wallet: widget.walletId,
+      status: SignPerformStatus.success,
+    );
   }
 
   void _onError(Object error) {
-    print("Error generating signature: $error");
+    FirebaseCrashlytics.instance.log('Error generating signature: $error');
     _updateTransactionState(TransactionState.failed);
     _close();
+    analyticManager.trackSignPerform(
+      from: widget.address,
+      wallet: widget.walletId,
+      status: SignPerformStatus.failed,
+      error: error.toString(),
+    );
   }
 
   void _handleSignResponse(bool approved, SignRequestViewModel requestModel, {Function? onErrorCb, bool shouldDismiss = true}) {
@@ -77,7 +100,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
     final appRepository = Provider.of<AppRepository>(context, listen: false);
 
     if (approved) {
-      print('Approved');
+      FirebaseCrashlytics.instance.log('Transaction approved');
+      analyticManager.trackSignPerform(
+          from: widget.address, wallet: widget.walletId, status: SignPerformStatus.approved, signType: requestModel.signRequest.signType);
       _updateTransactionState(TransactionState.signing);
       _signingOperation = appRepository.approve(requestModel.signRequest);
       _signingOperation?.value.then(_onSignature, onError: (error) {
@@ -85,7 +110,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
         _onError(error);
       });
     } else {
-      print('Declined');
+      FirebaseCrashlytics.instance.log('Transaction declined');
+      analyticManager.trackSignPerform(
+          from: widget.address, wallet: widget.walletId, status: SignPerformStatus.rejected, signType: requestModel.signRequest.signType);
       _updateTransactionState(TransactionState.canceled);
       appRepository.decline(requestModel.signRequest);
       _close(shouldDismiss);
@@ -106,7 +133,8 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
         child: SingleChildScrollView(
           child: Stack(children: [
             if (_transactionState == TransactionState.readyToSign)
-              TransactionDetailsWidget(requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
+              TransactionDetailsWidget(
+                  address: widget.address, walletId: widget.walletId, requestModel: widget.requestModel, handleSignResponse: _handleSignResponse),
             if (_transactionState == TransactionState.signing || _transactionState == TransactionState.signed) ...[
               AnimatedOpacity(
                 opacity: _transactionState == TransactionState.signing ? 1.0 : 0.0,
@@ -114,9 +142,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                 child: Container(
                   alignment: Alignment.center,
                   child: const Column(children: [
-                    Gap(defaultPadding * 10),
+                    Gap(defaultSpacing * 10),
                     Loader(text: 'Approving transaction...'),
-                    Gap(defaultPadding * 10),
+                    Gap(defaultSpacing * 10),
                   ]),
                 ),
               ),
@@ -127,9 +155,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Gap(defaultPadding * 10),
+                      Gap(defaultSpacing * 10),
                       Check(text: 'Transaction Approved'),
-                      Gap(defaultPadding * 10),
+                      Gap(defaultSpacing * 10),
                     ],
                   ),
                 ),
@@ -140,9 +168,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                   Cancel(text: 'Transaction Failed'),
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                 ],
               )),
             if (_transactionState == TransactionState.canceled)
@@ -150,9 +178,9 @@ class _ApproveTransactionScreenState extends State<ApproveTransactionScreen> {
                   child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                   Cancel(text: 'Transaction Canceled'),
-                  Gap(defaultPadding * 10),
+                  Gap(defaultSpacing * 10),
                 ],
               )),
           ]),

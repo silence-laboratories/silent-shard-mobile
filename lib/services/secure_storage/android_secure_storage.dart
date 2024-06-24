@@ -1,3 +1,6 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:credential_manager/credential_manager.dart';
 
 import 'secure_storage_service.dart';
@@ -7,7 +10,11 @@ class AndroidSecureStorage implements SecureStorageService {
 
   @override
   Future<void> init() {
-    return credentialManager.init(preferImmediatelyAvailableCredentials: false);
+    if (credentialManager.isSupportedPlatform) {
+      return credentialManager.init(preferImmediatelyAvailableCredentials: false);
+    } else {
+      throw Future.error(UnsupportedError("AndroidSecureStorage: CredentialManager is not supported on this platform"));
+    }
   }
 
   @override

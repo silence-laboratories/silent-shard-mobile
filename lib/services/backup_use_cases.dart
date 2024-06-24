@@ -1,15 +1,18 @@
-import 'package:device_info_plus/device_info_plus.dart';
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:silentshard/third_party/analytics.dart';
 
+import '../third_party/analytics.dart';
 import '../repository/app_repository.dart';
 import 'backup_service.dart';
 import '../types/file_name.dart';
+import '../utils.dart';
 
 abstract interface class UseCase<R> {
-  Future<R> execute();
+  Future<R> execute(String walletId, String address);
 }
 
 class SaveBackupToStorageUseCase extends UseCase {
@@ -18,7 +21,7 @@ class SaveBackupToStorageUseCase extends UseCase {
   SaveBackupToStorageUseCase(this.context);
 
   @override
-  Future<void> execute() async {
+  Future<void> execute(String walletId, String address) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -27,9 +30,9 @@ class SaveBackupToStorageUseCase extends UseCase {
     final backupService = Provider.of<BackupService>(context, listen: false);
 
     return appRepository
-        .appBackup()
+        .appBackup(walletId, address)
         .value //
-        .then((appBackup) => backupService.saveBackupToStorage(appBackup));
+        .then((appBackup) => backupService.saveBackupToStorage(walletId, appBackup));
   }
 }
 
@@ -38,7 +41,7 @@ class ExportBackupUseCase extends UseCase {
   ExportBackupUseCase(this.context);
 
   @override
-  Future<void> execute() async {
+  Future<void> execute(String walletId, String address) async {
     if (!context.mounted) {
       return Future.error(StateError('Cannot export backup: context is not mounted'));
     }
@@ -47,16 +50,14 @@ class ExportBackupUseCase extends UseCase {
     try {
       final appRepository = Provider.of<AppRepository>(context, listen: false);
       final backupService = Provider.of<BackupService>(context, listen: false);
-      final appBackup = await appRepository.appBackup().value;
+      final appBackup = await appRepository.appBackup(walletId, address).value;
 
       if (appBackup.walletBackup.accounts.isEmpty) {
         return Future.error(StateError('Cannot export backup: empty wallet'));
       }
 
-      final tempFile = await backupService.saveBackupToFile(appBackup);
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      IosDeviceInfo info = await deviceInfo.iosInfo;
-      final isIPad = info.model.toLowerCase().contains("ipad");
+      final tempFile = await backupService.saveBackupToFile(walletId, appBackup);
+      final isIPad = await PlatformUtils.isPad;
       if (context.mounted) {
         final obj = context.findRenderObject();
         if (obj == null) {
@@ -74,16 +75,21 @@ class ExportBackupUseCase extends UseCase {
           subject: tempFile.filename,
           sharePositionOrigin: isIPad ? box.localToGlobal(Offset.zero) & box.size : null,
         );
-        ;
         if (result.status != ShareResultStatus.dismissed) {
-          analyticManager.trackSaveToFile(success: true, source: PageSource.backup_page);
+          analyticManager.trackSaveToFile(wallet: walletId, address: address, success: true, source: PageSource.backup_page, backup: result.raw);
           backupService.backupToFileDidSave(appBackup);
         } else {
-          analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: "Save to file is dismissed.");
+          analyticManager.trackSaveToFile(
+              wallet: walletId,
+              address: address,
+              success: false,
+              source: PageSource.backup_page,
+              backup: result.raw,
+              error: "Save to file is dismissed.");
         }
       }
     } catch (e) {
-      analyticManager.trackSaveToFile(success: false, source: PageSource.backup_page, error: e.toString());
+      analyticManager.trackSaveToFile(wallet: walletId, address: address, success: false, source: PageSource.backup_page, error: e.toString());
       return Future.error(e);
     }
   }

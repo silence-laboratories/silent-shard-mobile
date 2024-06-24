@@ -1,9 +1,12 @@
+// Copyright (c) Silence Laboratories Pte. Ltd.
+// This software is licensed under the Silence Laboratories License Agreement.
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
-import 'package:silentshard/screens/components/Bullet.dart';
+import 'package:silentshard/screens/components/bullet.dart';
 import 'package:silentshard/screens/error/error_handler.dart';
 
 class NoBackupFoundScreen extends StatelessWidget {
@@ -24,7 +27,7 @@ class NoBackupFoundScreen extends StatelessWidget {
             'You may try these steps:',
             style: textTheme.bodyMedium,
           ),
-          const Gap(defaultPadding),
+          const Gap(defaultSpacing),
           Bullet(
               child: Text(
             'Check for any exported backup files.',
@@ -35,7 +38,7 @@ class NoBackupFoundScreen extends StatelessWidget {
             'Add any other ${Platform.isAndroid ? 'Google' : 'iCloud'} accounts previously used on this device and try again.',
             style: textTheme.bodyMedium,
           )),
-          const Gap(defaultPadding * 4),
+          const Gap(defaultSpacing * 4),
         ],
       ),
       onPressBottomButton: onPressBottomButton,
