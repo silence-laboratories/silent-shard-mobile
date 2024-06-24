@@ -107,15 +107,16 @@ class WalletInfo extends StatelessWidget {
         const Spacer(),
         Consumer<BackupsProvider>(
           builder: (context, backupsProvider, child) {
-            final isPasswordReady = widget.walletId == METAMASK_WALLET_ID ? true : backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+            final isBackupAvailable = backupsProvider.isBackupAvailable(widget.walletId, widget.address);
+            final isPasswordNotReady = widget.walletId != METAMASK_WALLET_ID && !isBackupAvailable;
             return WalletMenu(
                 key: Key(widget.address),
-                isPasswordReady: isPasswordReady,
+                isBackupAvailable: isBackupAvailable,
                 onSelected: (WalletActions item) {
                   if (item == WalletActions.repair) {
-                    if (isPasswordReady) {
+                    if (isBackupAvailable) {
                       widget.onRepair();
-                    } else {
+                    } else if (isPasswordNotReady) {
                       showWaitingSetupDialog();
                     }
                   } else if (item == WalletActions.exportBackup) {

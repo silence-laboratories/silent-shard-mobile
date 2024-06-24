@@ -13,9 +13,9 @@ enum WalletActions { repair, exportBackup, removeWallet }
 
 class WalletMenu extends StatelessWidget {
   final PopupMenuItemSelected<WalletActions> onSelected;
-  final bool isPasswordReady;
+  final bool isBackupAvailable;
 
-  const WalletMenu({super.key, required this.onSelected, this.isPasswordReady = true});
+  const WalletMenu({super.key, required this.onSelected, required this.isBackupAvailable});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class WalletMenu extends StatelessWidget {
         PopupMenuItem<WalletActions>(
           value: WalletActions.repair,
           child: Opacity(
-              opacity: !isPasswordReady ? 0.3 : 1,
+              opacity: !isBackupAvailable ? 0.3 : 1,
               child: WalletOption(
                   title: Flexible(
                     child: Text(
