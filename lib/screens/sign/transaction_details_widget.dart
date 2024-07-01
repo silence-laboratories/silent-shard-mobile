@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -134,18 +135,14 @@ class TransactionDetailsWidget extends StatelessWidget {
                         style: textTheme.displayMedium,
                       ),
                     ),
-                    IconButton(
-                        onPressed: () async {
-                          await Clipboard.setData(ClipboardData(
-                            text: requestModel.signType == SignType.personalSign
-                                ? hexToAscii(requestModel.displayMessage)
-                                : requestModel.displayMessage,
-                          ));
-                        },
-                        icon: Image.asset(
-                          'assets/images/copyLight.png',
-                          height: 24,
-                        ))
+                    CopyButton(
+                      followerAnchor: Alignment.topCenter,
+                      onCopy: () async {
+                        final copyText =
+                            requestModel.signType == SignType.personalSign ? hexToAscii(requestModel.displayMessage) : requestModel.displayMessage;
+                        await Clipboard.setData(ClipboardData(text: copyText));
+                      },
+                    ),
                   ])
                 ],
               ]),
