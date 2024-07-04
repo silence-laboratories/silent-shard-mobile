@@ -342,6 +342,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
               AppSettings.openAppSettings(type: AppSettingsType.date);
             },
             onTryAgain: () {
+              _resetPairing();
               Navigator.of(context).pop();
             },
           ),
