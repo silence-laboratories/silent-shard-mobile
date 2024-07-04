@@ -50,7 +50,12 @@ jobs:
       - run: flutter pub get
       - run: flutterfire configure  -y 
           --project mobile-wallet-mm-snap
-          --platforms=android
+          --platforms=android 
+          --android-package-name com.silencelaboratories.silentshard
+          -i com.silencelaboratories.silentshard 
+          -m com.silencelaboratories.silentshard 
+          --web-app-id com.silencelaboratories.silentshard
+          --windows-app-id com.silencelaboratories.silentshard
       - run: flutter build apk --release
       - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/app/outputs/flutter-apk/app-release-${{ github.ref_name }}.apk
       - uses: MeilCli/slack-upload-file@v4
