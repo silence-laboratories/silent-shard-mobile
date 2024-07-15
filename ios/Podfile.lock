@@ -1266,7 +1266,7 @@ PODS:
     - GTMSessionFetcher/Core (< 4.0, >= 1.5)
   - GTMSessionFetcher/Core (2.3.0)
   - leveldb-library (1.22.5)
-  - local_auth_ios (0.0.1):
+  - local_auth_darwin (0.0.1):
     - Flutter
   - Mixpanel-swift (4.2.0):
     - Mixpanel-swift/Complete (= 4.2.0)
@@ -1344,7 +1344,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
-  - local_auth_ios (from `.symlinks/plugins/local_auth_ios/ios`)
+  - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
   - mixpanel_flutter (from `.symlinks/plugins/mixpanel_flutter/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -1434,8 +1434,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
-  local_auth_ios:
-    :path: ".symlinks/plugins/local_auth_ios/ios"
+  local_auth_darwin:
+    :path: ".symlinks/plugins/local_auth_darwin/darwin"
   mixpanel_flutter:
     :path: ".symlinks/plugins/mixpanel_flutter/ios"
   mobile_scanner:
@@ -1508,7 +1508,7 @@ SPEC CHECKSUMS:
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
   leveldb-library: e8eadf9008a61f9e1dde3978c086d2b6d9b9dc28
-  local_auth_ios: c6cf091ded637a88f24f86a8875d8b0f526e2605
+  local_auth_darwin: 4d56c90c2683319835a61274b57620df9c4520ab
   Mixpanel-swift: e5dd85295923e6a875acf17ccbab8d2ecb10ea65
   mixpanel_flutter: ed1e5eaea382cbbaf655d20e23478211727ee011
   MLImage: 7bb7c4264164ade9bf64f679b40fb29c8f33ee9b
