@@ -12,7 +12,6 @@ class WrongPasswordRecoveryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     return ErrorHandler(
-      onBack: onPress,
       buttonTitle: 'Go to Home',
       errorTitle: 'Uh oh! Looks like you are using the wrong password.',
       errorSubtitle: Text(
@@ -22,8 +21,6 @@ class WrongPasswordRecoveryScreen extends StatelessWidget {
       ),
       onPressBottomButton: () {
         onPress();
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
       },
     );
   }
