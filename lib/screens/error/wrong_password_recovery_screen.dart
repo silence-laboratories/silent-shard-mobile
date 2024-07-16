@@ -13,15 +13,17 @@ class WrongPasswordRecoveryScreen extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     return ErrorHandler(
       onBack: onPress,
+      buttonTitle: 'Go to Home',
       errorTitle: 'Uh oh! Looks like you are using the wrong password.',
       errorSubtitle: Text(
-        'Your account is only recoverable with the correct password. Please try again.',
+        'Your account is only recoverable with the correct password. Please Try again on your browser.',
         style: textTheme.bodyMedium,
         textAlign: TextAlign.center,
       ),
       onPressBottomButton: () {
-        Navigator.of(context).pop();
         onPress();
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
       },
     );
   }
