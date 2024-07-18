@@ -329,6 +329,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
                 })
               : WrongPasswordRecoveryScreen(onPress: () {
                   _resetPairing();
+                  int count = 0;
+                  Navigator.of(context).popUntil((_) => count++ >= 2);
                 }),
         ),
       );
