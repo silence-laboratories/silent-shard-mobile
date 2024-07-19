@@ -320,18 +320,21 @@ class _ScannerScreenState extends State<ScannerScreen> {
           }),
         ),
       );
-    } else if (error is StateError && error.toString().contains('INVALID_BACKUP_DATA')) {
+    } else if (error is StateError && error.toString().contains('INVALID_BACKUP_DATA') && walletId == METAMASK_WALLET_ID) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => walletId == METAMASK_WALLET_ID
-              ? WrongMetaMaskWalletForRecoveryScreen(onPress: () {
+            builder: (context) => WrongMetaMaskWalletForRecoveryScreen(onPress: () {
                   _resetPairing();
-                })
-              : WrongPasswordRecoveryScreen(onPress: () {
-                  _resetPairing();
-                  int count = 0;
-                  Navigator.of(context).popUntil((_) => count++ >= 2);
-                }),
+                })),
+      );
+    } else if (error is StateError && error.toString().contains('WRONG_PASSWORD')) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => WrongPasswordRecoveryScreen(onPress: () {
+            _resetPairing();
+            int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
+          }),
         ),
       );
     } else if (error is StateError && error.toString().contains('RESOURCE_EXHAUSTED')) {

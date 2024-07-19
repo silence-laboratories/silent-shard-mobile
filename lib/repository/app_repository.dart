@@ -82,7 +82,16 @@ class AppRepository extends DemoDecoratorComposite {
     if (isDemoActive) {
       return CancelableOperation.fromValue((null));
     }
-    return _sdk.startRePairing(qrMessage, address, userId);
+
+    return _sdk.startRePairing(qrMessage, address, userId).then((pairingResponse) {
+      final remark = pairingResponse.remark;
+      if (remark != null) {
+        if (remark.contains("WRONG_PASSWORD")) {
+          throw StateError('WRONG_PASSWORD');
+        }
+      }
+      return pairingResponse;
+    });
   }
 
   CancelableOperation<AppBackup> appBackup(String walletId, String address) {
