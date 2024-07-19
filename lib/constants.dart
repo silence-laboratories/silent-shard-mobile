@@ -43,6 +43,7 @@ const walletMetaData = {
   "biconomy": {"name": "Biconomy", "icon": "assets/images/biconomy.png"},
   "zerodev": {"name": "ZeroDev", "icon": "assets/images/zerodev.png"},
   "trustwallet": {"name": "Trust Wallet", "icon": "assets/images/trustwallet.png"},
+  "pimlico": {"name": "Pimlico", "icon": "assets/images/pimlico.png"},
 };
 
 class PrecachedImageKeys {
