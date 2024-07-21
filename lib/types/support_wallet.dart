@@ -14,10 +14,10 @@ class SupportWallet {
     );
   }
 
-  factory SupportWallet.fromJson(Map<String, dynamic> json) {
+  factory SupportWallet.fromJson(dynamic json) {
     return SupportWallet(
       name: json['name'] ?? 'Unknown',
-      icon: json['icon'] ?? 'assets/images/walletLightFill.png',
+      icon: json['iconUrl'] ?? 'assets/images/walletLightFill.png',
     );
   }
 }

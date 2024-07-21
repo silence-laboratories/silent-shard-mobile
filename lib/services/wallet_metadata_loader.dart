@@ -1,8 +1,7 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
-import 'package:dio/dio.dart';
-import 'package:silentshard/firebase_options.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:silentshard/types/support_wallet.dart';
 
 class WalletMetadataLoader {
@@ -14,12 +13,16 @@ class WalletMetadataLoader {
   }
 
   Future<void> loadWalletMetadata() async {
-    final dio = Dio();
-    final response = await dio.get('https://us-central1-${DefaultFirebaseOptions.currentPlatform.projectId}.cloudfunctions.net/getWalletMetadata');
-    final walletMetadata = response.data['response'] as Map<String, dynamic>;
-    for (var walletId in walletMetadata.keys) {
-      final walletJson = walletMetadata[walletId] as Map<String, dynamic>;
-      _metadataMap[walletId] = SupportWallet(name: walletJson['name'], icon: walletJson['iconUrl']);
+    try {
+      HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('getWalletMetadata');
+      final results = await callable();
+      final Map<String, dynamic> walletData = Map<String, dynamic>.from(results.data);
+      for (final walletId in walletData.keys) {
+        final walletMetadata = walletData[walletId];
+        _metadataMap[walletId] = SupportWallet.fromJson(walletMetadata);
+      }
+    } catch (e) {
+      throw Exception('Failed to load wallet metadata: $e');
     }
   }
 }
