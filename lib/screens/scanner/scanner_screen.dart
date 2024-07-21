@@ -7,15 +7,12 @@ import 'package:async/async.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/screens/components/bullet.dart';
-import 'package:silentshard/screens/components/copy_button.dart';
-import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/screens/error/keygen_last_round_error_screen.dart';
 import 'package:silentshard/screens/error/multi_wallet_mismatch_screen.dart';
 import 'package:silentshard/screens/error/no_backup_found_while_repairing_screen.dart';
@@ -25,6 +22,7 @@ import 'package:silentshard/screens/error/wrong_timezone_screen.dart';
 import 'package:silentshard/screens/scanner/guide_me_tabs.dart';
 import 'package:silentshard/screens/scanner/scanner_pair_status_dialog.dart';
 import 'package:silentshard/screens/scanner/scanner_recovery_status_dialog.dart';
+import 'package:silentshard/services/wallet_metadata_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/constants.dart';
 import 'package:silentshard/screens/backup_wallet/backup_wallet_screen.dart';
@@ -66,6 +64,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
     torchEnabled: false,
   );
   late AnalyticManager analyticManager;
+  late WalletMetadataLoader walletMetadataLoader;
   bool showRemindEnterPassword = false;
   bool showAccountAlreadyPresent = false;
   bool isRecovery = false; // for cases: repair, recover with backup
@@ -76,9 +75,11 @@ class _ScannerScreenState extends State<ScannerScreen> {
   @override
   void initState() {
     super.initState();
+    walletMetadataLoader = Provider.of<WalletMetadataLoader>(context, listen: false);
+
     setState(() {
       isRecovery = widget.backup != null || widget.isRePairing;
-      walletInfo = SupportWallet.fromWalletId(widget.recoveryWalletId);
+      walletInfo = walletMetadataLoader.getWalletMetadata(widget.recoveryWalletId);
     });
 
     analyticManager = Provider.of<AnalyticManager>(context, listen: false);
@@ -238,8 +239,8 @@ class _ScannerScreenState extends State<ScannerScreen> {
         status: PairingDeviceStatus.failed,
         error: WALLET_MISMATCH,
       );
-      SupportWallet oldWallet = SupportWallet.fromWalletId(widget.recoveryWalletId);
-      SupportWallet newWallet = SupportWallet.fromWalletId(qrMessage.walletId);
+      SupportWallet oldWallet = walletMetadataLoader.getWalletMetadata(widget.recoveryWalletId);
+      SupportWallet newWallet = walletMetadataLoader.getWalletMetadata(qrMessage.walletId);
       if (context.mounted) {
         _updatePairingState(ScannerScreenPairingState.failed);
         Navigator.of(context).push(
@@ -593,56 +594,6 @@ class _ScannerScreenState extends State<ScannerScreen> {
               insetPadding: const EdgeInsets.all(defaultSpacing * 1.5),
             ),
         ]),
-      ),
-    );
-  }
-}
-
-class PopoverAddress extends StatelessWidget {
-  const PopoverAddress({super.key, required this.name, required this.icon, required this.address});
-  final String name;
-  final String icon;
-  final String address;
-
-  @override
-  Widget build(BuildContext context) {
-    TextTheme textTheme = Theme.of(context).textTheme;
-    return Container(
-      margin: const EdgeInsets.only(bottom: defaultSpacing * 3),
-      padding: const EdgeInsets.all(defaultSpacing * 1.5),
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: backgroundSecondaryColor2),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          PaddedContainer(
-              child: Image.asset(
-            icon,
-            height: 28,
-          )),
-          const Gap(defaultSpacing),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(children: [
-                Text(
-                  address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
-                  style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const Gap(defaultSpacing),
-                CopyButton(onCopy: () async {
-                  await Clipboard.setData(ClipboardData(text: address));
-                }),
-                const SizedBox(width: 24),
-              ]),
-              Text(
-                name,
-                style: textTheme.displaySmall?.copyWith(fontSize: 12),
-              )
-            ],
-          ),
-        ],
       ),
     );
   }

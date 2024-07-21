@@ -7,8 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:silentshard/screens/components/ShimmerNetworkIcon.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
-import 'package:silentshard/screens/components/padded_container.dart';
+import 'package:silentshard/services/wallet_metadata_loader.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:lottie/lottie.dart';
@@ -36,7 +37,8 @@ class TransactionDetailsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
     var outputFormat = DateFormat('hh:mm a, dd/MM/yyyy ');
-    SupportWallet walletInfo = SupportWallet.fromWalletId(walletId);
+    WalletMetadataLoader walletMetadataLoader = Provider.of<WalletMetadataLoader>(context, listen: false);
+    SupportWallet walletInfo = walletMetadataLoader.getWalletMetadata(walletId);
 
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -61,11 +63,10 @@ class TransactionDetailsWidget extends StatelessWidget {
               padding: const EdgeInsets.all(defaultSpacing * 1.5),
               child: Row(
                 children: [
-                  PaddedContainer(
-                      child: Image.asset(
-                    walletInfo.icon,
+                  ShimmerNetworkIcon(
+                    icon: walletInfo.icon,
                     height: 28,
-                  )),
+                  ),
                   const Gap(defaultSpacing),
                   Consumer<KeysharesProvider>(builder: (context, keysharesProvider, _) {
                     return WalletAddressWidget(
