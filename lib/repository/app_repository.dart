@@ -1,6 +1,7 @@
 // Copyright (c) Silence Laboratories Pte. Ltd.
 // This software is licensed under the Silence Laboratories License Agreement.
 
+import 'dart:async';
 import 'package:async/async.dart';
 import 'package:dart_2_party_ecdsa/dart_2_party_ecdsa.dart';
 import 'package:silentshard/demo/state_decorators/backups_provider.dart';
@@ -75,7 +76,7 @@ class AppRepository extends DemoDecoratorComposite {
   }
 
   CancelableOperation<PairingData> _pair(QRMessage qrMessage, String userId, [WalletBackup? backup]) {
-    return _sdk.startPairing(qrMessage, userId, backup);
+    return _sdk.startPairing(qrMessage, userId, backup).then(_onPairValue);
   }
 
   CancelableOperation<PairingData?> repair(QRMessage qrMessage, String address, String userId) {
@@ -83,15 +84,17 @@ class AppRepository extends DemoDecoratorComposite {
       return CancelableOperation.fromValue((null));
     }
 
-    return _sdk.startRePairing(qrMessage, address, userId).then((pairingResponse) {
-      final remark = pairingResponse.remark;
-      if (remark != null) {
-        if (remark.contains("WRONG_PASSWORD")) {
-          throw StateError('WRONG_PASSWORD');
-        }
+    return _sdk.startRePairing(qrMessage, address, userId).then(_onPairValue);
+  }
+
+  PairingData _onPairValue(PairingData pairingResponse) {
+    final remark = pairingResponse.remark;
+    if (remark != null) {
+      if (remark.contains("WRONG_PASSWORD")) {
+        throw StateError('WRONG_PASSWORD');
       }
-      return pairingResponse;
-    });
+    }
+    return pairingResponse;
   }
 
   CancelableOperation<AppBackup> appBackup(String walletId, String address) {
