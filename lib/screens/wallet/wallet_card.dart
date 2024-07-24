@@ -6,13 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/demo/state_decorators/backups_provider.dart';
+import 'package:silentshard/screens/components/ShimmerNetworkIcon.dart';
 
 import 'package:silentshard/screens/components/copy_button.dart';
+import 'package:silentshard/services/wallet_metadata_loader.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/utils.dart';
 import '../../constants.dart';
-import '../components/padded_container.dart';
 import '../components/backup_status_dashboard.dart';
 import 'wallet_menu.dart';
 
@@ -75,14 +76,11 @@ class WalletInfo extends StatelessWidget {
     }
 
     TextTheme textTheme = Theme.of(context).textTheme;
-    SupportWallet walletInfo = SupportWallet.fromWalletId(widget.walletId);
+    WalletMetadataLoader walletMetadataLoader = Provider.of<WalletMetadataLoader>(context, listen: false);
+    SupportWallet walletInfo = walletMetadataLoader.getWalletMetadata(widget.walletId);
     return Row(
       children: [
-        PaddedContainer(
-            child: Image.asset(
-          walletInfo.icon,
-          height: 28,
-        )),
+        ShimmerNetworkIcon(icon: walletInfo.icon),
         const Gap(defaultSpacing),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,

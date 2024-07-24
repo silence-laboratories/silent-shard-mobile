@@ -9,11 +9,13 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:silentshard/demo/state_decorators/backups_provider.dart';
 import 'package:silentshard/screens/backup_destination/new_backup_found_screen.dart';
+import 'package:silentshard/screens/components/ShimmerNetworkIcon.dart';
 import 'package:silentshard/screens/components/backup_status_banner.dart';
 import 'package:silentshard/screens/components/copy_button.dart';
 import 'package:silentshard/screens/components/not_fetch_backup_modal.dart';
 import 'package:silentshard/screens/components/remind_enter_password_modal.dart';
 import 'package:silentshard/screens/error/unable_to_save_backup_screen.dart';
+import 'package:silentshard/services/wallet_metadata_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/types/support_wallet.dart';
 import '../../constants.dart';
@@ -79,7 +81,8 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final isMetaMaskWallet = widget.walletId == METAMASK_WALLET_ID;
-    SupportWallet walletInfo = SupportWallet.fromWalletId(widget.walletId);
+    WalletMetadataLoader walletMetadataLoader = Provider.of<WalletMetadataLoader>(context, listen: false);
+    SupportWallet walletInfo = walletMetadataLoader.getWalletMetadata(widget.walletId);
 
     return SafeArea(
       child: Scaffold(
@@ -110,11 +113,7 @@ class _BackupDestinationScreenState extends State<BackupDestinationScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      PaddedContainer(
-                          child: Image.asset(
-                        walletInfo.icon,
-                        height: 24,
-                      )),
+                      ShimmerNetworkIcon(icon: walletInfo.icon, height: 24),
                       const Gap(defaultSpacing / 2),
                       Text(
                         widget.address.isNotEmpty ? '${widget.address.substring(0, 5)}...${widget.address.substring(widget.address.length - 5)}' : '',

@@ -138,12 +138,6 @@ Future<void> preloadImage() async {
     const AssetImage('assets/images/metamaskIcon.png'),
   );
   await loadImage(
-    const AssetImage('assets/images/stackup.png'),
-  );
-  await loadImage(
-    const AssetImage('assets/images/biconomy.png'),
-  );
-  await loadImage(
     const AssetImage('assets/images/cloud-upload_light.png'),
   );
   await loadImage(

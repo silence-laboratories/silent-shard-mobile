@@ -4,8 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:silentshard/constants.dart';
+import 'package:silentshard/screens/components/ShimmerNetworkIcon.dart';
 import 'package:silentshard/screens/components/button.dart';
-import 'package:silentshard/screens/components/padded_container.dart';
 import 'package:silentshard/utils.dart';
 
 class MultiWalletMismatchScreen extends StatelessWidget {
@@ -96,11 +96,7 @@ class MultiWalletMismatchScreen extends StatelessWidget {
                                 children: [
                                   Column(
                                     children: [
-                                      PaddedContainer(
-                                          child: Image.asset(
-                                        oldWalletIcon,
-                                        height: 36,
-                                      )),
+                                      ShimmerNetworkIcon(icon: oldWalletIcon, height: 36),
                                       const Gap(defaultSpacing),
                                       Text(
                                         address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
@@ -118,11 +114,7 @@ class MultiWalletMismatchScreen extends StatelessWidget {
                                       )),
                                   Column(
                                     children: [
-                                      PaddedContainer(
-                                          child: Image.asset(
-                                        newWalletIcon,
-                                        height: 36,
-                                      )),
+                                      ShimmerNetworkIcon(icon: newWalletIcon, height: 36),
                                       const Gap(defaultSpacing),
                                       Text(address.isNotEmpty ? '${address.substring(0, 5)}...${address.substring(address.length - 5)}' : '',
                                           style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold).copyWith(

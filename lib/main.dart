@@ -19,6 +19,7 @@ import 'package:silentshard/services/chain_loader.dart';
 import 'package:silentshard/screens/onboarding_screen.dart';
 import 'package:silentshard/services/firebase_remote_config_service.dart';
 import 'package:silentshard/services/snap_service.dart';
+import 'package:silentshard/services/wallet_metadata_loader.dart';
 import 'package:silentshard/third_party/analytics.dart';
 import 'package:silentshard/screens/local_auth_screen.dart';
 import 'package:silentshard/services/app_preferences.dart';
@@ -46,31 +47,39 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
-  await preloadImage();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  final sdk = Dart2PartySDK(FirebaseTransport());
-  await sdk.init();
+  await dotenv.load();
+  final analyticManager = AnalyticManager();
+  final secureStorage = SecureStorage();
+  final walletMetadataLoader = WalletMetadataLoader();
+  final Dart2PartySDK sdk = Dart2PartySDK(FirebaseTransport());
+
+  late SharedPreferences sharedPreferences;
+  late PackageInfo packageInfo;
+
+  await Future.wait([
+    SharedPreferences.getInstance().then((value) => sharedPreferences = value),
+    PackageInfo.fromPlatform().then((value) => packageInfo = value),
+    sdk.init(),
+    analyticManager.init(),
+    FirebaseRemoteConfigService().initialize(),
+    secureStorage.init().catchError((e) {
+      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+    }),
+    walletMetadataLoader.loadWalletMetadata(),
+    preloadImage(),
+  ]);
 
   final authState = AuthState();
   final localAuth = LocalAuth();
-  final analyticManager = AnalyticManager();
-  await analyticManager.init();
   final appRepository = AppRepository(sdk, analyticManager);
   final appPreferences = AppPreferences(sharedPreferences);
   final firebaseMessaging = MessagingService(authState, appRepository);
   firebaseMessaging.start();
-  PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  await FirebaseRemoteConfigService().initialize();
   final appUpdaterService = AppUpdaterService(Version(packageInfo.version));
   final snapService = SnapService(appRepository);
 
   final signInService = SignInService();
-  final secureStorage = SecureStorage();
-  await secureStorage.init().catchError((e) {
-    FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
-  });
   final fileService = FileService();
   final backupService = BackupService(fileService, secureStorage, appPreferences, analyticManager);
   final themeManager = ThemeManager();
@@ -86,7 +95,6 @@ Future<void> main() async {
 
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
 
@@ -98,6 +106,7 @@ Future<void> main() async {
         Provider(create: (_) => secureStorage as SecureStorageService), // ignore: unnecessary_cast
         Provider(create: (_) => analyticManager),
         Provider(create: (_) => chainLoader),
+        Provider(create: (_) => walletMetadataLoader),
         ChangeNotifierProvider(create: (_) => backupService), // ignore: unnecessary_cast
         ChangeNotifierProvider(create: (_) => appPreferences),
         ChangeNotifierProvider(create: (_) => appRepository.pairingDataProvider),
