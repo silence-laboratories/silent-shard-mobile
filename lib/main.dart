@@ -48,6 +48,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Pass all uncaught "fatal" errors from the framework to Crashlytics
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
+  PlatformDispatcher.instance.onError = (error, stack) {
+    return true;
+  };
   await dotenv.load();
   final analyticManager = AnalyticManager();
   final secureStorage = SecureStorage();
@@ -57,18 +63,20 @@ Future<void> main() async {
   late SharedPreferences sharedPreferences;
   late PackageInfo packageInfo;
 
-  await Future.wait([
-    SharedPreferences.getInstance().then((value) => sharedPreferences = value),
-    PackageInfo.fromPlatform().then((value) => packageInfo = value),
-    sdk.init(),
-    analyticManager.init(),
-    FirebaseRemoteConfigService().initialize(),
-    secureStorage.init().catchError((e) {
-      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
-    }),
-    walletMetadataLoader.loadWalletMetadata(),
-    preloadImage(),
-  ]);
+  try {
+    await Future.wait([
+      SharedPreferences.getInstance().then((value) => sharedPreferences = value),
+      PackageInfo.fromPlatform().then((value) => packageInfo = value),
+      sdk.init(),
+      analyticManager.init(),
+      FirebaseRemoteConfigService().initialize(),
+      secureStorage.init(),
+      walletMetadataLoader.loadWalletMetadata(),
+      preloadImage(),
+    ]);
+  } catch (e, stackTrace) {
+    FirebaseCrashlytics.instance.recordError(e, stackTrace);
+  }
 
   final authState = AuthState();
   final localAuth = LocalAuth();
@@ -89,14 +97,6 @@ Future<void> main() async {
   // Initiate the anonymous sign in process
   FirebaseCrashlytics.instance.log("Initiate anonymous login");
   signInService.signInAnonymous();
-
-  // Pass all uncaught "fatal" errors from the framework to Crashlytics
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-
-  // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
-  PlatformDispatcher.instance.onError = (error, stack) {
-    return true;
-  };
 
   runApp(
     MultiProvider(
@@ -122,7 +122,6 @@ Future<void> main() async {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: darkTheme,
-        // themeMode: themeManager.themeMode, TODO
         home: MyApp(analyticManager: analyticManager),
       ),
     ),
