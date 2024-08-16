@@ -15,3 +15,10 @@ The Silent Shard mobile app is an MPC-based Threshold Signer app as a usable, se
 - Navigate to the project directory
 - Install dependencies: `flutter pub get`
 - Run the app: `flutter run`
+
+### Build
+- Build the app:
+    - Android: `./build_android.sh [stg|prod]`
+    - iOS: `./build_ios.sh [stg|prod]`
+
+- Before building the app using the scripts, make sure to update the version in `pubspec.yaml` and copy `GoogleService-Info_<environment>.plist` into `scripts` (iOS only), you could find the file in the [Firebase console](https://console.firebase.google.com/u/0/project/mobile-wallet-mm-snap-staging/settings/general/ios:com.silencelaboratories.silentshard).
