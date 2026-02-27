@@ -15,3 +15,9 @@ The Silent Shard mobile app is an MPC-based Threshold Signer app as a usable, se
 - Navigate to the project directory
 - Install dependencies: `flutter pub get`
 - Run the app: `flutter run`
+
+# Development Updates
+
+This project uses https://github.com/silence-laboratories/silent-shard-flutter-sdk as a dependency.
+
+Please refer to the README.md file in the silent-shard-flutter-sdk repository for more details on the development updates.

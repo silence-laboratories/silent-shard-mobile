@@ -98,6 +98,16 @@ class _ScannerScreenState extends State<ScannerScreen> {
     }
   }
 
+  void _toggleFlash() async {
+    await scannerController.toggleTorch();
+    setState(() {});
+  }
+
+  bool get _isFlashOn {
+    final state = scannerController.value.torchState;
+    return state == TorchState.on;
+  }
+
   void _updatePairingState(ScannerScreenPairingState newState) {
     if (mounted) {
       setState(() {
@@ -483,7 +493,7 @@ class _ScannerScreenState extends State<ScannerScreen> {
                                 return MobileScanner(
                                   controller: scannerController,
                                   onDetect: (object) => _handleDetect(appRepository, authState, object),
-                                  errorBuilder: (p0, p1, p2) {
+                                  errorBuilder: (p0, p1) {
                                     SchedulerBinding.instance.addPostFrameCallback((_) {
                                       _updateScannerState(ScannerState.error);
                                     });
@@ -506,23 +516,19 @@ class _ScannerScreenState extends State<ScannerScreen> {
                     const Gap(defaultSpacing * 3),
                     GestureDetector(
                       onTap: () {
-                        scannerController.toggleTorch();
+                        _toggleFlash();
                       },
                       child: Container(
                         alignment: Alignment.center,
-                        child: ValueListenableBuilder(
-                            valueListenable: scannerController.torchState,
-                            builder: (BuildContext context, value, Widget? child) {
-                              return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                Icon(
-                                  value == TorchState.on ? Icons.flash_on : Icons.flash_off,
-                                  color: primaryColor2,
-                                ),
-                                const Gap(defaultSpacing),
-                                Text((value == TorchState.on) ? "Flash on" : 'Flash off',
-                                    style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
-                              ]);
-                            }),
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(
+                            _isFlashOn ? Icons.flash_on : Icons.flash_off,
+                            color: primaryColor2,
+                          ),
+                          const Gap(defaultSpacing),
+                          Text(_isFlashOn ? "Flash on" : 'Flash off',
+                              style: textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500))
+                        ]),
                       ),
                     )
                   ]),
