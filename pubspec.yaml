@@ -2,7 +2,7 @@ name: silentshard
 description: Demonstrates how to use the dart_2_party_ecdsa plugin.
 publish_to: 'none'
 
-version: 1.2.6+237
+version: 1.2.7+238
 
 environment:
   sdk: ^3.11.0
