@@ -63,7 +63,7 @@ ThemeData darkTheme = ThemeData(
       ),
     ),
     dividerColor: Color(0xFF3A4252),
-    dialogTheme: DialogTheme().copyWith(
+    dialogTheme: DialogThemeData(
       backgroundColor: secondaryColor,
       elevation: 0,
       shape: RoundedRectangleBorder(
