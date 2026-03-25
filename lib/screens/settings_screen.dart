@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
                 onTap: () async {
-                  final url = Uri.parse('https://docs.silencelaboratories.com/duo');
+                  final url = Uri.parse('https://silencelaboratories.com/silent-shard');
                   if (await canLaunchUrl(url)) {
                     await launchUrl(url);
                   }
@@ -268,9 +268,9 @@ class SettingOption extends StatelessWidget {
           ),
           if (hasSwitch)
             Switch(
-              thumbColor: const MaterialStatePropertyAll(textPrimaryColor),
+              thumbColor: const WidgetStatePropertyAll(textPrimaryColor),
               value: isSwitchOn ?? false,
-              activeColor: backgroundPrimaryColor,
+              activeThumbColor: backgroundPrimaryColor,
               onChanged: onChangeSwitch,
             )
         ],
