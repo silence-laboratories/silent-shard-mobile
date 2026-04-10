@@ -2,6 +2,7 @@
 // This software is licensed under the Silence Laboratories License Agreement.
 
 import 'package:credential_manager/credential_manager.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'secure_storage_service.dart';
 
@@ -11,7 +12,11 @@ class AndroidSecureStorage implements SecureStorageService {
   @override
   Future<void> init() {
     if (credentialManager.isSupportedPlatform) {
-      return credentialManager.init(preferImmediatelyAvailableCredentials: false);
+      final googleClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
+      return credentialManager.init(
+        preferImmediatelyAvailableCredentials: false,
+        googleClientId: googleClientId,
+      );
     } else {
       throw Future.error(UnsupportedError("AndroidSecureStorage: CredentialManager is not supported on this platform"));
     }
@@ -20,7 +25,9 @@ class AndroidSecureStorage implements SecureStorageService {
   @override
   Future<SecureStorageEntry?> read(String? key) {
     if (key != null) return Future.error(ArgumentError("AndroidSecureStorage: key must be null"));
-    return credentialManager.getPasswordCredentials().then(_convert);
+    return credentialManager.getCredentials(
+      fetchOptions: FetchOptionsAndroid(passwordCredential: true),
+    ).then(_convert);
   }
 
   @override
@@ -39,8 +46,9 @@ class AndroidSecureStorage implements SecureStorageService {
     return Future.value();
   }
 
-  SecureStorageEntry? _convert(PasswordCredential credential) {
-    if (credential.username == null || credential.password == null) return null;
+  SecureStorageEntry? _convert(Credentials credentials) {
+    final credential = credentials.passwordCredential;
+    if (credential == null || credential.username == null || credential.password == null) return null;
     return SecureStorageEntry(credential.username!, credential.password!);
   }
 }

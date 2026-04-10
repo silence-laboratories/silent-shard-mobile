@@ -19,6 +19,7 @@ class NoBackupFoundScreen extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
 
     return ErrorHandler(
+      onBack: () {},
       errorTitle: 'No backup file found in your ${Platform.isAndroid ? 'Google Password Manager' : 'iCloud Keychain'}',
       bottomWidget: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
