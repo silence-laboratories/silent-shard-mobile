@@ -52,6 +52,7 @@ Future<void> main() async {
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
   PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
   await dotenv.load();
@@ -60,13 +61,13 @@ Future<void> main() async {
   final walletMetadataLoader = WalletMetadataLoader();
   final Dart2PartySDK sdk = Dart2PartySDK(FirebaseTransport());
 
-  late SharedPreferences sharedPreferences;
-  late PackageInfo packageInfo;
+  // Load these before parallel init so a failure in Remote Config / SDK init (e.g. no network)
+  // cannot leave `late` fields uninitialized and crash on first use.
+  final sharedPreferences = await SharedPreferences.getInstance();
+  final packageInfo = await PackageInfo.fromPlatform();
 
   try {
     await Future.wait([
-      SharedPreferences.getInstance().then((value) => sharedPreferences = value),
-      PackageInfo.fromPlatform().then((value) => packageInfo = value),
       sdk.init(),
       analyticManager.init(),
       FirebaseRemoteConfigService().initialize(),
@@ -94,9 +95,18 @@ Future<void> main() async {
   final chainLoader = ChainLoader();
   final walletIdProvider = WalletHighlightProvider();
 
-  // Initiate the anonymous sign in process
+  // Anonymous sign-in at startup; must not be a bare Future or network failures
+  // become uncaught async errors (debugger breaks, looks like a crash).
   FirebaseCrashlytics.instance.log("Initiate anonymous login");
-  signInService.signInAnonymous();
+  unawaited(
+    signInService.signInAnonymous().then(
+      (_) {},
+      onError: (Object e, StackTrace st) {
+        FirebaseCrashlytics.instance.log('Anonymous sign-in failed at startup: $e');
+        FirebaseCrashlytics.instance.recordError(e, st, fatal: false);
+      },
+    ),
+  );
 
   runApp(
     MultiProvider(

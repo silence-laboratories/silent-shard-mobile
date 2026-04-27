@@ -34,9 +34,7 @@ class WrongQRCodeScreen extends StatelessWidget {
         ),
       ),
       buttonTitle: 'Scan again',
-      onBack: () {
-        onTap();
-      },
+      onBack: onTap,
       onPressBottomButton: () {
         Navigator.of(context).pop();
         onTap();

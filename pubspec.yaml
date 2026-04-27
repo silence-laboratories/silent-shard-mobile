@@ -2,7 +2,7 @@ name: silentshard
 description: Demonstrates how to use the dart_2_party_ecdsa plugin.
 publish_to: 'none'
 
-version: 1.2.7+241
+version: 1.2.7+242
 
 environment:
   sdk: ^3.11.0
@@ -24,7 +24,10 @@ dependencies:
   provider: ^6.1.5+1
   shared_preferences: ^2.5.4
   dart_2_party_ecdsa:
-    path: ../silent-shard-flutter-sdk
+    # path: ../silent-shard-flutter-sdk
+    git:
+      url: git@github.com:silence-laboratories/silent-shard-flutter-sdk.git
+      ref: main
   firebase_core: ^4.4.0
   flutter_dotenv: ^6.0.0
   credential_manager: 2.0.8
