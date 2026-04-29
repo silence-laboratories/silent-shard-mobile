@@ -42,14 +42,24 @@ class _PairState extends State<PairScreen> {
   Future<void> checkAuth() async {
     try {
       FirebaseCrashlytics.instance.log("Initiated anonymous login");
-      SignInService signInService = Provider.of<SignInService>(context, listen: false);
+      SignInService signInService = Provider.of<SignInService>(
+        context,
+        listen: false,
+      );
       final userAuth = await signInService.signInAnonymous();
-      analyticManager.trackSignIn(userId: userAuth.user?.uid ?? '', status: SignInStatus.success);
+      analyticManager.trackSignIn(
+        userId: userAuth.user?.uid ?? '',
+        status: SignInStatus.success,
+      );
       analyticManager.identifyUserProfile(userAuth.user?.uid ?? '');
       FirebaseCrashlytics.instance.setUserIdentifier(userAuth.user?.uid ?? '');
     } catch (e) {
       FirebaseCrashlytics.instance.log('Sign in failed $e');
-      analyticManager.trackSignIn(userId: '', status: SignInStatus.failed, error: e.toString());
+      analyticManager.trackSignIn(
+        userId: '',
+        status: SignInStatus.failed,
+        error: e.toString(),
+      );
       if (e.toString().contains('firebase_auth/network-request-failed')) {
         // ignore: use_build_context_synchronously
         _showNoInternetError(context);
@@ -103,13 +113,19 @@ class _PairState extends State<PairScreen> {
 
   void _handleBackupFetch(BackupSource source, [String? key]) async {
     try {
+      print("Fetching backup, source: $source");
       FirebaseCrashlytics.instance.log('Fetching backup, soure: $source');
       setState(() => _pairingState = PairingState.fetchingBackup);
+      print("Fetching backup0");
       final backupService = Provider.of<BackupService>(context, listen: false);
+      print("Fetching backup1");
       final appBackup = await backupService.fetchBackup(source, key);
+      print("Fetching backup2 ${appBackup}");
       if (appBackup != null) {
+        print("Backup fetched successfully");
         FirebaseCrashlytics.instance.log('Backup fetched');
         String walletId = appBackup.walletId;
+        print("Recover");
         _recoverFromBackup(appBackup, source, walletId);
       } else {
         FirebaseCrashlytics.instance.log('No backup found');
@@ -123,7 +139,9 @@ class _PairState extends State<PairScreen> {
   }
 
   void _showError(Object error, BackupSource source) {
-    FirebaseCrashlytics.instance.log('Error recovering from credentionals: $error, ${parseCredentialExceptionMessage(error)}');
+    FirebaseCrashlytics.instance.log(
+      'Error recovering from credentionals: $error, ${parseCredentialExceptionMessage(error)}',
+    );
 
     if (error is CredentialException && error.code == 201) {
       // User cancelled, ignore
@@ -162,36 +180,61 @@ class _PairState extends State<PairScreen> {
 
     if (source == BackupSource.secureStorage) {
       analyticManager.trackRecoverBackupSystem(
-          wallet: WALLET_ID_NOT_FOUND, address: ADDRESS_NOT_FOUND, success: false, source: PageSource.get_started, error: "No backup found.");
+        wallet: WALLET_ID_NOT_FOUND,
+        address: ADDRESS_NOT_FOUND,
+        success: false,
+        source: PageSource.get_started,
+        error: "No backup found.",
+      );
     } else {
       analyticManager.trackRecoverFromFile(
-          wallet: WALLET_ID_NOT_FOUND, address: ADDRESS_NOT_FOUND, success: false, source: PageSource.get_started, error: "No backup found.");
+        wallet: WALLET_ID_NOT_FOUND,
+        address: ADDRESS_NOT_FOUND,
+        success: false,
+        source: PageSource.get_started,
+        error: "No backup found.",
+      );
     }
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => NoBackupFoundScreen(onPressBottomButton: () {
-          Navigator.pop(context);
-          _handleBackupFetch(source);
-        }),
+        builder: (context) => NoBackupFoundScreen(
+          onPressBottomButton: () {
+            Navigator.pop(context);
+            _handleBackupFetch(source);
+          },
+        ),
       ),
     );
   }
 
-  void _recoverFromBackup(AppBackup backup, BackupSource source, String walletId) {
+  void _recoverFromBackup(
+    AppBackup backup,
+    BackupSource source,
+    String walletId,
+  ) {
+    print("Navigating to scanner screen with backup, walletId: $walletId");
     if (isWalletsNotEmpty) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
+          builder: (context) => ScannerScreen(
+            backup: backup,
+            source: source,
+            recoveryWalletId: walletId,
+          ),
         ),
       );
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ScannerScreen(backup: backup, source: source, recoveryWalletId: walletId),
+          builder: (context) => ScannerScreen(
+            backup: backup,
+            source: source,
+            recoveryWalletId: walletId,
+          ),
         ),
       );
     }
@@ -203,16 +246,12 @@ class _PairState extends State<PairScreen> {
     if (isWalletsNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const ScannerScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const ScannerScreen()),
       );
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => const ScannerScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const ScannerScreen()),
       );
     }
   }
@@ -233,7 +272,10 @@ class _PairState extends State<PairScreen> {
   }
 
   void _showBackupPicker() async {
-    final secureStorage = Provider.of<SecureStorageService>(context, listen: false);
+    final secureStorage = Provider.of<SecureStorageService>(
+      context,
+      listen: false,
+    );
     final list = await secureStorage.readAll();
     if (!mounted) return;
 
@@ -243,7 +285,10 @@ class _PairState extends State<PairScreen> {
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
       context: context,
       builder: (context) => BackupPicker(
@@ -263,7 +308,10 @@ class _PairState extends State<PairScreen> {
       barrierColor: Colors.white.withOpacity(0.15),
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
       ),
       context: context,
       builder: builder,
@@ -275,18 +323,20 @@ class _PairState extends State<PairScreen> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return SafeArea(
       child: Scaffold(
-          appBar: AppBar(
-              backgroundColor: Colors.black,
-              leading: isWalletsNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  : null),
+        appBar: AppBar(
           backgroundColor: Colors.black,
-          body: Consumer<AuthState>(builder: (context, authState, _) {
+          leading: isWalletsNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              : null,
+        ),
+        backgroundColor: Colors.black,
+        body: Consumer<AuthState>(
+          builder: (context, authState, _) {
             return Stack(
               children: [
                 AbsorbPointer(
@@ -295,46 +345,55 @@ class _PairState extends State<PairScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(defaultSpacing * 1.5),
                       margin: const EdgeInsets.only(top: defaultSpacing * 0.5),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(
-                          "Let's get started",
-                          style: textTheme.displayLarge,
-                        ),
-                        const Gap(defaultSpacing * 3),
-                        PairOption(
-                          type: OptionType.primary,
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          title: 'Connect your account',
-                          subtitle: 'Scan QR and Connect your browser to create new account.',
-                          infoText: "For new users",
-                          onPress: _goToScannerScreen,
-                        ),
-                        const Gap(defaultSpacing * 3),
-                        PairOption(
-                          type: OptionType.secondary,
-                          icon: const Icon(Icons.replay, color: Colors.white),
-                          title: 'Restore existing account',
-                          subtitle: 'Choose backup file to recover your existing wallet.',
-                          infoText: "For existing users",
-                          onPress: _showBackupSourcePicker,
-                        ),
-                      ]),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Let's get started",
+                            style: textTheme.displayLarge,
+                          ),
+                          const Gap(defaultSpacing * 3),
+                          PairOption(
+                            type: OptionType.primary,
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            title: 'Connect your account',
+                            subtitle:
+                                'Scan QR and Connect your browser to create new account.',
+                            infoText: "For new users",
+                            onPress: _goToScannerScreen,
+                          ),
+                          const Gap(defaultSpacing * 3),
+                          PairOption(
+                            type: OptionType.secondary,
+                            icon: const Icon(Icons.replay, color: Colors.white),
+                            title: 'Restore existing account',
+                            subtitle:
+                                'Choose backup file to recover your existing wallet.',
+                            infoText: "For existing users",
+                            onPress: _showBackupSourcePicker,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 const UpdaterDialog(showSnapUpdate: false),
                 if (_pairingState == PairingState.fetchingBackup) ...[
                   const AlertDialog(
-                    content: Wrap(children: [Loader(text: 'Fetching backup...')]),
-                  )
+                    content: Wrap(
+                      children: [Loader(text: 'Fetching backup...')],
+                    ),
+                  ),
                 ],
                 if (authState.user == null)
                   const AlertDialog(
                     content: Wrap(children: [Loader(text: 'Getting ready...')]),
-                  )
+                  ),
               ],
             );
-          })),
+          },
+        ),
+      ),
     );
   }
 }
@@ -371,42 +430,67 @@ class PairOption extends StatelessWidget {
           bottom: defaultSpacing * 2,
           right: defaultSpacing * 1.5,
         ),
-        backgroundColor: type == OptionType.primary ? backgroundPrimaryColor.withOpacity(0.30) : const Color(0xFF1A1A1A),
+        backgroundColor: type == OptionType.primary
+            ? backgroundPrimaryColor.withOpacity(0.30)
+            : const Color(0xFF1A1A1A),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PaddedContainer(
-            color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor2,
+            color: type == OptionType.primary
+                ? backgroundPrimaryColor2
+                : backgroundSecondaryColor2,
             child: icon,
           ),
           const Gap(defaultSpacing * 1.5),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(title, style: textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500)),
-              const Gap(defaultSpacing * 1.5),
-              Text(subtitle, style: textTheme.displaySmall),
-              const Gap(defaultSpacing * 1.5),
-              Container(
-                padding: const EdgeInsets.all(defaultSpacing),
-                decoration: BoxDecoration(
-                    border: Border.all(color: type == OptionType.primary ? backgroundPrimaryColor2 : backgroundSecondaryColor3, width: 1),
-                    borderRadius: BorderRadius.circular(50)),
-                child: Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.center, children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: textPrimaryColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: textTheme.displayMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
                   ),
-                  const Gap(defaultSpacing),
-                  Text(
-                    infoText,
-                    style: const TextStyle(fontSize: 12, color: textPrimaryColor),
-                  )
-                ]),
-              )
-            ]),
-          )
+                ),
+                const Gap(defaultSpacing * 1.5),
+                Text(subtitle, style: textTheme.displaySmall),
+                const Gap(defaultSpacing * 1.5),
+                Container(
+                  padding: const EdgeInsets.all(defaultSpacing),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: type == OptionType.primary
+                          ? backgroundPrimaryColor2
+                          : backgroundSecondaryColor3,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: textPrimaryColor,
+                      ),
+                      const Gap(defaultSpacing),
+                      Text(
+                        infoText,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: textPrimaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
