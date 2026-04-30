@@ -12,11 +12,7 @@ class AndroidSecureStorage implements SecureStorageService {
   @override
   Future<void> init() {
     if (credentialManager.isSupportedPlatform) {
-      final googleClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-      return credentialManager.init(
-        preferImmediatelyAvailableCredentials: false,
-        googleClientId: googleClientId,
-      );
+      return credentialManager.init(preferImmediatelyAvailableCredentials: false);
     } else {
       throw Future.error(UnsupportedError("AndroidSecureStorage: CredentialManager is not supported on this platform"));
     }
@@ -25,9 +21,7 @@ class AndroidSecureStorage implements SecureStorageService {
   @override
   Future<SecureStorageEntry?> read(String? key) {
     if (key != null) return Future.error(ArgumentError("AndroidSecureStorage: key must be null"));
-    return credentialManager.getCredentials(
-      fetchOptions: FetchOptionsAndroid(passwordCredential: true),
-    ).then(_convert);
+    return credentialManager.getCredentials(fetchOptions: FetchOptionsAndroid(passwordCredential: true)).then(_convert);
   }
 
   @override
