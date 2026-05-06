@@ -140,13 +140,15 @@ class _PairState extends State<PairScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ErrorHandler(
+          onBack: () {},
           errorSubtitle: Text(
             textAlign: TextAlign.center,
             'The backup file might be wrong or else corrupted.',
             style: textTheme.bodyMedium,
           ),
           onPressBottomButton: () {
-            _handleBackupSource(source);
+            Navigator.of(context).pop();
+            _handleBackupFetch(source);
           },
         ),
       ),

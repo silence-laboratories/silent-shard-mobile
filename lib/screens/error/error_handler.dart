@@ -31,8 +31,12 @@ class ErrorHandler extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     return PopScope(
       canPop: onBack != null,
-      onPopInvoked: (didPop) {
-        if (onBack != null && didPop) onBack!();
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop && onBack != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            onBack!();
+          });
+        }
       },
       child: SafeArea(
         child: Scaffold(

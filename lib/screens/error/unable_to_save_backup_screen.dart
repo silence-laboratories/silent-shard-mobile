@@ -41,6 +41,9 @@ class UnableToSaveBackupScreen extends StatelessWidget {
           const Gap(10 * defaultSpacing)
         ],
       ),
+      // Allow Android back button to dismiss this screen.
+      // Use a no-op callback so we don't double-pop on onPopInvoked.
+      onBack: () {},
       onPressBottomButton: onPressBottomButton,
     );
   }

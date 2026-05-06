@@ -17,6 +17,7 @@ class WrongTimezoneScreen extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
 
     return ErrorHandler(
+      onBack: () {},
       errorTitle: 'Oops! It looks like your Date & Time settings need a quick adjustment',
       errorSubtitle: Expanded(
         child: SingleChildScrollView(
